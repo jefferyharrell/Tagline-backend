@@ -52,7 +52,6 @@ coverage.xml
 .black/
 
 # Pre-commit, lint, and test artifacts
-.pre-commit-config.yaml
 .pre-commit/
 
 # Environments
