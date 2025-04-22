@@ -1,0 +1,42 @@
+[project]
+name = "tagline-backend"
+version = "0.1.0"
+description = "Tagline backend API (FastAPI)"
+authors = [
+  { name = "Jeffery Harrell" },
+]
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+markers = [
+    "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')"
+]
+addopts = "-m 'not e2e'"
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+
+[tool.isort]
+profile = "black"
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

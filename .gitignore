@@ -59,6 +59,7 @@ coverage.xml
 .env.*
 .envrc
 *.env
+!.env.example
 *.envrc
 
 # VS Code
