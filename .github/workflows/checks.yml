@@ -1,4 +1,4 @@
-name: Run Checks
+name: Code Checks
 
 on:
   push:
@@ -45,5 +45,11 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
-      - name: Run Static Pre-Commit Hooks
-        run: pre-commit run --all-files
+      - name: Run Black
+        run: black .
+
+      - name: Run Ruff
+        run: ruff check .
+
+      - name: Run Pyright
+        run: pyright .
