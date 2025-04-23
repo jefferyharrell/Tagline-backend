@@ -18,7 +18,8 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Define database schema/models:
         - [x] Photo metadata (ID, filename, description, timestamps, etc.)
         - [x] Refresh tokens (for revocation/token store)
-    - [ ] Set up database session dependency injection for FastAPI routes
+    - [x] Set up database session dependency injection for FastAPI routes
+        - [x] Implemented `get_db` dependency in `app/db/session.py`. Ready for use in all future FastAPI routes.
     - [ ] Implement migrations (e.g., Alembic)
         - [ ] Create initial migration scripts
         - [ ] Document migration workflow
