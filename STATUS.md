@@ -51,10 +51,18 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] E2E test: revoked token cannot be used
     - [ ] Implement password-based authentication
         - [x] Add `BACKEND_PASSWORD` to environment/config
-        - [ ] Create Pydantic model for login request/response
-        - [ ] Implement `/login` endpoint to verify password and issue tokens
-        - [ ] Unit test: correct and incorrect password
-        - [ ] E2E test: login flow
+        - [ ] Define `LoginRequest` and `LoginResponse` Pydantic models
+        - [ ] Create `auth_service.py` with functions for:
+            - [ ] Verifying password
+            - [ ] Issuing access and refresh tokens (with expiry)
+            - [ ] Validating tokens
+            - [ ] Revoking refresh tokens
+        - [ ] Implement `/login` endpoint (routes/auth.py)
+            - [ ] Use service to verify password and issue tokens
+            - [ ] Return correct responses and errors
+        - [ ] Unit test: service logic (password, token issuance, validation, revocation)
+        - [ ] Unit test: `/login` endpoint (correct/incorrect password)
+        - [ ] E2E test: login flow (happy/sad paths)
     - [ ] Implement JWT access and refresh tokens
         - [ ] Generate short-lived access tokens (JWT)
         - [ ] Generate long-lived refresh tokens (JWT)
@@ -74,7 +82,6 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [ ] Document authentication flow and error responses
 - [ ] Implement core API endpoints
     - [ ] POST /login — Authenticate, get tokens
-        - [ ] Define `LoginRequest` and `LoginResponse` models
         - [ ] Add validation for login payload (password required, type)
         - [ ] Unit test: valid/invalid login payloads
         - [ ] E2E test: endpoint behavior
