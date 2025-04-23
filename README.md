@@ -19,7 +19,8 @@ You can copy `.env.example` to `.env` and edit as needed.
 1.  Ensure you have Python 3.12+ installed.
 2.  Create a virtual environment: `python -m venv venv`
 3.  Activate the environment: `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
-4.  Install dependencies: `pip install -r requirements.txt`
+4.  See [docs/database_setup.md](docs/database_setup.md) for full instructions on configuring and running the database.
+5.  Install dependencies: `pip install -r requirements.txt`
 
 ## Running the Development Server
 

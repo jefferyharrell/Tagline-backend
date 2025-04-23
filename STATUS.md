@@ -26,9 +26,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Write CRUD utility functions/repositories for:
         - [x] Photo metadata
         - [x] Refresh tokens
-    - [ ] Add unit tests for database models and CRUD operations
-    - [ ] Add integration/E2E tests for DB-backed endpoints
-    - [ ] Document database setup, connection string usage, and defaults
+    - [x] Document database setup, connection string usage, and defaults
 - [ ] Add file storage for photos
     - [ ] Define a storage provider interface/abstract base class (e.g., `PhotoStorageProvider`)
         - [ ] Specify required methods: list, retrieve, maybe etc.
