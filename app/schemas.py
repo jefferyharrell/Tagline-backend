@@ -1,0 +1,28 @@
+"""
+schemas.py
+
+Pydantic models for authentication endpoints (login, tokens).
+"""
+
+from pydantic import BaseModel, Field
+
+
+class LoginRequest(BaseModel):
+    """Request payload for /login endpoint."""
+
+    password: str = Field(..., description="The backend password.")
+
+
+class LoginResponse(BaseModel):
+    """Response payload for /login endpoint."""
+
+    access_token: str = Field(..., description="JWT access token.")
+    refresh_token: str = Field(..., description="JWT refresh token.")
+    token_type: str = Field("bearer", description="Token type (usually 'bearer').")
+    expires_in: int = Field(..., description="Access token expiration time in seconds.")
+    refresh_expires_in: int = Field(
+        ..., description="Refresh token expiration time in seconds."
+    )
+
+
+# Optionally, we could define error response models here as well if desired.

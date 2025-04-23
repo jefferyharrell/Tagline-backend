@@ -81,6 +81,15 @@ class Settings(BaseSettings):
         description="Secret key for signing JWT tokens. Set via JWT_SECRET_KEY env var. Must be long, random, and kept secret in production.",
     )
 
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = Field(
+        default=900,
+        description="Access token expiration time in seconds. Defaults to 900 (15 minutes). Override with ACCESS_TOKEN_EXPIRE_SECONDS env var.",
+    )
+    REFRESH_TOKEN_EXPIRE_SECONDS: int = Field(
+        default=604800,
+        description="Refresh token expiration time in seconds. Defaults to 604800 (7 days). Override with REFRESH_TOKEN_EXPIRE_SECONDS env var.",
+    )
+
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""
         # If we're in a test environment, set test defaults for auth fields

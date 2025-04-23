@@ -42,33 +42,33 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Add unit tests for provider interface and local implementation
     - [x] Document provider interface, config, and extension points
 - [ ] Add authentication and authorization
-    - [ ] Design and implement refresh token store for revocation
+    - [x] Design and implement refresh token store for revocation
         - [x] Choose storage backend (in-memory, file, or database)
-        - [ ] Store issued refresh tokens with status/expiration
-        - [ ] Check token validity on each refresh
-        - [ ] Implement revocation (blacklist/delete)
-        - [ ] Unit test: token issuance, validation, revocation
+        - [x] Store issued refresh tokens with status/expiration
+        - [x] Check token validity on each refresh
+        - [x] Implement revocation (blacklist/delete)
+        - [x] Unit test: token issuance, validation, revocation
         - [ ] E2E test: revoked token cannot be used
     - [ ] Implement password-based authentication
         - [x] Add `BACKEND_PASSWORD` to environment/config
-        - [ ] Define `LoginRequest` and `LoginResponse` Pydantic models
-        - [ ] Create `auth_service.py` with functions for:
-            - [ ] Verifying password
-            - [ ] Issuing access and refresh tokens (with expiry)
-            - [ ] Validating tokens
-            - [ ] Revoking refresh tokens
+        - [x] Define `LoginRequest` and `LoginResponse` Pydantic models
+        - [x] Create `auth_service.py` with functions for:
+            - [x] Verifying password
+            - [x] Issuing access and refresh tokens (with expiry)
+            - [x] Validating tokens
+            - [x] Revoking refresh tokens
         - [ ] Implement `/login` endpoint (routes/auth.py)
             - [ ] Use service to verify password and issue tokens
             - [ ] Return correct responses and errors
-        - [ ] Unit test: service logic (password, token issuance, validation, revocation)
+        - [x] Unit test: service logic (password, token issuance, validation, revocation)
         - [ ] Unit test: `/login` endpoint (correct/incorrect password)
         - [ ] E2E test: login flow (happy/sad paths)
-    - [ ] Implement JWT access and refresh tokens
-        - [ ] Generate short-lived access tokens (JWT)
-        - [ ] Generate long-lived refresh tokens (JWT)
-        - [ ] Store JWT secret in env/config
-        - [ ] Add token expiration and refresh logic
-        - [ ] Unit test: token creation/validation/expiration
+    - [x] Implement JWT access and refresh tokens
+        - [x] Generate short-lived access tokens (JWT)
+        - [x] Generate long-lived refresh tokens (JWT)
+        - [x] Store JWT secret in env/config
+        - [x] Add token expiration and refresh logic
+        - [x] Unit test: token creation/validation/expiration
         - [ ] E2E test: token usage and refresh
     - [ ] Protect endpoints with authentication
         - [ ] Require access token for all protected endpoints
@@ -121,7 +121,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 - [ ] Production readiness checklist
 
 ## Last Updated
-2025-04-22
+2025-04-23
 
 ---
 

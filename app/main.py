@@ -7,6 +7,11 @@ from .storage.filesystem import FilesystemPhotoStorageProvider
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    # Fail fast if JWT_SECRET_KEY is not set (except in test)
+    if not settings.JWT_SECRET_KEY and settings.APP_ENV.lower() != "test":
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be set in environment/config for security!"
+        )
     app = FastAPI(title=APP_NAME, version="0.1.0")
     # Storage provider selection logic
     if settings.STORAGE_PROVIDER.lower() in ("filesystem", "", None):
