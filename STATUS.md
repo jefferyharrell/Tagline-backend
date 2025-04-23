@@ -16,8 +16,8 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Configure SQLAlchemy engine/session accordingly
         - [x] Handle SQLite-specific options (e.g., check_same_thread)
     - [ ] Define database schema/models:
+        - [x] Photo metadata (ID, filename, description, timestamps, etc.)
         - [ ] User/authentication data
-        - [ ] Photo metadata (ID, filename, description, timestamps, etc.)
         - [ ] Refresh tokens (for revocation/token store)
     - [ ] Set up database session dependency injection for FastAPI routes
     - [ ] Implement migrations (e.g., Alembic)
