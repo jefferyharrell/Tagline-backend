@@ -6,6 +6,76 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 
 - [x] Set up CI for automated testing
 - [x] Scaffold minimal FastAPI application
+- [ ] Integrate persistent storage (database)
+    - [ ] Choose database library/ORM (e.g., SQLAlchemy)
+    - [ ] Add environment variable for DB connection string (`DATABASE_URL`)
+        - [ ] If not set, default to SQLite file (e.g., `sqlite:///./tagline.db`)
+        - [ ] Document this in README and .env.example
+    - [ ] Implement database connection logic in FastAPI app
+        - [ ] Read connection string from env/config
+        - [ ] Configure SQLAlchemy engine/session accordingly
+        - [ ] Handle SQLite-specific options (e.g., check_same_thread)
+    - [ ] Define database schema/models:
+        - [ ] User/authentication data
+        - [ ] Photo metadata (ID, filename, description, timestamps, etc.)
+        - [ ] Refresh tokens (for revocation/token store)
+    - [ ] Set up database session dependency injection for FastAPI routes
+    - [ ] Implement migrations (e.g., Alembic)
+        - [ ] Create initial migration scripts
+        - [ ] Document migration workflow
+    - [ ] Write CRUD utility functions/repositories for:
+        - [ ] User/auth data
+        - [ ] Photo metadata
+        - [ ] Refresh tokens
+    - [ ] Add unit tests for database models and CRUD operations
+    - [ ] Add integration/E2E tests for DB-backed endpoints
+    - [ ] Document database setup, connection string usage, and defaults
+- [ ] Add file storage for photos
+    - [ ] Define a storage provider interface/abstract base class (e.g., `PhotoStorageProvider`)
+        - [ ] Specify required methods: list, retrieve, maybe etc.
+    - [ ] Implement local filesystem provider (MVP)
+        - [ ] Store photos in a configurable directory (env var, e.g., `PHOTO_STORAGE_PATH`)
+    - [ ] Implement provider selection logic
+        - [ ] Add environment variable to select storage provider (e.g., `PHOTO_STORAGE_BACKEND=local`)
+        - [ ] Load/configure provider at app startup based on env/config
+        - [ ] Document this in README and .env.example
+    - [ ] (Optional) Stub out cloud provider (e.g., Dropbox/S3/MinIO) for future use
+        - [ ] Add config/env vars for remote provider
+        - [ ] Implement provider skeleton (can raise NotImplementedError for now)
+    - [ ] Add unit tests for provider interface and local implementation
+    - [ ] Add integration/E2E tests for file-related endpoints
+    - [ ] Document provider interface, config, and extension points
+- [ ] Add authentication and authorization
+    - [ ] Design and implement refresh token store for revocation
+        - [ ] Choose storage backend (in-memory, file, or database)
+        - [ ] Store issued refresh tokens with status/expiration
+        - [ ] Check token validity on each refresh
+        - [ ] Implement revocation (blacklist/delete)
+        - [ ] Unit test: token issuance, validation, revocation
+        - [ ] E2E test: revoked token cannot be used
+    - [ ] Implement password-based authentication
+        - [ ] Add `BACKEND_PASSWORD` to environment/config
+        - [ ] Create Pydantic model for login request/response
+        - [ ] Implement `/login` endpoint to verify password and issue tokens
+        - [ ] Unit test: correct and incorrect password
+        - [ ] E2E test: login flow
+    - [ ] Implement JWT access and refresh tokens
+        - [ ] Generate short-lived access tokens (JWT)
+        - [ ] Generate long-lived refresh tokens (JWT)
+        - [ ] Store JWT secret in env/config
+        - [ ] Add token expiration and refresh logic
+        - [ ] Unit test: token creation/validation/expiration
+        - [ ] E2E test: token usage and refresh
+    - [ ] Protect endpoints with authentication
+        - [ ] Require access token for all protected endpoints
+        - [ ] Implement token validation in FastAPI dependencies
+        - [ ] Return 401/403 for missing/invalid tokens
+        - [ ] Unit test: unauthorized access
+        - [ ] E2E test: endpoint protection
+    - [ ] Implement logout/invalidate refresh tokens (optional for MVP)
+        - [ ] Add refresh token blacklist or revocation mechanism (if needed)
+        - [ ] Unit/E2E test: revoked token cannot be used
+    - [ ] Document authentication flow and error responses
 - [ ] Implement core API endpoints
     - [ ] POST /login — Authenticate, get tokens
         - [ ] Define `LoginRequest` and `LoginResponse` models
@@ -42,39 +112,6 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] Validate triggering conditions
         - [ ] Unit test: endpoint behavior
         - [ ] E2E test: endpoint behavior
-- [ ] Add authentication and authorization
-    - [ ] Design and implement refresh token store for revocation
-        - [ ] Choose storage backend (in-memory, file, or database)
-        - [ ] Store issued refresh tokens with status/expiration
-        - [ ] Check token validity on each refresh
-        - [ ] Implement revocation (blacklist/delete)
-        - [ ] Unit test: token issuance, validation, revocation
-        - [ ] E2E test: revoked token cannot be used
-    - [ ] Implement password-based authentication
-        - [ ] Add `BACKEND_PASSWORD` to environment/config
-        - [ ] Create Pydantic model for login request/response
-        - [ ] Implement `/login` endpoint to verify password and issue tokens
-        - [ ] Unit test: correct and incorrect password
-        - [ ] E2E test: login flow
-    - [ ] Implement JWT access and refresh tokens
-        - [ ] Generate short-lived access tokens (JWT)
-        - [ ] Generate long-lived refresh tokens (JWT)
-        - [ ] Store JWT secret in env/config
-        - [ ] Add token expiration and refresh logic
-        - [ ] Unit test: token creation/validation/expiration
-        - [ ] E2E test: token usage and refresh
-    - [ ] Protect endpoints with authentication
-        - [ ] Require access token for all protected endpoints
-        - [ ] Implement token validation in FastAPI dependencies
-        - [ ] Return 401/403 for missing/invalid tokens
-        - [ ] Unit test: unauthorized access
-        - [ ] E2E test: endpoint protection
-- [ ] Implement logout/invalidate refresh tokens (optional for MVP)
-    - [ ] Add refresh token blacklist or revocation mechanism (if needed)
-    - [ ] Unit/E2E test: revoked token cannot be used
-- [ ] Document authentication flow and error responses
-- [ ] Add file storage for photos
-- [ ] Integrate persistent storage (database)
 - [ ] Add API documentation and OpenAPI schema customizations
 - [ ] Improve error handling and logging
 - [ ] Performance and security review
