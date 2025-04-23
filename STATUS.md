@@ -11,13 +11,12 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Add environment variable for DB connection string (`DATABASE_URL`)
         - [x] If not set, default to SQLite file (e.g., `sqlite:///./tagline.db`)
         - [x] Document this in README and .env.example
-    - [ ] Implement database connection logic in FastAPI app
+    - [x] Implement database connection logic in FastAPI app
         - [x] Read connection string from env/config
         - [x] Configure SQLAlchemy engine/session accordingly
         - [x] Handle SQLite-specific options (e.g., check_same_thread)
     - [ ] Define database schema/models:
         - [x] Photo metadata (ID, filename, description, timestamps, etc.)
-        - [ ] User/authentication data
         - [ ] Refresh tokens (for revocation/token store)
     - [ ] Set up database session dependency injection for FastAPI routes
     - [ ] Implement migrations (e.g., Alembic)
