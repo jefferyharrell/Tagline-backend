@@ -9,24 +9,22 @@ default:
 # Formatting and linting
 format:
     # Auto-format code with black, isort, and fix trailing whitespace
-    black .
-    isort .
-    ruff check --fix .
+    source venv/bin/activate && black .
+    source venv/bin/activate && isort .
+    source venv/bin/activate && ruff check --fix .
 
 lint:
-    pyright
+    source venv/bin/activate && pyright
 
 # Testing
-pytest:
+test:
     # Run all Python tests
-    pytest
-
-test: pytest
+    source venv/bin/activate && pytest
 
 # Pre-Commit
 pre-commit:
     # Run the pre-commit hoook
-    pre-commit run --all-files
+    source venv/bin/activate && pre-commit run --all-files
 
 # Docker Compose
 up:
