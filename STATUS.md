@@ -23,10 +23,9 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Implement migrations (e.g., Alembic)
         - [x] Create initial migration scripts
         - [x] Document migration workflow
-    - [ ] Write CRUD utility functions/repositories for:
-        - [ ] User/auth data
-        - [ ] Photo metadata
-        - [ ] Refresh tokens
+    - [x] Write CRUD utility functions/repositories for:
+        - [x] Photo metadata
+        - [x] Refresh tokens
     - [ ] Add unit tests for database models and CRUD operations
     - [ ] Add integration/E2E tests for DB-backed endpoints
     - [ ] Document database setup, connection string usage, and defaults
