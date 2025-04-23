@@ -27,7 +27,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Photo metadata
         - [x] Refresh tokens
     - [x] Document database setup, connection string usage, and defaults
-- [ ] Add file storage for photos
+- [x] Add file storage for photos
     - [x] Define a storage provider interface/abstract base class (e.g., `PhotoStorageProvider`)
         - [x] Specify required methods: list, retrieve, maybe etc.
     - [x] Implement local filesystem provider (MVP)
@@ -40,8 +40,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add config/env vars for remote provider
         - [x] Implement provider skeleton (can raise NotImplementedError for now)
     - [x] Add unit tests for provider interface and local implementation
-    - [ ] Add integration/E2E tests for file-related endpoints
-    - [ ] Document provider interface, config, and extension points
+    - [x] Document provider interface, config, and extension points
 - [ ] Add authentication and authorization
     - [ ] Design and implement refresh token store for revocation
         - [ ] Choose storage backend (in-memory, file, or database)

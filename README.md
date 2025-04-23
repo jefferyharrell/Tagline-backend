@@ -27,6 +27,27 @@ FILESYSTEM_PHOTO_STORAGE_PATH=/absolute/path/to/photo/storage
 
 You can copy `.env.example` to `.env` and edit as needed.
 
+---
+
+## Extending Photo Storage Providers (For Developers)
+
+To add a new storage backend:
+
+1. **Implement the interface:**
+   - Subclass `PhotoStorageProvider` (see `app/storage/provider.py`).
+   - Implement all required methods: `list`, `retrieve`, and optionally `upload`, `delete`, `get_url`.
+2. **Add provider settings:**
+   - Create a Pydantic settings class for your provider in `app/config.py`.
+   - Add any required environment variables to `.env.example` and document them in the README.
+3. **Register the provider in `main.py`:**
+   - Update the provider selection logic in `create_app()` to instantiate your provider when `STORAGE_PROVIDER` matches your backend.
+4. **Test your provider:**
+   - Add unit and (eventually) integration tests in `tests/unit/` or `tests/integration/` as appropriate.
+
+See the existing `FilesystemPhotoStorageProvider` and `DropboxPhotoStorageProvider` for examples.
+
+---
+
 1.  Ensure you have Python 3.12+ installed.
 2.  Create a virtual environment: `python -m venv venv`
 3.  Activate the environment: `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
