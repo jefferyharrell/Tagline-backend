@@ -43,7 +43,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Document provider interface, config, and extension points
 - [ ] Add authentication and authorization
     - [ ] Design and implement refresh token store for revocation
-        - [ ] Choose storage backend (in-memory, file, or database)
+        - [x] Choose storage backend (in-memory, file, or database)
         - [ ] Store issued refresh tokens with status/expiration
         - [ ] Check token validity on each refresh
         - [ ] Implement revocation (blacklist/delete)

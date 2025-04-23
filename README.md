@@ -18,12 +18,18 @@ The backend is configured using environment variables, which can be set in a `.e
 - `FILESYSTEM_PHOTO_STORAGE_PATH`: (Required if using the filesystem provider) Absolute path to the directory where photos will be stored.
 - `DROPBOX_ACCESS_TOKEN`: Access token for Dropbox API (**not yet implemented**).
 - `DROPBOX_ROOT_PATH`: Root path in Dropbox (**not yet implemented**).
+- `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
+- `JWT_SECRET_KEY`: Secret key for signing JWT tokens (required; must be long, random, and kept secret!).
 
-**Example .env snippet:**
+**Example values:**
 ```env
+BACKEND_PASSWORD=your-backend-password-here
+JWT_SECRET_KEY=superlongrandomstringforjwt
 STORAGE_PROVIDER=filesystem
 FILESYSTEM_PHOTO_STORAGE_PATH=/absolute/path/to/photo/storage
 ```
+
+> **Security Note:** Never check real secrets into version control. Generate a strong, random JWT_SECRET_KEY for production (see README for tips).
 
 You can copy `.env.example` to `.env` and edit as needed.
 
