@@ -2,7 +2,19 @@
 
 This directory contains the FastAPI backend for the Tagline photo management application.
 
+> **Note:** Architectural decisions (like config, libraries, etc.) are documented in [docs/adr/](docs/adr/).
+
 ## Setup
+
+### Environment Variables
+
+The backend is configured using environment variables, which can be set in a `.env` file at the project root (see `.env.example`).
+
+- `DATABASE_URL`: Database connection string. If not set, defaults to `sqlite:///./tagline.db` (a local SQLite file in the backend directory).
+    - Example for SQLite (default): `sqlite:///./tagline.db`
+    - Example for Postgres: `postgresql+psycopg2://user:password@localhost:5432/tagline`
+
+You can copy `.env.example` to `.env` and edit as needed.
 
 1.  Ensure you have Python 3.12+ installed.
 2.  Create a virtual environment: `python -m venv venv`

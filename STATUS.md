@@ -7,10 +7,10 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 - [x] Set up CI for automated testing
 - [x] Scaffold minimal FastAPI application
 - [ ] Integrate persistent storage (database)
-    - [ ] Choose database library/ORM (e.g., SQLAlchemy)
-    - [ ] Add environment variable for DB connection string (`DATABASE_URL`)
-        - [ ] If not set, default to SQLite file (e.g., `sqlite:///./tagline.db`)
-        - [ ] Document this in README and .env.example
+    - [x] Choose database library/ORM (e.g., SQLAlchemy)
+    - [x] Add environment variable for DB connection string (`DATABASE_URL`)
+        - [x] If not set, default to SQLite file (e.g., `sqlite:///./tagline.db`)
+        - [x] Document this in README and .env.example
     - [ ] Implement database connection logic in FastAPI app
         - [ ] Read connection string from env/config
         - [ ] Configure SQLAlchemy engine/session accordingly
