@@ -27,9 +27,10 @@ repos:
       - id: pyright
         name: pyright
         entry: pyright
-        language: system
+        language: python
         types: [python]
         pass_filenames: true
+        additional_dependencies: [pyright]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -44,6 +45,7 @@ repos:
       - id: pytest
         name: pytest
         entry: pytest
-        language: system
+        language: python
         pass_filenames: false
         types: [python]
+        additional_dependencies: [pytest]
