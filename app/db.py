@@ -9,30 +9,38 @@ Uses SQLAlchemy and configuration from app.config.
 - Easily extensible for other backends (Postgres, MySQL, etc.).
 """
 
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session, sessionmaker
-
-from app.config import settings
-
 # Create the SQLAlchemy engine.
 # For SQLite, 'check_same_thread=False' is required to allow connections to be shared across threads.
 # This is necessary because FastAPI (and Uvicorn) may handle requests in multiple threads.
 # For all other databases, this option is ignored.
-engine: Engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args=(
-        {"check_same_thread": False}
-        if settings.DATABASE_URL.startswith("sqlite")
-        else {}
-    ),
-    future=True,
-)
+from functools import lru_cache
 
-# SessionLocal is the factory for database sessions.
-# Always use SessionLocal() to get a session for a request.
-SessionLocal: sessionmaker[Session] = sessionmaker(
-    bind=engine, autoflush=False, autocommit=False, class_=Session
-)
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
 
-__all__ = ["engine", "SessionLocal"]
+from app.config import get_settings
+
+
+@lru_cache(maxsize=1)
+def get_engine() -> Engine:
+    settings = get_settings()
+    return create_engine(
+        settings.DATABASE_URL,
+        connect_args=(
+            {"check_same_thread": False}
+            if settings.DATABASE_URL.startswith("sqlite")
+            else {}
+        ),
+        future=True,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_session_local() -> sessionmaker[Session]:
+    return sessionmaker(
+        bind=get_engine(), autoflush=False, autocommit=False, class_=Session
+    )
+
+
+__all__ = ["get_engine", "get_session_local"]

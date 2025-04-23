@@ -6,16 +6,15 @@
 default:
     just help
 
-# Linting and formatting
-lint:
-    # Run all pre-commit hooks (black, ruff, isort, pyright, etc.)
-    pre-commit run --all-files
-
+# Formatting and linting
 format:
     # Auto-format code with black, isort, and fix trailing whitespace
     black .
     isort .
     ruff check --fix .
+
+lint:
+    pyright
 
 # Testing
 pytest:

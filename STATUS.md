@@ -6,7 +6,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 
 - [x] Set up CI for automated testing
 - [x] Scaffold minimal FastAPI application
-- [ ] Integrate persistent storage (database)
+- [x] Integrate persistent storage (database)
     - [x] Choose database library/ORM (e.g., SQLAlchemy)
     - [x] Add environment variable for DB connection string (`DATABASE_URL`)
         - [x] If not set, default to SQLite file (e.g., `sqlite:///./tagline.db`)
@@ -31,11 +31,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Define a storage provider interface/abstract base class (e.g., `PhotoStorageProvider`)
         - [x] Specify required methods: list, retrieve, maybe etc.
     - [x] Implement local filesystem provider (MVP)
-        - [ ] Store photos in a configurable directory (env var, e.g., `PHOTO_STORAGE_PATH`)
-    - [ ] Implement provider selection logic
-        - [ ] Add environment variable to select storage provider (e.g., `PHOTO_STORAGE_BACKEND=local`)
-        - [ ] Load/configure provider at app startup based on env/config
-        - [ ] Document this in README and .env.example
+        - [x] Store photos in a configurable directory (env var, e.g., `FILESYSTEM_PHOTO_STORAGE_PATH`)
+    - [x] Implement provider selection logic
+        - [x] Add environment variable to select storage provider (e.g., `STORAGE_PROVIDER=filesystem`)
+        - [x] Load/configure provider at app startup based on env/config
+        - [x] Document this in README and .env.example
     - [ ] (Optional) Stub out cloud provider (e.g., Dropbox/S3/MinIO) for future use
         - [ ] Add config/env vars for remote provider
         - [ ] Implement provider skeleton (can raise NotImplementedError for now)

@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import create_engine, pool
 
 from alembic import context
-from app.config import settings
+from app.config import get_settings
 from app.models import Base
 
 # this is the Alembic Config object, which provides
@@ -32,6 +32,7 @@ def run_migrations_offline() -> None:
     Run migrations in 'offline' mode using the DATABASE_URL from app config.
     This configures the context with just a URL (no Engine), so DBAPI is not required.
     """
+    settings = get_settings()
     url = settings.DATABASE_URL
     context.configure(
         url=url,
@@ -48,6 +49,7 @@ def run_migrations_online() -> None:
     Run migrations in 'online' mode using the DATABASE_URL from app config.
     This creates an Engine and associates a connection with the context.
     """
+    settings = get_settings()
     connectable = create_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(

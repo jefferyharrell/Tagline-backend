@@ -17,8 +17,6 @@ from typing import Generator
 
 from sqlalchemy.orm import Session
 
-from app.db import SessionLocal
-
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -26,7 +24,9 @@ def get_db() -> Generator[Session, None, None]:
     Yields:
         Session: SQLAlchemy session object.
     """
-    db = SessionLocal()
+    from app.db import get_session_local
+
+    db = get_session_local()()
     try:
         yield db
     finally:

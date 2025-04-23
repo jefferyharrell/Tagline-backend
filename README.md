@@ -14,6 +14,15 @@ The backend is configured using environment variables, which can be set in a `.e
     - Example for SQLite (default): `sqlite:///./tagline.db`
     - Example for Postgres: `postgresql+psycopg2://user:password@localhost:5432/tagline`
 
+- `STORAGE_PROVIDER`: Selects the storage backend. Default is `filesystem`.
+- `FILESYSTEM_PHOTO_STORAGE_PATH`: (Required if using the filesystem provider) Absolute path to the directory where photos will be stored.
+
+**Example .env snippet:**
+```env
+STORAGE_PROVIDER=filesystem
+FILESYSTEM_PHOTO_STORAGE_PATH=/absolute/path/to/photo/storage
+```
+
 You can copy `.env.example` to `.env` and edit as needed.
 
 1.  Ensure you have Python 3.12+ installed.
