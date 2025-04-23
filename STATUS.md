@@ -50,7 +50,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] Unit test: token issuance, validation, revocation
         - [ ] E2E test: revoked token cannot be used
     - [ ] Implement password-based authentication
-        - [ ] Add `BACKEND_PASSWORD` to environment/config
+        - [x] Add `BACKEND_PASSWORD` to environment/config
         - [ ] Create Pydantic model for login request/response
         - [ ] Implement `/login` endpoint to verify password and issue tokens
         - [ ] Unit test: correct and incorrect password
