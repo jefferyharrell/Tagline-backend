@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from .constants import APP_NAME
 from .routes import root
 

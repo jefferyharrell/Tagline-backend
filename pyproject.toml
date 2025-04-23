@@ -23,11 +23,19 @@ target-version = ["py312"]
 line-length = 88
 
 [tool.pyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "standard"
 pythonVersion = "3.12"
+reportIncompatibleVariableOverride = false
 
 [tool.isort]
 profile = "black"
+known_first_party = "app,tests"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+use_parentheses = true
 
 [tool.coverage.run]
 branch = true

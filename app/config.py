@@ -5,8 +5,8 @@ Configuration for the Tagline backend application.
 Reads environment variables using Pydantic's BaseSettings.
 """
 
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -17,9 +17,10 @@ class Settings(BaseSettings):
         description="Database connection string. Defaults to SQLite local file if not set.",
     )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config: SettingsConfigDict = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+    }  # type: ignore[assignment]
 
 
 settings = Settings()

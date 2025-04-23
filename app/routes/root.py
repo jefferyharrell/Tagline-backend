@@ -2,9 +2,11 @@
 Root API routes for Tagline backend.
 """
 
-from fastapi import APIRouter
 import os
-from ..constants import APP_NAME, API_VERSION
+
+from fastapi import APIRouter
+
+from ..constants import API_VERSION, APP_NAME
 
 router = APIRouter()
 

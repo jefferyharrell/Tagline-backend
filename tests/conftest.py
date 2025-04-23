@@ -5,19 +5,30 @@ Shared pytest fixtures and configuration for Tagline backend tests.
 - Manages APP_ENV environment variable for test isolation.
 """
 
-import sys
 import os
-import pytest
-from fastapi.testclient import TestClient
+import sys
 
-# Ensure Tagline-backend is on sys.path for all tests
+# Ensure Tagline-backend is on sys.path FIRST
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.main import app
+import importlib
 
+import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from app import config, db
+from app.main import app
 from app.models import Base
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_test_session_db():
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+    # Reload config and db AFTER setting the env var
+    importlib.reload(config)
+    importlib.reload(db)
 
 
 # NOTE FOR FUTURE DEVELOPERS (AND AI CODING ASSISTANTS):
@@ -33,7 +44,7 @@ from app.models import Base
 
 
 @pytest.fixture(scope="function")
-def in_memory_db():
+def db_session():
     """Creates a new in-memory SQLite DB and returns a session.
     See comment above for shared-in-memory-DB advice.
     """
@@ -42,12 +53,6 @@ def in_memory_db():
     Session = sessionmaker(bind=engine)
     with Session() as session:
         yield session
-
-
-@pytest.fixture(scope="session")
-def client():
-    """Reusable FastAPI TestClient for the app."""
-    return TestClient(app)
 
 
 @pytest.fixture(autouse=True)
@@ -59,3 +64,9 @@ def reset_app_env():
         os.environ["APP_ENV"] = original
     else:
         os.environ.pop("APP_ENV", None)
+
+
+@pytest.fixture(scope="session")
+def client():
+    """Reusable FastAPI TestClient for the app."""
+    return TestClient(app)

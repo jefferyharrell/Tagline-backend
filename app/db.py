@@ -10,8 +10,9 @@ Uses SQLAlchemy and configuration from app.config.
 """
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, sessionmaker
+
 from app.config import settings
 
 # Create the SQLAlchemy engine.

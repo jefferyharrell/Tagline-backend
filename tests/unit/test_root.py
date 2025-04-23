@@ -5,9 +5,10 @@ Covers both production and development modes.
 
 import importlib
 from typing import Any
+
+import httpx
 import pytest
 from fastapi.testclient import TestClient
-import httpx
 
 
 def test_root_production(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:

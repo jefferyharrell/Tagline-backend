@@ -7,8 +7,9 @@ E2E test for the Tagline backend root endpoint.
 """
 
 import time
-import requests
+
 import pytest
+import requests
 from requests_mock import Mocker as RequestsMocker
 
 PORT = 8000
