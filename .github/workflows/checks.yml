@@ -46,4 +46,4 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run Static Pre-Commit Hooks
-        run: pre-commit run --all-files --exclude pytest
+        run: pre-commit run --all-files
