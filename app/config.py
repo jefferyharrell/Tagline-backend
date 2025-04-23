@@ -7,7 +7,7 @@ Reads environment variables using Pydantic's BaseSettings.
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, cast
+from typing import Any, Callable, Optional, cast
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,6 +22,23 @@ class FilesystemProviderSettings(BaseSettings):
         ...,
         alias="FILESYSTEM_PHOTO_STORAGE_PATH",
         description="Root directory for storing photos. Reads from FILESYSTEM_PHOTO_STORAGE_PATH env var.",
+    )
+
+
+class DropboxProviderSettings(BaseSettings):
+    """
+    Settings for Dropbox photo storage provider (NOT IMPLEMENTED).
+    """
+
+    access_token: str = Field(
+        default="",
+        alias="DROPBOX_ACCESS_TOKEN",
+        description="Access token for Dropbox API (not yet implemented)",
+    )
+    root_path: str = Field(
+        default="/",
+        alias="DROPBOX_ROOT_PATH",
+        description="Root path in Dropbox (not yet implemented)",
     )
 
 
@@ -41,6 +58,7 @@ class Settings(BaseSettings):
             Callable[[], FilesystemProviderSettings], FilesystemProviderSettings
         )
     )
+    dropbox_photo_storage: Optional[DropboxProviderSettings] = None
 
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""

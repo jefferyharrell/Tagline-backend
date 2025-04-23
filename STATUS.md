@@ -36,9 +36,9 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add environment variable to select storage provider (e.g., `STORAGE_PROVIDER=filesystem`)
         - [x] Load/configure provider at app startup based on env/config
         - [x] Document this in README and .env.example
-    - [ ] (Optional) Stub out cloud provider (e.g., Dropbox/S3/MinIO) for future use
-        - [ ] Add config/env vars for remote provider
-        - [ ] Implement provider skeleton (can raise NotImplementedError for now)
+    - [x] (Optional) Stub out cloud provider (e.g., Dropbox/S3/MinIO) for future use
+        - [x] Add config/env vars for remote provider
+        - [x] Implement provider skeleton (can raise NotImplementedError for now)
     - [x] Add unit tests for provider interface and local implementation
     - [ ] Add integration/E2E tests for file-related endpoints
     - [ ] Document provider interface, config, and extension points

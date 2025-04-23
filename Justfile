@@ -23,6 +23,11 @@ pytest:
 
 test: pytest
 
+# Pre-Commit
+pre-commit:
+    # Run the pre-commit hoook
+    pre-commit run --all-files
+
 # Docker Compose
 up:
     # Start all containers in the background
