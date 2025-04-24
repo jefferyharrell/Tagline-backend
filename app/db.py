@@ -43,4 +43,14 @@ def get_session_local() -> sessionmaker[Session]:
     )
 
 
-__all__ = ["get_engine", "get_session_local"]
+def get_db():
+    """Yield a SQLAlchemy Session, ensuring proper cleanup for FastAPI dependency injection."""
+    session_local = get_session_local()
+    db = session_local()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+__all__ = ["get_engine", "get_session_local", "get_db"]

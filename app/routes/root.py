@@ -7,8 +7,11 @@ import os
 from fastapi import APIRouter
 
 from ..constants import API_VERSION, APP_NAME
+from .auth import router as auth_router
 
 router = APIRouter()
+
+router.include_router(auth_router)
 
 APP_ENV = os.environ.get("APP_ENV", "production").lower()
 

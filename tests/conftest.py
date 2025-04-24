@@ -21,6 +21,21 @@ from app.db import get_engine, get_session_local
 from app.models import Base
 
 
+@pytest.fixture(scope="session", autouse=True)
+def set_global_filesystem_photo_storage_path(tmp_path_factory):
+    """
+    Ensure FILESYSTEM_PHOTO_STORAGE_PATH is set for all tests unless already set.
+    """
+    import os
+
+    if not os.environ.get("FILESYSTEM_PHOTO_STORAGE_PATH"):
+        photo_storage_dir = tmp_path_factory.mktemp("photos_global")
+        os.environ["FILESYSTEM_PHOTO_STORAGE_PATH"] = str(photo_storage_dir)
+        config.get_settings.cache_clear()
+    yield
+    config.get_settings.cache_clear()
+
+
 @pytest.fixture()
 def set_filesystem_photo_storage_path(tmp_path, monkeypatch):
     """Ensure FILESYSTEM_PHOTO_STORAGE_PATH is set for every test and config cache is cleared."""
@@ -98,19 +113,29 @@ def reset_app_env():
 @pytest.fixture(scope="session")
 def client(tmp_path_factory):
     """Reusable FastAPI TestClient for the app."""
+    import os
+    import uuid
+
+    # Set up a unique shared in-memory SQLite DB URI
+    unique_name = f"test_{uuid.uuid4().hex}"
+    db_url = f"sqlite:///file:{unique_name}?mode=memory&cache=shared&uri=true"
+    os.environ["DATABASE_URL"] = db_url
     # Set up a unique temp directory for the filesystem provider
     photo_storage_dir = tmp_path_factory.mktemp("photos")
-    import os
-
     os.environ["FILESYSTEM_PHOTO_STORAGE_PATH"] = str(photo_storage_dir)
-    # If you want to ensure fresh config, clear the settings cache
+    # Clear config cache AFTER setting env vars
     from app.config import get_settings
 
     get_settings.cache_clear()
+    # Now import DB/models and create tables
+    from app.db import get_engine
+    from app.models import Base
 
-    from fastapi.testclient import TestClient  # <-- moved import inside fixture
+    engine = get_engine()
+    Base.metadata.create_all(engine)
+    from fastapi.testclient import TestClient
 
-    from app.main import create_app  # <-- moved import inside fixture
+    from app.main import create_app
 
     app = create_app()
     return TestClient(app)

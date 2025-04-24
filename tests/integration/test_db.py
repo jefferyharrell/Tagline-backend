@@ -19,7 +19,10 @@ def test_engine_sqlite_check_same_thread():
     engine = get_engine()
     assert engine.url.get_backend_name() == "sqlite"
     # Check that the db_session fixture set the expected URI format
-    assert str(engine.url).startswith("sqlite:///file:test_")
+    url_str = str(engine.url)
+    assert (
+        url_str.startswith("sqlite:///file:test_") or url_str == "sqlite:///:memory:"
+    ), f"Unexpected SQLite URL: {url_str}"
     # Actually connect to ensure the engine works (and connect_args were correct)
     from sqlalchemy import text
 

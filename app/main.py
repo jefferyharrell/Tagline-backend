@@ -39,3 +39,6 @@ def create_app() -> FastAPI:
     # Register the APIRouter instance from the module
     app.include_router(_root_module.router)
     return app
+
+
+# Instantiate the app using the factory function

@@ -76,8 +76,8 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [ ] Document authentication flow and error responses
 - [ ] Implement core API endpoints
     - [ ] POST /login — Authenticate, get tokens
-        - [ ] Add validation for login payload (password required, type)
-        - [ ] Unit test: valid/invalid login payloads
+        - [x] Add validation for login payload (password required, type)
+        - [x] Unit test: valid/invalid login payloads
         - [ ] E2E test: endpoint behavior
     - [ ] POST /refresh — Get new access token
         - [ ] Define `RefreshRequest` and `RefreshResponse` models
