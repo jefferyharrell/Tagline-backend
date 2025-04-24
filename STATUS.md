@@ -79,11 +79,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add validation for login payload (password required, type)
         - [x] Unit test: valid/invalid login payloads
         - [x] E2E test: endpoint behavior
-    - [ ] POST /refresh — Get new access token
-        - [ ] Define `RefreshRequest` and `RefreshResponse` models
-        - [ ] Add validation for refresh payload (refresh_token required, type)
-        - [ ] Unit test: valid/invalid refresh payloads
-        - [ ] E2E test: endpoint behavior
+    - [x] POST /refresh — Get new access token
+        - [x] Define `RefreshRequest` and `RefreshResponse` models
+        - [x] Add validation for refresh payload (refresh_token required, type)
+        - [x] Unit test: valid/invalid refresh payloads
+        - [x] E2E test: endpoint behavior
     - [ ] GET /photos — List photo IDs (paginated)
         - [ ] Define `PhotoListResponse` model
         - [ ] Add validation for query params (limit, offset)

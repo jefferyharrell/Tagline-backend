@@ -25,9 +25,26 @@ class AuthService:
         """Check if the provided password matches the backend password."""
         return secrets.compare_digest(password, self.settings.BACKEND_PASSWORD or "")
 
+    def refresh_tokens(self, refresh_token: str) -> Tuple[str, str, int, int]:
+        """
+        Exchange a valid refresh token for new access and refresh tokens.
+        Revokes the used refresh token.
+        Returns (access_token, refresh_token, access_expiry, refresh_expiry)
+        Raises Exception if token is invalid, expired, or revoked.
+        """
+        # 1. Validate the refresh token
+        claims = self.validate_token(refresh_token, token_type="refresh")
+        if not claims:
+            raise Exception("Invalid or expired refresh token")
+        # 2. Revoke the used refresh token
+        self.revoke_refresh_token(refresh_token)
+        # 3. Issue new tokens
+        return self.issue_tokens()
+
     def issue_tokens(self) -> Tuple[str, str, int, int]:
         """
         Issue a new access and refresh token pair.
+        Ensures the refresh token is unique in the DB.
         Returns (access_token, refresh_token, access_expiry, refresh_expiry)
         """
         now = datetime.now(UTC)
@@ -39,20 +56,30 @@ class AuthService:
             {
                 "exp": int(access_exp.timestamp()),
                 "type": "access",
+                "jti": secrets.token_hex(8),  # Add random JTI for uniqueness
             },
             str(self.settings.JWT_SECRET_KEY),
             algorithm="HS256",
         )
-        refresh_token = jwt.encode(
-            {
-                "exp": int(refresh_exp.timestamp()),
-                "type": "refresh",
-            },
-            str(self.settings.JWT_SECRET_KEY),
-            algorithm="HS256",
-        )
-        # Store refresh token in DB (hashed)
-        token_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
+        # Guarantee a unique refresh token
+        for _ in range(5):  # Try a few times before giving up
+            refresh_token = jwt.encode(
+                {
+                    "exp": int(refresh_exp.timestamp()),
+                    "type": "refresh",
+                    "jti": secrets.token_hex(8),  # Add random JTI for uniqueness
+                },
+                str(self.settings.JWT_SECRET_KEY),
+                algorithm="HS256",
+            )
+            token_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
+            exists = self.db.query(RefreshToken).filter_by(token=token_hash).first()
+            if not exists:
+                break
+        else:
+            raise RuntimeError(
+                "Could not generate a unique refresh token after several attempts."
+            )
         db_token = RefreshToken(
             token=token_hash,
             issued_at=now,

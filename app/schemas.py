@@ -25,4 +25,24 @@ class LoginResponse(BaseModel):
     )
 
 
+class RefreshRequest(BaseModel):
+    """Request payload for /refresh endpoint."""
+
+    refresh_token: str = Field(
+        ..., description="The refresh token to exchange for a new access token."
+    )
+
+
+class RefreshResponse(BaseModel):
+    """Response payload for /refresh endpoint."""
+
+    access_token: str = Field(..., description="New JWT access token.")
+    refresh_token: str = Field(..., description="New JWT refresh token.")
+    token_type: str = Field("bearer", description="Token type (usually 'bearer').")
+    expires_in: int = Field(..., description="Access token expiration time in seconds.")
+    refresh_expires_in: int = Field(
+        ..., description="Refresh token expiration time in seconds."
+    )
+
+
 # Optionally, we could define error response models here as well if desired.

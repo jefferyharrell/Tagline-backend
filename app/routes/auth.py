@@ -11,9 +11,46 @@ from sqlalchemy.orm import Session
 from ..auth_service import AuthService
 from ..config import get_settings
 from ..db import get_db
-from ..schemas import LoginRequest, LoginResponse
+from ..schemas import LoginRequest, LoginResponse, RefreshRequest, RefreshResponse
 
 router = APIRouter()
+
+
+@router.post("/refresh", response_model=RefreshResponse, status_code=200)
+def refresh(
+    payload: RefreshRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Exchange a refresh token for new access and refresh tokens.
+
+    Args:
+        payload (RefreshRequest): The refresh request payload.
+        db (Session): SQLAlchemy DB session (injected).
+    Returns:
+        RefreshResponse: New tokens if refresh succeeds.
+    Raises:
+        HTTPException: 401 if refresh token is invalid/expired/revoked.
+    """
+    settings = get_settings()
+    auth_service = AuthService(settings, db)
+    try:
+        access_token, refresh_token, expires_in, refresh_expires_in = (
+            auth_service.refresh_tokens(payload.refresh_token)
+        )
+    except Exception as exc:
+        # You may want to catch a more specific exception in real code
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+        ) from exc
+    return RefreshResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        expires_in=expires_in,
+        refresh_expires_in=refresh_expires_in,
+    )
 
 
 @router.post("/login", response_model=LoginResponse, status_code=200)
