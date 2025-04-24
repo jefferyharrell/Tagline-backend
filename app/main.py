@@ -3,7 +3,9 @@ from fastapi import FastAPI
 from .config import get_settings
 from .constants import APP_NAME
 from .redis_token_store import RedisTokenStore
-from .storage.filesystem import FilesystemPhotoStorageProvider
+from .storage.filesystem import (
+    StorageProviderMisconfigured,
+)
 
 
 def create_app() -> FastAPI:
@@ -18,11 +20,27 @@ def create_app() -> FastAPI:
             "REDIS_URL must be set in environment/config for token storage!"
         )
     app = FastAPI(title=APP_NAME, version="0.1.0")
-    # Storage provider selection logic
+
+    # Register global exception handler for StorageProviderMisconfigured
+    from fastapi import Request
+    from fastapi.responses import JSONResponse
+
+    @app.exception_handler(StorageProviderMisconfigured)
+    async def storage_provider_misconfigured_handler(
+        request: Request, exc: StorageProviderMisconfigured
+    ):
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": "StorageProviderMisconfigured",
+                "detail": str(exc),
+            },
+        )
+
+    # Store provider config (not the instance) for lazy instantiation
     if settings.STORAGE_PROVIDER.lower() in ("filesystem", "", None):
-        app.state.photo_storage_provider = FilesystemPhotoStorageProvider(
-            settings.filesystem_storage.path
-        )  # Accepts Optional[Path], will raise StorageProviderMisconfigured if misconfigured.
+        app.state.photo_storage_provider_kind = "filesystem"
+        app.state.filesystem_storage_path = settings.filesystem_storage.path
     elif settings.STORAGE_PROVIDER.lower() == "dropbox":
         raise NotImplementedError(
             "DropboxPhotoStorageProvider is not implemented yet. "
@@ -32,6 +50,21 @@ def create_app() -> FastAPI:
         raise NotImplementedError(
             f"Storage provider '{settings.STORAGE_PROVIDER}' is not supported yet."
         )
+
+    # Helper for lazy provider instantiation
+    def get_photo_storage_provider(app_instance):
+        if (
+            getattr(app_instance.state, "photo_storage_provider_kind", None)
+            == "filesystem"
+        ):
+            from .storage.filesystem import FilesystemPhotoStorageProvider
+
+            return FilesystemPhotoStorageProvider(
+                app_instance.state.filesystem_storage_path
+            )
+        raise NotImplementedError("Only filesystem provider is supported.")
+
+    app.state.get_photo_storage_provider = get_photo_storage_provider
     # Wire up RedisTokenStore
     app.state.token_store = RedisTokenStore(
         settings.REDIS_URL or "redis://localhost:6379/0"
