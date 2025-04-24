@@ -21,8 +21,8 @@ class FilesystemProviderSettings(BaseSettings):
 
     path: Path = Field(
         ...,
-        alias="FILESYSTEM_PHOTO_STORAGE_PATH",
-        description="Root directory for storing photos. Reads from FILESYSTEM_PHOTO_STORAGE_PATH env var.",
+        alias="FILESYSTEM_STORAGE_PATH",
+        description="Root directory for storing photos. Reads from FILESYSTEM_STORAGE_PATH env var.",
     )
 
 

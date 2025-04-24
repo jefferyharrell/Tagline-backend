@@ -23,7 +23,7 @@ def test_root_production(monkeypatch: pytest.MonkeyPatch) -> None:
     config.get_settings.cache_clear()
     # Ensure filesystem path is set for Settings
     tmpdir = tempfile.mkdtemp()
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", tmpdir)
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tmpdir)
     config.get_settings.cache_clear()
 
     from fastapi.testclient import TestClient
@@ -49,7 +49,7 @@ def test_root_explicit_production(
     config.get_settings.cache_clear()
     # Ensure filesystem path is set for Settings
     tmpdir = tempfile.mkdtemp()
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", tmpdir)
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tmpdir)
     config.get_settings.cache_clear()
 
     from fastapi.testclient import TestClient
@@ -72,7 +72,7 @@ def test_root_development(monkeypatch: pytest.MonkeyPatch) -> None:
     config.get_settings.cache_clear()
     # Ensure filesystem path is set for Settings
     tmpdir = tempfile.mkdtemp()
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", tmpdir)
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tmpdir)
     config.get_settings.cache_clear()
 
     from fastapi.testclient import TestClient
@@ -102,7 +102,7 @@ def test_root_env_case_insensitive(
     config.get_settings.cache_clear()
     # Ensure filesystem path is set for Settings
     tmpdir = tempfile.mkdtemp()
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", tmpdir)
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tmpdir)
     config.get_settings.cache_clear()
 
     from fastapi.testclient import TestClient

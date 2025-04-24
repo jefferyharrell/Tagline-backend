@@ -24,13 +24,13 @@ from app.models import Base
 @pytest.fixture(scope="session", autouse=True)
 def set_global_filesystem_photo_storage_path(tmp_path_factory):
     """
-    Ensure FILESYSTEM_PHOTO_STORAGE_PATH is set for all tests unless already set.
+    Ensure FILESYSTEM_STORAGE_PATH is set for all tests unless already set.
     """
     import os
 
-    if not os.environ.get("FILESYSTEM_PHOTO_STORAGE_PATH"):
+    if not os.environ.get("FILESYSTEM_STORAGE_PATH"):
         photo_storage_dir = tmp_path_factory.mktemp("photos_global")
-        os.environ["FILESYSTEM_PHOTO_STORAGE_PATH"] = str(photo_storage_dir)
+        os.environ["FILESYSTEM_STORAGE_PATH"] = str(photo_storage_dir)
         config.get_settings.cache_clear()
     yield
     config.get_settings.cache_clear()
@@ -38,10 +38,10 @@ def set_global_filesystem_photo_storage_path(tmp_path_factory):
 
 @pytest.fixture()
 def set_filesystem_photo_storage_path(tmp_path, monkeypatch):
-    """Ensure FILESYSTEM_PHOTO_STORAGE_PATH is set for every test and config cache is cleared."""
+    """Ensure FILESYSTEM_STORAGE_PATH is set for every test and config cache is cleared."""
     temp_photo_dir = tmp_path / "photos"
     temp_photo_dir.mkdir(exist_ok=True)
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", str(temp_photo_dir))
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", str(temp_photo_dir))
     config.get_settings.cache_clear()
     yield
     config.get_settings.cache_clear()
@@ -49,12 +49,12 @@ def set_filesystem_photo_storage_path(tmp_path, monkeypatch):
 
 @pytest.fixture()
 def ensure_filesystem_path_set(tmp_path, monkeypatch):
-    """Fixture to ensure FILESYSTEM_PHOTO_STORAGE_PATH is set for settings validation.
+    """Fixture to ensure FILESYSTEM_STORAGE_PATH is set for settings validation.
     Does NOT interact with the database session.
     """
     temp_photo_dir = tmp_path / "photos_config_test"
     temp_photo_dir.mkdir(exist_ok=True)
-    monkeypatch.setenv("FILESYSTEM_PHOTO_STORAGE_PATH", str(temp_photo_dir))
+    monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", str(temp_photo_dir))
     config.get_settings.cache_clear()
     yield
     # Clean up env var potentially? Or rely on monkeypatch auto-cleanup.
@@ -122,7 +122,7 @@ def client(tmp_path_factory):
     os.environ["DATABASE_URL"] = db_url
     # Set up a unique temp directory for the filesystem provider
     photo_storage_dir = tmp_path_factory.mktemp("photos")
-    os.environ["FILESYSTEM_PHOTO_STORAGE_PATH"] = str(photo_storage_dir)
+    os.environ["FILESYSTEM_STORAGE_PATH"] = str(photo_storage_dir)
     # Clear config cache AFTER setting env vars
     from app.config import get_settings
 
