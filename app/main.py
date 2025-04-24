@@ -42,3 +42,4 @@ def create_app() -> FastAPI:
 
 
 # Instantiate the app using the factory function
+app = create_app()

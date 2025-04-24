@@ -10,7 +10,6 @@ import time
 
 import pytest
 import requests
-from requests_mock import Mocker as RequestsMocker
 
 PORT = 8000
 
@@ -30,7 +29,7 @@ def wait_for_backend():
 
 
 @pytest.mark.e2e
-def test_root_e2e(requests_mock: RequestsMocker) -> None:
+def test_root_e2e() -> None:
     """E2E: The root endpoint should return the production response."""
     resp = requests.get(f"http://localhost:{PORT}/")
     assert resp.status_code == 200

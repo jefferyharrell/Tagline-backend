@@ -75,10 +75,10 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] Unit/E2E test: revoked token cannot be used
     - [ ] Document authentication flow and error responses
 - [ ] Implement core API endpoints
-    - [ ] POST /login — Authenticate, get tokens
+    - [x] POST /login — Authenticate, get tokens
         - [x] Add validation for login payload (password required, type)
         - [x] Unit test: valid/invalid login payloads
-        - [ ] E2E test: endpoint behavior
+        - [x] E2E test: endpoint behavior
     - [ ] POST /refresh — Get new access token
         - [ ] Define `RefreshRequest` and `RefreshResponse` models
         - [ ] Add validation for refresh payload (refresh_token required, type)
@@ -115,7 +115,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 - [ ] Production readiness checklist
 
 ## Last Updated
-2025-04-23
+2025-04-24
 
 ---
 
