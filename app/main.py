@@ -6,6 +6,8 @@ from .redis_token_store import RedisTokenStore
 from .storage.filesystem import (
     StorageProviderMisconfigured,
 )
+from .storage.memory import InMemoryPhotoStorageProvider
+from .storage.null import NullPhotoStorageProvider
 
 
 def create_app() -> FastAPI:
@@ -38,31 +40,43 @@ def create_app() -> FastAPI:
         )
 
     # Store provider config (not the instance) for lazy instantiation
-    if settings.STORAGE_PROVIDER.lower() in ("filesystem", "", None):
+    provider_kind = (
+        settings.STORAGE_PROVIDER.lower() if settings.STORAGE_PROVIDER else "filesystem"
+    )
+    if provider_kind in ("filesystem", "", None):
         app.state.photo_storage_provider_kind = "filesystem"
         app.state.filesystem_storage_path = settings.filesystem_storage.path
-    elif settings.STORAGE_PROVIDER.lower() == "dropbox":
+    elif provider_kind == "null":
+        app.state.photo_storage_provider_kind = "null"
+    elif provider_kind == "memory":
+        app.state.photo_storage_provider_kind = "memory"
+    elif provider_kind == "dropbox":
         raise NotImplementedError(
             "DropboxPhotoStorageProvider is not implemented yet. "
-            "Set STORAGE_PROVIDER=filesystem or implement Dropbox support."
+            "Set STORAGE_PROVIDER=filesystem, null, or memory; or implement Dropbox support."
         )
     else:
         raise NotImplementedError(
-            f"Storage provider '{settings.STORAGE_PROVIDER}' is not supported yet."
+            f"Storage provider '{settings.STORAGE_PROVIDER}' is not supported yet. "
+            "Available: filesystem, null, memory."
         )
 
     # Helper for lazy provider instantiation
     def get_photo_storage_provider(app_instance):
-        if (
-            getattr(app_instance.state, "photo_storage_provider_kind", None)
-            == "filesystem"
-        ):
+        kind = getattr(app_instance.state, "photo_storage_provider_kind", None)
+        if kind == "filesystem":
             from .storage.filesystem import FilesystemPhotoStorageProvider
 
             return FilesystemPhotoStorageProvider(
                 app_instance.state.filesystem_storage_path
             )
-        raise NotImplementedError("Only filesystem provider is supported.")
+        elif kind == "null":
+            return NullPhotoStorageProvider()
+        elif kind == "memory":
+            return InMemoryPhotoStorageProvider()
+        raise NotImplementedError(
+            "Only filesystem, null, and memory providers are supported."
+        )
 
     app.state.get_photo_storage_provider = get_photo_storage_provider
     # Wire up RedisTokenStore

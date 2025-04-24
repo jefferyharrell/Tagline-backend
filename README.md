@@ -14,8 +14,13 @@ The backend is configured using environment variables, which can be set in a `.e
     - Example for SQLite (default): `sqlite:///./tagline.db`
     - Example for Postgres: `postgresql+psycopg2://user:password@localhost:5432/tagline`
 
-- `STORAGE_PROVIDER`: Selects the storage backend. Default is `filesystem`.
-- `FILESYSTEM_STORAGE_PATH`: Absolute path to the directory where photos will be stored (required only if using the filesystem provider at runtime; optional at startup).
+- `STORAGE_PROVIDER`: Selects the storage backend. Options:
+    - `filesystem`: Real file storage (default; requires `FILESYSTEM_STORAGE_PATH`)
+    - `null`: Accepts all ops, stores nothing, never fails (ideal for CI/demo)
+    - `memory`: Ephemeral in-memory storage, wiped on restart (ideal for tests/dev)
+    - `dropbox`: (not implemented)
+
+- `FILESYSTEM_STORAGE_PATH`: Absolute path to the directory where photos will be stored (required only for `filesystem` provider at runtime; not needed for `null` or `memory`).
 - `DROPBOX_ACCESS_TOKEN`: Access token for Dropbox API (**not yet implemented**).
 - `DROPBOX_ROOT_PATH`: Root path in Dropbox (**not yet implemented**).
 - `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
