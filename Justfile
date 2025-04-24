@@ -27,9 +27,8 @@ lint:
     source venv/bin/activate && pyright
 
 # Testing
-test-unit:
+test-units:
     source venv/bin/activate && pytest --cov=app --cov-report=term-missing
-
 
 test-e2e:
     # Start backend containers and run end-to-end tests (pytest -m e2e)
@@ -45,9 +44,12 @@ test-e2e:
     source venv/bin/activate && pytest -m e2e
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
-test-all:
-    just test-unit
+all:
+    just format
+    just lint
+    just test-units
     just test-e2e
+    just pre-commit
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
 clean:
@@ -69,17 +71,6 @@ reset-db:
     just up
     just migrate
     echo "Database reset and migrations applied."
-
-# Run all tests with coverage and show a report
-test-cov:
-    source venv/bin/activate
-    pytest --cov=app --cov-report=term-missing
-
-# Run all formatters and linters in one go
-lint-all:
-    just format
-    just lint
-    echo "Formatting and linting complete."
 
 # Upgrade all pip packages in requirements-dev.txt
 update-deps:
@@ -126,6 +117,10 @@ makemigration MESSAGE="Describe your migration":
 dbshell:
     # Open a SQLite shell on the persistent DB in Docker
     docker exec -it tagline-backend-dev sqlite3 /data/tagline.db
+
+# Connect to the Redis shell in the dev container
+redis-shell:
+	docker exec -it tagline-redis-dev redis-cli
 
 # Clean up
 prune:
