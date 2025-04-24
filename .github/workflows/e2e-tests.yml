@@ -58,7 +58,7 @@ jobs:
 
       - name: Run database migrations
         run: |
-          docker compose exec -T tagline-backend-dev alembic upgrade head
+          docker compose run --rm backend alembic upgrade head
 
       - name: Wait for backend to be ready
         run: |
