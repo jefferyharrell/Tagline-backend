@@ -16,7 +16,7 @@ black>=24.3.0,<25.0.0
 ruff>=0.3.0,<1.0.0
 
 # Type checking
-pyright>=1.1.358,<2.0.0
+pyright==1.1.400
 
 # Pre-commit
 pre-commit>=3.7.0,<4.0.0
