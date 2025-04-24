@@ -43,6 +43,9 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Document provider interface, config, and extension points
 - [ ] Add authentication and authorization
     - [x] Design and implement refresh token store for revocation
+        - [x] Remove all legacy DB models, migrations, and code for refresh tokens (now Redis-only)
+        - [x] DB schema is clean: no more refresh_tokens table
+        - [x] Backend is 100% Redis-powered for refresh token storage
         - [x] Choose storage backend (in-memory, file, or database)
         - [x] Store issued refresh tokens with status/expiration
         - [x] Check token validity on each refresh
