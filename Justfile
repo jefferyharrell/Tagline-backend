@@ -6,6 +6,16 @@
 default:
     just help
 
+# Set up dev environment
+setup:
+    #!/usr/bin/env bash
+    if [ ! -d "venv" ]; then python -m venv venv; fi
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements-dev.txt
+    if [ ! -f ".env" ]; then cp .env.example .env; fi
+    echo -e "\033[1;32mSetup complete! Activate your venv with 'source venv/bin/activate' and start coding.\033[0m"
+
 # Formatting and linting
 format:
     # Auto-format code with black, isort, and fix trailing whitespace
@@ -20,6 +30,60 @@ lint:
 test:
     # Run all Python tests
     source venv/bin/activate && pytest
+
+test-e2e:
+    # Start backend containers and run end-to-end tests (pytest -m e2e)
+    just up
+    for i in {1..30}; do \
+      if curl -s http://localhost:8000/ > /dev/null; then \
+        echo "Backend is up!"; \
+        break; \
+      fi; \
+      echo "Waiting for backend to be ready... ($$i)"; \
+      sleep 1; \
+    done
+    source venv/bin/activate
+    pytest -m e2e
+    echo -e '\033[1;36mE2E tests complete!\033[0m'
+
+# Remove Python cache files, test artifacts, and __pycache__ dirs
+clean:
+    find . -type d -name "__pycache__" -exec rm -rf {} +
+    rm -rf .pytest_cache .mypy_cache .coverage coverage.xml
+    echo "Cleaned up Python and test artifacts."
+
+# Stop everything, rebuild images, and start fresh
+rebuild:
+    just down
+    docker compose build --no-cache
+    just up
+    echo "Rebuilt and started fresh containers."
+
+# Destroy and recreate the dev/test DB (fresh start)
+reset-db:
+    just down
+    docker volume rm tagline-backend_tagline-db-data || true
+    just up
+    just migrate
+    echo "Database reset and migrations applied."
+
+# Run all tests with coverage and show a report
+test-cov:
+    source venv/bin/activate
+    pytest --cov=app --cov-report=term-missing
+
+# Run all formatters and linters in one go
+lint-all:
+    just format
+    just lint
+    echo "Formatting and linting complete."
+
+# Upgrade all pip packages in requirements-dev.txt
+update-deps:
+    source venv/bin/activate
+    pip install --upgrade -r requirements-dev.txt
+    pip list --outdated
+    echo "Dependencies updated. Check above for anything still out-of-date."
 
 # Pre-Commit
 pre-commit:
