@@ -14,9 +14,6 @@ jobs:
       db:
         image: sqlite
         # Not strictly needed, but placeholder for future DB containers
-      docker:
-        image: docker:dind
-        privileged: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
