@@ -10,7 +10,8 @@ def test_settings_defaults(ensure_filesystem_path_set, monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     get_settings.cache_clear()  # Clear cache after monkeypatch
     s = get_settings()
-    assert s.DATABASE_URL == "sqlite:///./tagline.db"
+    # In test mode, the default should be in-memory
+    assert s.DATABASE_URL == "sqlite:///:memory:"
 
 
 def test_settings_env_override(monkeypatch, ensure_filesystem_path_set):

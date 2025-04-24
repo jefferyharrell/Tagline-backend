@@ -99,6 +99,8 @@ class Settings(BaseSettings):
         # If we're in a test environment, set test defaults for auth fields
         is_test = kwargs.get("APP_ENV", "").lower() == "test" or "pytest" in sys.modules
 
+        import os
+
         if is_test:
             # Don't override if already set
             if kwargs.get("BACKEND_PASSWORD") is None:
@@ -107,6 +109,11 @@ class Settings(BaseSettings):
                 kwargs["JWT_SECRET_KEY"] = "test_jwt_secret_key_not_for_production"
             if kwargs.get("REDIS_URL") is None:
                 kwargs["REDIS_URL"] = "redis://localhost:6379/1"
+            if (
+                kwargs.get("DATABASE_URL") is None
+                and os.environ.get("DATABASE_URL") is None
+            ):
+                kwargs["DATABASE_URL"] = "sqlite:///:memory:"
 
         super().__init__(**kwargs)
 
