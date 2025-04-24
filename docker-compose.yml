@@ -1,4 +1,13 @@
 services:
+  redis:
+    image: redis:7
+    container_name: tagline-redis-dev
+    ports:
+      - "6379:6379"
+    # No persistence in dev; for prod, add a volume:
+    # volumes:
+    #   - tagline-redis-data:/data
+
   backend:
     build:
       context: .
@@ -14,6 +23,8 @@ services:
       - DATABASE_URL=sqlite:////data/tagline.db
     env_file:
       - .env
+    depends_on:
+      - redis
 
 volumes:
   tagline-db-data:
