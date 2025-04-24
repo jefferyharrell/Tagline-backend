@@ -7,8 +7,11 @@ from pathlib import Path
 
 import pytest
 
-from app.config import Settings, get_settings
-from app.storage.filesystem import FilesystemPhotoStorageProvider
+from app.config import get_settings
+from app.storage.filesystem import (
+    FilesystemPhotoStorageProvider,
+    StorageProviderMisconfigured,
+)
 
 
 def test_filesystem_provider_env(monkeypatch):
@@ -23,15 +26,14 @@ def test_filesystem_provider_env(monkeypatch):
 
 
 def test_missing_filesystem_path(monkeypatch):
-    """Missing FILESYSTEM_STORAGE_PATH raises ValidationError."""
+    """Missing FILESYSTEM_STORAGE_PATH raises StorageProviderMisconfigured at provider instantiation."""
     monkeypatch.setenv("STORAGE_PROVIDER", "filesystem")
     monkeypatch.delenv("FILESYSTEM_STORAGE_PATH", raising=False)
     get_settings.cache_clear()
-    # Use the actual settings class to check validation
-    with pytest.raises(Exception) as excinfo:
-        Settings()  # Instantiate directly to trigger validation
-    # Pydantic v2 raises ValidationError, but be robust:
-    assert "FILESYSTEM_STORAGE_PATH" in str(excinfo.value)
+    s = get_settings()
+    with pytest.raises(StorageProviderMisconfigured) as excinfo:
+        FilesystemPhotoStorageProvider(s.filesystem_storage.path)
+    assert "FILESYSTEM_STORAGE_PATH is not set" in str(excinfo.value)
 
 
 def test_unsupported_storage_provider(monkeypatch):

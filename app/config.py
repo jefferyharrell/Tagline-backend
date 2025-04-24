@@ -17,29 +17,31 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class FilesystemProviderSettings(BaseSettings):
     """
     Settings specific to the filesystem storage provider.
+    The path is now optional. If unset, provider will raise a runtime error on first use.
     """
 
-    path: Path = Field(
-        ...,
+    path: Optional[Path] = Field(
+        default=None,
         alias="FILESYSTEM_STORAGE_PATH",
-        description="Root directory for storing photos. Reads from FILESYSTEM_STORAGE_PATH env var.",
+        description="Root directory for storing photos. Reads from FILESYSTEM_STORAGE_PATH env var. Optional; if unset, provider will raise on use.",
     )
 
 
 class DropboxProviderSettings(BaseSettings):
     """
     Settings for Dropbox photo storage provider (NOT IMPLEMENTED).
+    All fields are now optional. Provider will raise a runtime error if required fields are missing on use.
     """
 
-    access_token: str = Field(
-        default="",
+    access_token: Optional[str] = Field(
+        default=None,
         alias="DROPBOX_ACCESS_TOKEN",
-        description="Access token for Dropbox API (not yet implemented)",
+        description="Access token for Dropbox API (not yet implemented). Optional; if unset, provider will raise on use.",
     )
-    root_path: str = Field(
-        default="/",
+    root_path: Optional[str] = Field(
+        default=None,
         alias="DROPBOX_ROOT_PATH",
-        description="Root path in Dropbox (not yet implemented)",
+        description="Root path in Dropbox (not yet implemented). Optional; if unset, provider will raise on use.",
     )
 
 

@@ -22,7 +22,7 @@ def create_app() -> FastAPI:
     if settings.STORAGE_PROVIDER.lower() in ("filesystem", "", None):
         app.state.photo_storage_provider = FilesystemPhotoStorageProvider(
             settings.filesystem_storage.path
-        )
+        )  # Accepts Optional[Path], will raise StorageProviderMisconfigured if misconfigured.
     elif settings.STORAGE_PROVIDER.lower() == "dropbox":
         raise NotImplementedError(
             "DropboxPhotoStorageProvider is not implemented yet. "

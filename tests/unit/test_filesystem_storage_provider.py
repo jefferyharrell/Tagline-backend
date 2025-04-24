@@ -10,7 +10,10 @@ from pathlib import Path
 
 import pytest
 
-from app.storage.filesystem import FilesystemPhotoStorageProvider
+from app.storage.filesystem import (
+    FilesystemPhotoStorageProvider,
+    StorageProviderMisconfigured,
+)
 
 
 @pytest.fixture
@@ -36,14 +39,14 @@ def test_init_accepts_valid_dir(temp_photo_dir):
 
 
 def test_init_rejects_nonexistent():
-    with pytest.raises(ValueError):
+    with pytest.raises(StorageProviderMisconfigured):
         FilesystemPhotoStorageProvider(Path("/no/such/dir"))
 
 
 def test_init_rejects_file(tmp_path):
     file = tmp_path / "file.txt"
     file.write_text("hi")
-    with pytest.raises(ValueError):
+    with pytest.raises(StorageProviderMisconfigured):
         FilesystemPhotoStorageProvider(file)
 
 

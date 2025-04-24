@@ -10,6 +10,14 @@ from typing import BinaryIO, Iterable, Optional
 from app.storage.provider import PhotoStorageProvider
 
 
+class StorageProviderMisconfigured(Exception):
+    """
+    Raised when a storage provider is misconfigured (e.g., missing required env vars).
+    """
+
+    pass
+
+
 class FilesystemPhotoStorageProvider(PhotoStorageProvider):
     """
     Photo storage provider using the local filesystem (read-only).
@@ -17,17 +25,21 @@ class FilesystemPhotoStorageProvider(PhotoStorageProvider):
     Prevents path traversal and access outside the root.
     """
 
-    def __init__(self, root_path: Path):
+    def __init__(self, root_path: Optional[Path] = None):
         """
         Initialize the provider with a root directory.
         Args:
-            root_path: pathlib.Path to the photo storage root directory.
+            root_path: pathlib.Path to the photo storage root directory, or None.
         Raises:
-            ValueError: If root_path does not exist or is not a directory.
+            StorageProviderMisconfigured: If root_path is None or invalid.
         """
+        if root_path is None:
+            raise StorageProviderMisconfigured(
+                "FILESYSTEM_STORAGE_PATH is not set. The filesystem provider cannot operate without a root directory."
+            )
         root = root_path.resolve()
         if not root.is_dir():
-            raise ValueError(
+            raise StorageProviderMisconfigured(
                 f"Photo storage root does not exist or is not a directory: {root_path}"
             )
         self._root = root
