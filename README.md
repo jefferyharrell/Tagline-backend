@@ -18,13 +18,16 @@ The backend is configured using environment variables, which can be set in a `.e
     - `filesystem`: Real file storage (default; requires `FILESYSTEM_STORAGE_PATH`)
     - `null`: Accepts all ops, stores nothing, never fails (ideal for CI/demo)
     - `memory`: Ephemeral in-memory storage, wiped on restart (ideal for tests/dev)
-    - `dropbox`: (not implemented)
+    - `dropbox`: Dropbox via official SDK (refresh token flow; production-ready)
 
-- `FILESYSTEM_STORAGE_PATH`: Absolute path to the directory where photos will be stored (required only for `filesystem` provider at runtime; not needed for `null` or `memory`).
-- `DROPBOX_ACCESS_TOKEN`: Access token for Dropbox API (**not yet implemented**).
-- `DROPBOX_ROOT_PATH`: Root path in Dropbox (**not yet implemented**).
+- `FILESYSTEM_STORAGE_PATH`: Absolute path to the directory where files will be stored (required only for `filesystem` provider).
+- `DROPBOX_REFRESH_TOKEN`: Dropbox OAuth2 refresh token (required; see below).
+- `DROPBOX_APP_KEY`: Dropbox app key (required).
+- `DROPBOX_APP_SECRET`: Dropbox app secret (required).
+- `DROPBOX_ROOT_PATH`: Root path in Dropbox (all keys are relative to this path).
 - `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
 - `JWT_SECRET_KEY`: Secret key for signing JWT tokens (required; must be long, random, and kept secret!).
+- `DROPBOX_ACCESS_TOKEN`: [DEPRECATED] Legacy long-lived access token (not recommended; use refresh token flow instead).
 
 **Provider config is now validated at runtime, not startup.**
 - The app will start even if FILESYSTEM_STORAGE_PATH is unset, but endpoints that require the storage provider will return a clear error if misconfigured.
@@ -69,7 +72,7 @@ To add a new storage backend:
 4. **Test your provider:**
    - Add unit and (eventually) integration tests in `tests/unit/` or `tests/integration/` as appropriate.
 
-See the existing `FilesystemPhotoStorageProvider` and `DropboxPhotoStorageProvider` for examples.
+See the existing `FilesystemPhotoStorageProvider` and `DropboxStorageProvider` for examples.
 
 ---
 

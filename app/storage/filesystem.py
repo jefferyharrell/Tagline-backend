@@ -7,15 +7,7 @@ This provider is read-only: upload and delete are not supported.
 from pathlib import Path
 from typing import BinaryIO, Iterable, Optional
 
-from app.storage.provider import PhotoStorageProvider
-
-
-class StorageProviderMisconfigured(Exception):
-    """
-    Raised when a storage provider is misconfigured (e.g., missing required env vars).
-    """
-
-    pass
+from app.storage.provider import PhotoStorageProvider, StorageProviderMisconfigured
 
 
 class FilesystemPhotoStorageProvider(PhotoStorageProvider):

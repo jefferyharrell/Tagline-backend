@@ -8,6 +8,14 @@ from abc import ABC, abstractmethod
 from typing import BinaryIO, Iterable, Optional
 
 
+class StorageProviderMisconfigured(Exception):
+    """
+    Raised when a storage provider is misconfigured (e.g., missing required env vars).
+    """
+
+    pass
+
+
 class PhotoStorageProvider(ABC):
     """
     Abstract interface for photo storage providers.

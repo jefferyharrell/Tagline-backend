@@ -51,10 +51,14 @@ def create_app() -> FastAPI:
     elif provider_kind == "memory":
         app.state.photo_storage_provider_kind = "memory"
     elif provider_kind == "dropbox":
-        raise NotImplementedError(
-            "DropboxPhotoStorageProvider is not implemented yet. "
-            "Set STORAGE_PROVIDER=filesystem, null, or memory; or implement Dropbox support."
-        )
+        app.state.photo_storage_provider_kind = "dropbox"
+        dropbox_cfg = settings.dropbox_photo_storage or None
+        if not dropbox_cfg:
+            raise RuntimeError(
+                "DROPBOX provider selected but config is missing (check env vars)"
+            )
+        app.state.dropbox_provider_config = dropbox_cfg
+
     else:
         raise NotImplementedError(
             f"Storage provider '{settings.STORAGE_PROVIDER}' is not supported yet. "
@@ -74,8 +78,23 @@ def create_app() -> FastAPI:
             return NullPhotoStorageProvider()
         elif kind == "memory":
             return InMemoryPhotoStorageProvider()
+        elif kind == "dropbox":
+            from .storage.dropbox import DropboxStorageProvider
+
+            cfg = getattr(app_instance.state, "dropbox_provider_config", None)
+            if not cfg:
+                raise StorageProviderMisconfigured(
+                    "Dropbox config missing from app state"
+                )
+            return DropboxStorageProvider(
+                refresh_token=cfg.refresh_token,
+                app_key=cfg.app_key,
+                app_secret=cfg.app_secret,
+                access_token=cfg.access_token,
+                root_path=cfg.root_path,
+            )
         raise NotImplementedError(
-            "Only filesystem, null, and memory providers are supported."
+            "Only filesystem, null, memory, and dropbox providers are supported."
         )
 
     app.state.get_photo_storage_provider = get_photo_storage_provider

@@ -29,19 +29,36 @@ class FilesystemProviderSettings(BaseSettings):
 
 class DropboxProviderSettings(BaseSettings):
     """
-    Settings for Dropbox photo storage provider (NOT IMPLEMENTED).
-    All fields are now optional. Provider will raise a runtime error if required fields are missing on use.
+    Settings for Dropbox storage provider.
+    Uses refresh token flow (recommended for server-to-server auth).
+    All fields are optional, but provider will raise if required fields are missing at runtime.
     """
 
-    access_token: Optional[str] = Field(
+    refresh_token: Optional[str] = Field(
         default=None,
-        alias="DROPBOX_ACCESS_TOKEN",
-        description="Access token for Dropbox API (not yet implemented). Optional; if unset, provider will raise on use.",
+        alias="DROPBOX_REFRESH_TOKEN",
+        description="Dropbox OAuth2 refresh token (required for server-to-server auth)",
+    )
+    app_key: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_APP_KEY",
+        description="Dropbox app key (required for refresh token auth)",
+    )
+    app_secret: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_APP_SECRET",
+        description="Dropbox app secret (required for refresh token auth)",
     )
     root_path: Optional[str] = Field(
         default=None,
         alias="DROPBOX_ROOT_PATH",
-        description="Root path in Dropbox (not yet implemented). Optional; if unset, provider will raise on use.",
+        description="Root path in Dropbox. All keys are relative to this path.",
+    )
+    # Deprecated: for legacy/testing only
+    access_token: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_ACCESS_TOKEN",
+        description="[DEPRECATED] Long-lived Dropbox access token. Use refresh token flow instead.",
     )
 
 

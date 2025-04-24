@@ -41,6 +41,10 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Implement provider skeleton (can raise NotImplementedError for now)
     - [x] Add unit tests for provider interface and local implementation
     - [x] Document provider interface, config, and extension points
+    - [x] Implement Dropbox provider (refresh token flow)
+        - [x] Update config and documentation
+        - [x] Add unit tests
+        - [x] Legacy access token is deprecated
 - [ ] Add authentication and authorization
     - [x] Design and implement refresh token store for revocation
         - [x] Remove all legacy DB models, migrations, and code for refresh tokens (now Redis-only)
