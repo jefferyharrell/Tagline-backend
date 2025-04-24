@@ -19,22 +19,19 @@ setup:
 # Formatting and linting
 format:
     # Auto-format code with black, isort, and fix trailing whitespace
-    source venv/bin/activate && black .
     source venv/bin/activate && isort .
-    source venv/bin/activate && ruff check --fix .
+    source venv/bin/activate && black .
 
 lint:
+    source venv/bin/activate && ruff check --fix .
     source venv/bin/activate && pyright
 
-check:
-    just format
-    just lint
-
 # Testing
-units:
-    source venv/bin/activate && pytest
+test-unit:
+    source venv/bin/activate && pytest --cov=app --cov-report=term-missing
 
-e2e:
+
+test-e2e:
     # Start backend containers and run end-to-end tests (pytest -m e2e)
     just up
     for i in {1..30}; do \
@@ -45,13 +42,12 @@ e2e:
       echo "Waiting for backend to be ready... ($$i)"; \
       sleep 1; \
     done
-    source venv/bin/activate
-    pytest -m e2e
+    source venv/bin/activate && pytest -m e2e
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
-test:
-    just units
-    just e2e
+test-all:
+    just test-unit
+    just test-e2e
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
 clean:
