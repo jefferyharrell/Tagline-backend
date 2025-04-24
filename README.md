@@ -15,11 +15,15 @@ The backend is configured using environment variables, which can be set in a `.e
     - Example for Postgres: `postgresql+psycopg2://user:password@localhost:5432/tagline`
 
 - `STORAGE_PROVIDER`: Selects the storage backend. Default is `filesystem`.
-- `FILESYSTEM_STORAGE_PATH`: (Required if using the filesystem provider) Absolute path to the directory where photos will be stored.
+- `FILESYSTEM_STORAGE_PATH`: Absolute path to the directory where photos will be stored (required only if using the filesystem provider at runtime; optional at startup).
 - `DROPBOX_ACCESS_TOKEN`: Access token for Dropbox API (**not yet implemented**).
 - `DROPBOX_ROOT_PATH`: Root path in Dropbox (**not yet implemented**).
 - `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
 - `JWT_SECRET_KEY`: Secret key for signing JWT tokens (required; must be long, random, and kept secret!).
+
+**Provider config is now validated at runtime, not startup.**
+- The app will start even if FILESYSTEM_STORAGE_PATH is unset, but endpoints that require the storage provider will return a clear error if misconfigured.
+- Use the `/smoke-test` endpoint to check provider config health.
 
 **Example values:**
 ```env

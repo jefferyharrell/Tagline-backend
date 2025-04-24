@@ -32,3 +32,10 @@ def root(request: Request):
         }
     else:
         return {"status": "ok"}
+
+
+@router.get("/smoke-test")
+def smoke_test(request: Request):
+    """Health check: verifies storage provider config. Returns 200 if OK, 503 if misconfigured."""
+    provider = request.app.state.get_photo_storage_provider(request.app)
+    return {"status": "ok", "provider": type(provider).__name__}
