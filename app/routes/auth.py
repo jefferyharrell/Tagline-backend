@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from ..auth_service import AuthService
 from ..config import get_settings
 from ..db import get_db
+from ..deps import get_token_store
 from ..schemas import LoginRequest, LoginResponse, RefreshRequest, RefreshResponse
 
 router = APIRouter()
@@ -19,7 +20,8 @@ router = APIRouter()
 @router.post("/refresh", response_model=RefreshResponse, status_code=200)
 def refresh(
     payload: RefreshRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db),  # DB used only for unrelated features
+    token_store=Depends(get_token_store),
 ):
     """
     Exchange a refresh token for new access and refresh tokens.
@@ -33,13 +35,12 @@ def refresh(
         HTTPException: 401 if refresh token is invalid/expired/revoked.
     """
     settings = get_settings()
-    auth_service = AuthService(settings, db)
+    auth_service = AuthService(settings, token_store)
     try:
         access_token, refresh_token, expires_in, refresh_expires_in = (
             auth_service.refresh_tokens(payload.refresh_token)
         )
     except Exception as exc:
-        # You may want to catch a more specific exception in real code
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
@@ -56,7 +57,8 @@ def refresh(
 @router.post("/login", response_model=LoginResponse, status_code=200)
 def login(
     payload: LoginRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db),  # DB used only for unrelated features
+    token_store=Depends(get_token_store),
 ):
     """
     Authenticate user with password and issue access/refresh tokens.
@@ -70,7 +72,7 @@ def login(
         HTTPException: 401 if password is invalid.
     """
     settings = get_settings()
-    auth_service = AuthService(settings, db)
+    auth_service = AuthService(settings, token_store)
     if not auth_service.verify_password(payload.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

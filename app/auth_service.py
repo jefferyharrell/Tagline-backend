@@ -4,22 +4,20 @@ auth_service.py
 Service layer for authentication: password verification, token issuance, validation, and revocation.
 """
 
-import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Optional, Tuple
 
 from jose import jwt
-from sqlalchemy.orm import Session
 
 from app.config import Settings
-from app.models import RefreshToken
+from app.token_store import TokenStore
 
 
 class AuthService:
-    def __init__(self, settings: Settings, db: Session):
+    def __init__(self, settings: Settings, token_store: TokenStore):
         self.settings = settings
-        self.db = db
+        self.token_store = token_store
 
     def verify_password(self, password: str) -> bool:
         """Check if the provided password matches the backend password."""
@@ -44,7 +42,7 @@ class AuthService:
     def issue_tokens(self) -> Tuple[str, str, int, int]:
         """
         Issue a new access and refresh token pair.
-        Ensures the refresh token is unique in the DB.
+        Ensures the refresh token is unique in the store.
         Returns (access_token, refresh_token, access_expiry, refresh_expiry)
         """
         now = datetime.now(UTC)
@@ -72,22 +70,19 @@ class AuthService:
                 str(self.settings.JWT_SECRET_KEY),
                 algorithm="HS256",
             )
-            token_hash = hashlib.sha256(refresh_token.encode()).hexdigest()
-            exists = self.db.query(RefreshToken).filter_by(token=token_hash).first()
-            if not exists:
-                break
+            # Try to store the token, fail if it already exists
+            if not self.token_store.is_refresh_token_valid(refresh_token):
+                try:
+                    self.token_store.store_refresh_token(
+                        refresh_token, self.settings.REFRESH_TOKEN_EXPIRE_SECONDS
+                    )
+                    break
+                except Exception:
+                    continue
         else:
             raise RuntimeError(
                 "Could not generate a unique refresh token after several attempts."
             )
-        db_token = RefreshToken(
-            token=token_hash,
-            issued_at=now,
-            expires_at=refresh_exp,
-            revoked=False,
-        )
-        self.db.add(db_token)
-        self.db.commit()
         return (
             access_token,
             refresh_token,
@@ -109,27 +104,20 @@ class AuthService:
             if payload.get("type") != token_type:
                 return None
             if token_type == "refresh":
-                # Check if refresh token is revoked
-                token_hash = hashlib.sha256(token.encode()).hexdigest()
-                db_token = (
-                    self.db.query(RefreshToken).filter_by(token=token_hash).first()
-                )
-                if not db_token or db_token.revoked:
+                # Check if refresh token is revoked/expired in the token store
+                if not self.token_store.is_refresh_token_valid(token):
                     return None
             return payload
         except Exception:
             return None
 
-    def revoke_refresh_token(self, token: str) -> bool:
+    def revoke_refresh_token(self, token: str) -> None:
         """
-        Revoke a refresh token (by marking it revoked in DB).
-        Returns True if successful, False otherwise.
+        Revoke a refresh token (by marking it revoked in the token store).
+        This now matches the TokenStore interface (returns None).
         """
-        token_hash = hashlib.sha256(token.encode()).hexdigest()
-        db_token = self.db.query(RefreshToken).filter_by(token=token_hash).first()
-        if db_token and not db_token.revoked:
-            db_token.revoked = True
-            db_token.revoked_at = datetime.now(UTC)
-            self.db.commit()
-            return True
-        return False
+        try:
+            self.token_store.revoke_refresh_token(token)
+        except Exception:
+            # Optionally log the exception here
+            pass

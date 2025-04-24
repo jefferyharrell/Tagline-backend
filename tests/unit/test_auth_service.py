@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.auth_service import AuthService
-from app.models import RefreshToken
+from tests.unit.test_token_store import DummyTokenStore
 
 
 @pytest.fixture
@@ -19,8 +19,9 @@ def settings(set_filesystem_storage_path):
 
 
 @pytest.fixture
-def auth_service(settings, db_session):
-    return AuthService(settings, db_session)
+def auth_service(settings):
+    # Use a dummy in-memory token store for AuthService tests
+    return AuthService(settings, DummyTokenStore())
 
 
 def test_verify_password_correct(auth_service):
@@ -31,18 +32,12 @@ def test_verify_password_incorrect(auth_service):
     assert not auth_service.verify_password("wrong_password")
 
 
-def test_issue_tokens_and_store_refresh(auth_service, db_session):
+def test_issue_tokens_and_store_refresh(auth_service):
     access, refresh, access_exp, refresh_exp = auth_service.issue_tokens()
-    db_session.flush()
     assert isinstance(access, str)
     assert isinstance(refresh, str)
-    # Check refresh token is stored (hashed)
-    import hashlib
-
-    token_hash = hashlib.sha256(refresh.encode()).hexdigest()
-    db_token = db_session.query(RefreshToken).filter_by(token=token_hash).first()
-    assert db_token is not None
-    assert not db_token.revoked
+    # Check refresh token is stored in the dummy store
+    assert auth_service.token_store.is_refresh_token_valid(refresh)
 
 
 def test_validate_access_token(auth_service):
@@ -52,16 +47,8 @@ def test_validate_access_token(auth_service):
     assert payload["type"] == "access"
 
 
-def test_refresh_token_db_sanity(auth_service, db_session):
-    """Sanity check: Issue a refresh token and confirm it's in the DB."""
-    _, refresh, _, _ = auth_service.issue_tokens()
-    db_session.flush()
-    import hashlib
-
-    token_hash = hashlib.sha256(refresh.encode()).hexdigest()
-    db_token = db_session.query(RefreshToken).filter_by(token=token_hash).first()
-    assert db_token is not None, f"Refresh token hash {token_hash} not found in DB!"
-    assert not db_token.revoked
+def test_refresh_token_db_sanity():
+    pytest.skip("DB-backed refresh token logic not relevant for DummyTokenStore")
 
 
 def test_validate_refresh_token(auth_service, db_session, settings):
@@ -101,11 +88,11 @@ def test_revoke_refresh_token(auth_service, db_session):
     db_session.expire_all()
     # Should be valid before revocation
     assert auth_service.validate_token(refresh, token_type="refresh") is not None
-    assert auth_service.revoke_refresh_token(refresh) is True
+    auth_service.revoke_refresh_token(refresh)
     # Should be invalid after revocation
     assert auth_service.validate_token(refresh, token_type="refresh") is None
-    # Double revocation should fail
-    assert auth_service.revoke_refresh_token(refresh) is False
+    # Double revocation should not raise
+    auth_service.revoke_refresh_token(refresh)
 
 
 def test_validate_token_revoked(auth_service, db_session):
@@ -113,5 +100,5 @@ def test_validate_token_revoked(auth_service, db_session):
     db_session.flush()
     db_session.expire_all()
     assert auth_service.validate_token(refresh, token_type="refresh") is not None
-    assert auth_service.revoke_refresh_token(refresh)
+    auth_service.revoke_refresh_token(refresh)
     assert auth_service.validate_token(refresh, token_type="refresh") is None

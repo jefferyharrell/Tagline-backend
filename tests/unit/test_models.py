@@ -12,43 +12,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import Photo, RefreshToken
-
-
-def test_refresh_token_instantiation_defaults(db_session: Session) -> None:
-    token_str = "s3cr3t"
-    expires = datetime.now().replace(microsecond=0)
-    refresh_token = RefreshToken(token=token_str, expires_at=expires)
-    db_session.add(refresh_token)
-    db_session.flush()
-    assert isinstance(refresh_token.id, uuid.UUID)
-    assert refresh_token.token == token_str
-    assert isinstance(refresh_token.issued_at, datetime)
-    assert refresh_token.expires_at == expires
-    assert refresh_token.revoked is False
-    assert refresh_token.revoked_at is None
-    assert refresh_token.last_used_at is None
-
-
-def test_refresh_token_revocation_fields(db_session: Session) -> None:
-    token_str = "revoke-me"
-    expires = datetime.now().replace(microsecond=0)
-    revoked_time = datetime.now().replace(microsecond=0)
-    last_used = datetime.now().replace(microsecond=0)
-    refresh_token = RefreshToken(
-        token=token_str,
-        expires_at=expires,
-        revoked=True,
-        revoked_at=revoked_time,
-        last_used_at=last_used,
-    )
-    db_session.add(refresh_token)
-    db_session.commit()
-    retrieved = db_session.query(RefreshToken).filter_by(token=token_str).first()  # type: ignore[call-arg]
-    assert retrieved is not None
-    assert retrieved.revoked is True
-    assert retrieved.revoked_at == revoked_time
-    assert retrieved.last_used_at == last_used
+from app.models import Photo
 
 
 def test_photo_instantiation_defaults(db_session: Session) -> None:

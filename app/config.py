@@ -65,6 +65,10 @@ class Settings(BaseSettings):
         default="sqlite:///./tagline.db",
         description="Database connection string. Defaults to SQLite local file if not set.",
     )
+    REDIS_URL: Optional[str] = Field(
+        default=None,
+        description="Redis connection string for token storage. Must be set in production and development.",
+    )
     filesystem_storage: FilesystemProviderSettings = Field(
         default_factory=cast(
             Callable[[], FilesystemProviderSettings], FilesystemProviderSettings
@@ -101,6 +105,8 @@ class Settings(BaseSettings):
                 kwargs["BACKEND_PASSWORD"] = "test_password"
             if kwargs.get("JWT_SECRET_KEY") is None:
                 kwargs["JWT_SECRET_KEY"] = "test_jwt_secret_key_not_for_production"
+            if kwargs.get("REDIS_URL") is None:
+                kwargs["REDIS_URL"] = "redis://localhost:6379/1"
 
         super().__init__(**kwargs)
 

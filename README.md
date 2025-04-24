@@ -29,6 +29,16 @@ STORAGE_PROVIDER=filesystem
 FILESYSTEM_STORAGE_PATH=/absolute/path/to/photo/storage
 ```
 
+### Redis Token Store & REDIS_URL
+
+The backend uses Redis for authentication token storage (see ADR 0004).
+
+- In development, Docker Compose provides a Redis service. Set `REDIS_URL=redis://redis:6379/0` in your `.env` file (see `.env.example`).
+- In production, set `REDIS_URL` to your managed Redis instance (e.g., AWS ElastiCache, Upstash).
+- The backend will refuse to start if `REDIS_URL` is not set.
+
+See `.env.example` for sample configuration.
+
 > **Security Note:** Never check real secrets into version control. Generate a strong, random JWT_SECRET_KEY for production (see README for tips).
 
 You can copy `.env.example` to `.env` and edit as needed.
