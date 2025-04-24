@@ -6,14 +6,13 @@ Covers: valid login (happy path).
 import pytest
 from fastapi.testclient import TestClient
 
-from app.config import get_settings
 
-
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def valid_password():
-    # Use the configured backend password for testing
+    # Import get_settings only after pytest fixtures have set up the environment
+    from app.config import get_settings
+
     settings = get_settings()
-    # Add an assertion to handle case where password might be None (e.g., during test setup)
     assert (
         settings.BACKEND_PASSWORD is not None
     ), "BACKEND_PASSWORD is not set in test settings"

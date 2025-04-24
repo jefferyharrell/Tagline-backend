@@ -12,7 +12,7 @@ from app.models import RefreshToken
 
 
 @pytest.fixture
-def settings(set_filesystem_photo_storage_path):
+def settings(set_filesystem_storage_path):
     from app.config import get_settings
 
     return get_settings()

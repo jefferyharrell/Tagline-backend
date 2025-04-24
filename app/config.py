@@ -65,7 +65,7 @@ class Settings(BaseSettings):
         default="sqlite:///./tagline.db",
         description="Database connection string. Defaults to SQLite local file if not set.",
     )
-    filesystem_photo_storage: FilesystemProviderSettings = Field(
+    filesystem_storage: FilesystemProviderSettings = Field(
         default_factory=cast(
             Callable[[], FilesystemProviderSettings], FilesystemProviderSettings
         )

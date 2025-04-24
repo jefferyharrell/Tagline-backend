@@ -17,7 +17,7 @@ def create_app() -> FastAPI:
     if settings.STORAGE_PROVIDER.lower() in ("filesystem", "", None):
         # If you want to use the provider later, attach it to app.state
         app.state.photo_storage_provider = FilesystemPhotoStorageProvider(
-            settings.filesystem_photo_storage.path
+            settings.filesystem_storage.path
         )
     elif settings.STORAGE_PROVIDER.lower() == "dropbox":
         raise NotImplementedError(

@@ -22,7 +22,7 @@ from app.models import Base
 
 
 @pytest.fixture(scope="session", autouse=True)
-def set_global_filesystem_photo_storage_path(tmp_path_factory):
+def set_global_filesystem_storage_path(tmp_path_factory):
     """
     Ensure FILESYSTEM_STORAGE_PATH is set for all tests unless already set.
     """
@@ -37,7 +37,7 @@ def set_global_filesystem_photo_storage_path(tmp_path_factory):
 
 
 @pytest.fixture()
-def set_filesystem_photo_storage_path(tmp_path, monkeypatch):
+def set_filesystem_storage_path(tmp_path, monkeypatch):
     """Ensure FILESYSTEM_STORAGE_PATH is set for every test and config cache is cleared."""
     temp_photo_dir = tmp_path / "photos"
     temp_photo_dir.mkdir(exist_ok=True)
@@ -81,7 +81,7 @@ def configure_test_session_db():
 
 
 @pytest.fixture(scope="function")
-def db_session(monkeypatch, set_filesystem_photo_storage_path):
+def db_session(monkeypatch, set_filesystem_storage_path):
     """Creates a new, fully isolated in-memory SQLite DB and returns a session."""
     unique_name = f"test_{uuid.uuid4().hex}"
     db_url = f"sqlite:///file:{unique_name}?mode=memory&cache=shared&uri=true"

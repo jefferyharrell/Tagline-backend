@@ -31,7 +31,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [x] Define a storage provider interface/abstract base class (e.g., `PhotoStorageProvider`)
         - [x] Specify required methods: list, retrieve, maybe etc.
     - [x] Implement local filesystem provider (MVP)
-        - [x] Store photos in a configurable directory (env var, e.g., `FILESYSTEM_PHOTO_STORAGE_PATH`)
+        - [x] Store photos in a configurable directory (env var, e.g., `FILESYSTEM_STORAGE_PATH`)
     - [x] Implement provider selection logic
         - [x] Add environment variable to select storage provider (e.g., `STORAGE_PROVIDER=filesystem`)
         - [x] Load/configure provider at app startup based on env/config
