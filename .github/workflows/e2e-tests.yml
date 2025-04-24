@@ -10,10 +10,7 @@ jobs:
   e2e:
     name: End-to-End Tests
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: sqlite
-        # Not strictly needed, but placeholder for future DB containers
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
