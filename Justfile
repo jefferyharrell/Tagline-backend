@@ -26,6 +26,10 @@ format:
 lint:
     source venv/bin/activate && pyright
 
+check:
+    just format
+    just lint
+
 # Testing
 test:
     # Run all Python tests
