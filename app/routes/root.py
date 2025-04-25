@@ -56,7 +56,20 @@ def rescan_photos(request: Request, db: Session = Depends(get_db)):
         )
 
 
-@router.get("/photos", response_model=PhotoListResponse)
+@router.get(
+    "/photos",
+    response_model=PhotoListResponse,
+    responses={
+        422: {
+            "description": "Invalid query parameter(s)",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "limit must be between 1 and 100"}
+                }
+            },
+        },
+    },
+)
 def list_photos(
     db: Session = Depends(get_db),
     limit: int = 50,
@@ -64,6 +77,11 @@ def list_photos(
 ):
     """
     List photo metadata (paginated).
+
+    - **limit**: Maximum number of photos to return (1-100, default 50)
+    - **offset**: Number of photos to skip (default 0)
+    - **Returns**: Paginated list of Photo objects
+    - **422**: Returned if limit or offset is out of bounds
     """
     # Validate limit and offset
     if limit < 1 or limit > 100:
@@ -91,10 +109,30 @@ def list_photos(
     )
 
 
-@router.get("/photos/{id}", response_model=Photo)
+@router.get(
+    "/photos/{id}",
+    response_model=Photo,
+    responses={
+        404: {
+            "description": "Photo not found",
+            "content": {"application/json": {"example": {"detail": "Photo not found"}}},
+        },
+        422: {
+            "description": "Invalid UUID supplied",
+            "content": {
+                "application/json": {"example": {"detail": "value is not a valid uuid"}}
+            },
+        },
+    },
+)
 def get_photo_by_id(id: UUID, db: Session = Depends(get_db)):
     """
-    Get a photo and its metadata by ID. Returns 404 if not found, 422 if ID is invalid.
+    Retrieve a single photo and its metadata by unique ID.
+
+    - **id**: UUID of the photo to retrieve.
+    - **Returns**: Photo object matching the spec.
+    - **404**: Returned if no photo with the given ID exists.
+    - **422**: Returned if the ID is not a valid UUID.
     """
     repo = PhotoRepository(db)
     photo = repo.get(id)

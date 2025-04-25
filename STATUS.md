@@ -98,11 +98,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add validation for query params (limit, offset)
         - [x] Unit test: valid/invalid pagination params
         - [x] E2E test: endpoint behavior
-    - [ ] GET /photos/{id} — Get photo + metadata
-        - [ ] Define `Photo` model
-        - [ ] Add validation for path param (UUID format)
-        - [ ] Unit test: valid/invalid photo ID
-        - [ ] E2E test: endpoint behavior
+    - [x] GET /photos/{id} — Get photo + metadata
+        - [x] Define `Photo` model
+        - [x] Add validation for path param (UUID format)
+        - [x] Unit test: valid/invalid photo ID
+        - [x] E2E test: endpoint behavior
     - [ ] PATCH /photos/{id}/metadata — Update metadata (description)
         - [ ] Define `UpdateMetadataRequest` model
         - [ ] Add validation for description and last_modified
@@ -118,7 +118,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Validate triggering conditions
         - [x] Unit test: endpoint behavior
         - [x] E2E/integration test: endpoint behavior (integration-scale tests implemented)
-- [ ] Add API documentation and OpenAPI schema customizations
+- [x] Add API documentation and OpenAPI schema customizations
 - [ ] Improve error handling and logging
 - [ ] Performance and security review
 - [ ] Production readiness checklist
