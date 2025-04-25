@@ -123,8 +123,27 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] E2E/integration test: endpoint behavior (integration-scale tests implemented)
 - [x] Add API documentation and OpenAPI schema customizations
 - [ ] Improve error handling and logging
+    - [ ] Add robust exception handling to all endpoints and background tasks
+    - [ ] Ensure all errors are logged with appropriate severity and context
+    - [ ] Structure logs for production (JSON, log levels, timestamps)
+    - [ ] Add contextual info to error responses (without leaking sensitive data)
+    - [ ] Review and test error responses for all endpoints
 - [ ] Performance and security review
+    - [ ] Profile endpoints for slow spots and optimize as needed
+    - [ ] Audit DB queries for N+1 and inefficiencies
+    - [ ] Review authentication and authorization logic for security holes
+    - [ ] Check for SQL injection, open CORS, and other FastAPI/Python/SQLAlchemy security issues
+    - [ ] Review rate limiting, input validation, and secrets handling
+    - [ ] Document findings and action items
 - [ ] Production readiness checklist
+    - [ ] Document and enforce required environment variables
+    - [ ] Ensure Docker images are slim, secure, and production-ready
+    - [ ] Add/verify health checks for backend service
+    - [ ] Ensure monitoring and alerting hooks are ready (if applicable)
+    - [ ] Verify database migrations are safe and repeatable
+    - [ ] Ensure all endpoints are covered by tests
+    - [ ] Finalize and update all documentation
+    - [ ] Review for any remaining TODOs or FIXMEs in the codebase
 
 ## Last Updated
 2025-04-25 (all protected endpoints, including /photos/{id} and /photos/{id}/image, now require Bearer token; E2E/unit tests passing)
