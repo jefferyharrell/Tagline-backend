@@ -2,6 +2,8 @@
 Photos API routes for Tagline backend.
 """
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,6 +13,47 @@ from tagline_backend_app.deps import get_current_user
 from tagline_backend_app.schemas import Photo, PhotoListResponse, PhotoMetadataFields
 
 router = APIRouter()
+
+
+@router.get(
+    "/photos/{id}",
+    response_model=Photo,
+    responses={
+        404: {
+            "description": "Photo not found",
+            "content": {"application/json": {"example": {"detail": "Photo not found"}}},
+        },
+        422: {
+            "description": "Invalid UUID supplied",
+            "content": {
+                "application/json": {"example": {"detail": "value is not a valid uuid"}}
+            },
+        },
+    },
+)
+def get_photo_by_id(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Retrieve a single photo and its metadata by unique ID.
+
+    - **id**: UUID of the photo to retrieve.
+    - **Returns**: Photo object matching the spec.
+    - **404**: Returned if no photo with the given ID exists.
+    - **422**: Returned if the ID is not a valid UUID.
+    """
+    repo = PhotoRepository(db)
+    photo = repo.get(id)
+    if photo is None:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return Photo(
+        id=str(photo.id),
+        object_key=photo.filename,
+        metadata=PhotoMetadataFields(description=photo.description),
+        last_modified=photo.updated_at.isoformat(),
+    )
 
 
 @router.get(

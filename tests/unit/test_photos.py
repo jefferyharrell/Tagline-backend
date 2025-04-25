@@ -41,7 +41,7 @@ def mock_photo():
 
 
 def test_get_photo_valid_id(client, mock_photo):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = mock_photo
         response = client.get(f"/photos/{mock_photo.id}")
@@ -54,7 +54,7 @@ def test_get_photo_valid_id(client, mock_photo):
 
 
 def test_get_photo_nonexistent_id(client):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = None
         fake_id = uuid.uuid4()
