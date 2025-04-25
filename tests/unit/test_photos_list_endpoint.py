@@ -59,7 +59,8 @@ def test_photos_list_happy_path(client):
     assert len(data["items"]) == 5
     for i, item in enumerate(data["items"]):
         assert item["filename"] == f"img_{i+2}.jpg"
-        assert item["description"] == f"desc {i+2}"
+        assert "metadata" in item
+        assert item["metadata"]["description"] == f"desc {i+2}"
 
 
 def test_photos_list_limit_validation(client):

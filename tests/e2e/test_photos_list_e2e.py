@@ -35,4 +35,5 @@ def test_photos_list_e2e(client):
     assert len(data["items"]) == 3
     for i, item in enumerate(data["items"]):
         assert item["filename"] == f"img_{i+4}.jpg"
-        assert item["description"] == f"desc {i+4}"
+        assert "metadata" in item
+        assert item["metadata"]["description"] == f"desc {i+4}"

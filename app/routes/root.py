@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.crud.photo import PhotoRepository
-from app.schemas import PhotoListResponse, PhotoMetadata
+from app.schemas import PhotoListResponse, PhotoMetadata, PhotoMetadataFields
 
 from ..constants import API_VERSION, APP_NAME
 from ..db import get_db
@@ -77,7 +77,7 @@ def list_photos(
         PhotoMetadata(
             id=str(photo.id),
             filename=photo.filename,
-            description=photo.description,
+            metadata=PhotoMetadataFields(description=photo.description),
             created_at=photo.created_at.isoformat(),
             updated_at=photo.updated_at.isoformat(),
         )

@@ -45,12 +45,20 @@ class RefreshResponse(BaseModel):
     )
 
 
+class PhotoMetadataFields(BaseModel):
+    """Extensible metadata fields for a photo (spec-compliant)."""
+
+    description: str | None = None  # Required for MVP, add more fields as needed
+
+
 class PhotoMetadata(BaseModel):
     """Metadata for a single photo in list responses."""
 
     id: str
     filename: str
-    description: str | None = None
+    metadata: PhotoMetadataFields = Field(
+        ..., description="Dictionary of metadata fields (at minimum: description)"
+    )
     created_at: str
     updated_at: str
 
@@ -62,6 +70,3 @@ class PhotoListResponse(BaseModel):
     limit: int
     offset: int
     items: list[PhotoMetadata]
-
-
-# Optionally, we could define error response models here as well if desired.
