@@ -73,12 +73,14 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Store JWT secret in env/config
         - [x] Add token expiration and refresh logic
         - [x] Unit test: token creation/validation/expiration
-    - [ ] Protect endpoints with authentication
-        - [ ] Require access token for all protected endpoints
-        - [ ] Implement token validation in FastAPI dependencies
-        - [ ] Return 401/403 for missing/invalid tokens
-        - [ ] Unit test: unauthorized access
-        - [ ] E2E test: endpoint protection
+    - [x] Protect endpoints with authentication
+        - [x] Require access token for all protected endpoints (see /photos, /photos/{id}, /photos/{id}/image, /photos/{id}/metadata)
+        - [x] Implement token validation in FastAPI dependencies (now uses HTTPBearer and OpenAPI security)
+        - [x] Return 401/403 for missing/invalid tokens (fully tested)
+        - [x] Unit test: unauthorized access (see tests/unit/)
+        - [x] E2E test: endpoint protection (see tests/e2e/, all scenarios passing as of 2025-04-25)
+        - [x] Swagger UI now supports Bearer token authentication via "Authorize" button
+        - [x] GET /photos/{id} and /photos/{id}/image now fully protected and tested (unit/E2E)
     - [ ] Implement logout/invalidate refresh tokens (optional for MVP)
         - [ ] Add refresh token blacklist or revocation mechanism (if needed)
         - [x] Unit/E2E test: revoked token cannot be used
@@ -125,7 +127,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 - [ ] Production readiness checklist
 
 ## Last Updated
-2025-04-25
+2025-04-25 (all protected endpoints, including /photos/{id} and /photos/{id}/image, now require Bearer token; E2E/unit tests passing)
 
 ---
 

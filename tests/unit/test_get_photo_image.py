@@ -14,9 +14,12 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
+from app.deps import get_current_user
 from app.main import create_app
 
 app = create_app()
+app.dependency_overrides = getattr(app, "dependency_overrides", {})
+app.dependency_overrides[get_current_user] = lambda: True
 client = TestClient(app)
 
 

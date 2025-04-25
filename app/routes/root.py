@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.crud.photo import PhotoRepository
+from app.deps import get_current_user
 from app.schemas import (
     Photo,
     PhotoListResponse,
@@ -78,6 +79,7 @@ def rescan_photos(request: Request, db: Session = Depends(get_db)):
 )
 def list_photos(
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
     limit: int = 50,
     offset: int = 0,
 ):
@@ -131,7 +133,11 @@ def list_photos(
         },
     },
 )
-def get_photo_by_id(id: UUID, db: Session = Depends(get_db)):
+def get_photo_by_id(
+    id: UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     """
     Retrieve a single photo and its metadata by unique ID.
 
@@ -178,7 +184,12 @@ def get_photo_by_id(id: UUID, db: Session = Depends(get_db)):
     },
     name="get_photo_image",
 )
-def get_photo_image(id: UUID, request: Request, db: Session = Depends(get_db)):
+def get_photo_image(
+    id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     """
     Retrieve the binary image file for a photo by unique ID.
 
@@ -280,6 +291,7 @@ def update_photo_metadata(
     id: UUID,
     payload: UpdateMetadataRequest,
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
     """
     Update a photo's metadata (description, optionally last_modified).

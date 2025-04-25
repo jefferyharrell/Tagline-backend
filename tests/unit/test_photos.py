@@ -9,12 +9,15 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
+from app.deps import get_current_user
 from app.main import create_app
 
 
 @pytest.fixture
 def client():
     app = create_app()
+    app.dependency_overrides = getattr(app, "dependency_overrides", {})
+    app.dependency_overrides[get_current_user] = lambda: True
     return TestClient(app)
 
 

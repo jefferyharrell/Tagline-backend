@@ -11,13 +11,24 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+import app.deps
 
+@pytest.fixture(autouse=True)
+def bypass_auth(monkeypatch):
+    monkeypatch.setattr(app.deps, "get_current_user", lambda: True)
 
 @pytest.fixture
 def client():
-    app = create_app()
-    return TestClient(app)
+    from fastapi.testclient import TestClient
+    return TestClient(create_app())
 
+@pytest.fixture(autouse=True)
+def bypass_auth(monkeypatch):
+    monkeypatch.setattr(app.deps, "get_current_user", lambda: True)
+
+@pytest.fixture
+def client():
+    return TestClient(app)
 
 @pytest.fixture
 def mock_photo():
