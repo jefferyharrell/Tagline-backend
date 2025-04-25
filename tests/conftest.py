@@ -116,26 +116,36 @@ def client(tmp_path_factory):
     import os
     import uuid
 
-    # Set up a unique shared in-memory SQLite DB URI
+    from fastapi.testclient import TestClient
+
+    from app.config import get_settings  # Import only get_settings
+    from app.db import get_engine
+    from app.main import create_app
+    from app.models import Base
+
+    # --- Set Test Environment Variables ---
+    os.environ["APP_ENV"] = "test"
+    os.environ["STORAGE_PROVIDER"] = "filesystem"
+
+    # Set up DB and storage paths
     unique_name = f"test_{uuid.uuid4().hex}"
     db_url = f"sqlite:///file:{unique_name}?mode=memory&cache=shared&uri=true"
     os.environ["DATABASE_URL"] = db_url
-    # Set up a unique temp directory for the filesystem provider
     photo_storage_dir = tmp_path_factory.mktemp("photos")
     os.environ["FILESYSTEM_STORAGE_PATH"] = str(photo_storage_dir)
-    # Clear config cache AFTER setting env vars
-    from app.config import get_settings
 
+    # --- Clear cache JUST BEFORE app creation ---
     get_settings.cache_clear()
-    # Now import DB/models and create tables
-    from app.db import get_engine
-    from app.models import Base
 
-    engine = get_engine()
+    # --- Create App ---
+    engine = get_engine()  # Ensure engine uses the env var set above
     Base.metadata.create_all(engine)
-    from fastapi.testclient import TestClient
-
-    from app.main import create_app
-
     app = create_app()
+
+    # --- CRITICAL FIX: Override app.state provider kind directly ---
+    app.state.photo_storage_provider_kind = "filesystem"
+    app.state.filesystem_storage_path = str(photo_storage_dir)
+
     return TestClient(app)
+
+    # Cleanup can be added here if needed
