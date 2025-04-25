@@ -1,7 +1,7 @@
 """
 test_models.py
 
-Unit tests for SQLAlchemy ORM models in Tagline backend.
+Integration tests for SQLAlchemy ORM models in Tagline backend.
 Focus: Photo model field defaults, nullability, and DB integration.
 """
 
