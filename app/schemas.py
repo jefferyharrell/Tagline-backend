@@ -45,4 +45,23 @@ class RefreshResponse(BaseModel):
     )
 
 
+class PhotoMetadata(BaseModel):
+    """Metadata for a single photo in list responses."""
+
+    id: str
+    filename: str
+    description: str | None = None
+    created_at: str
+    updated_at: str
+
+
+class PhotoListResponse(BaseModel):
+    """Paginated list of photos."""
+
+    total: int
+    limit: int
+    offset: int
+    items: list[PhotoMetadata]
+
+
 # Optionally, we could define error response models here as well if desired.

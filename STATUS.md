@@ -91,11 +91,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add validation for refresh payload (refresh_token required, type)
         - [x] Unit test: valid/invalid refresh payloads
         - [x] E2E test: endpoint behavior
-    - [ ] GET /photos — List photo IDs (paginated)
-        - [ ] Define `PhotoListResponse` model
-        - [ ] Add validation for query params (limit, offset)
-        - [ ] Unit test: valid/invalid pagination params
-        - [ ] E2E test: endpoint behavior
+    - [x] GET /photos — List photo IDs (paginated)
+        - [x] Define `PhotoListResponse` model
+        - [x] Add validation for query params (limit, offset)
+        - [x] Unit test: valid/invalid pagination params
+        - [x] E2E test: endpoint behavior
     - [ ] GET /photos/{id} — Get photo + metadata
         - [ ] Define `Photo` model
         - [ ] Add validation for path param (UUID format)
@@ -111,11 +111,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] Add validation for path param (UUID format)
         - [ ] Unit test: valid/invalid photo ID
         - [ ] E2E test: endpoint behavior
-    - [ ] POST /rescan — Scan storage, import new photos
-        - [ ] Define response model if needed
-        - [ ] Validate triggering conditions
-        - [ ] Unit test: endpoint behavior
-        - [ ] E2E test: endpoint behavior
+    - [x] POST /rescan — Scan storage, import new photos
+        - [x] Define response model if needed
+        - [x] Validate triggering conditions
+        - [x] Unit test: endpoint behavior
+        - [x] E2E/integration test: endpoint behavior (integration-scale tests implemented)
 - [ ] Add API documentation and OpenAPI schema customizations
 - [ ] Improve error handling and logging
 - [ ] Performance and security review

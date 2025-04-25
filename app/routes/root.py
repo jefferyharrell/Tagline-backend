@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.crud.photo import PhotoRepository
+from app.schemas import PhotoListResponse, PhotoMetadata
 
 from ..constants import API_VERSION, APP_NAME
 from ..db import get_db
@@ -52,6 +53,42 @@ def rescan_photos(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)
         )
+
+
+@router.get("/photos", response_model=PhotoListResponse)
+def list_photos(
+    db: Session = Depends(get_db),
+    limit: int = 50,
+    offset: int = 0,
+):
+    """
+    List photo metadata (paginated).
+    """
+    # Validate limit and offset
+    if limit < 1 or limit > 100:
+        raise HTTPException(status_code=422, detail="limit must be between 1 and 100")
+    if offset < 0:
+        raise HTTPException(status_code=422, detail="offset must be >= 0")
+
+    repo = PhotoRepository(db)
+    photos = repo.list()
+    total = len(photos)
+    items = [
+        PhotoMetadata(
+            id=str(photo.id),
+            filename=photo.filename,
+            description=photo.description,
+            created_at=photo.created_at.isoformat(),
+            updated_at=photo.updated_at.isoformat(),
+        )
+        for photo in photos[offset : offset + limit]
+    ]
+    return PhotoListResponse(
+        total=total,
+        limit=limit,
+        offset=offset,
+        items=items,
+    )
 
 
 @router.get("/")
