@@ -27,10 +27,10 @@ lint:
     source venv/bin/activate && pyright
 
 # Testing
-test-units:
+unit-tests:
     source venv/bin/activate && pytest --cov=app --cov-report=term-missing
 
-test-e2e:
+e2e-tests:
     # Start backend containers and run end-to-end tests (pytest -m e2e)
     just up
     for i in {1..30}; do \
@@ -47,8 +47,8 @@ test-e2e:
 all:
     just format
     just lint
-    just test-units
-    just test-e2e
+    just unit-tests
+    just e2e-tests
     just pre-commit
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
