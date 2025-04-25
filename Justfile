@@ -44,7 +44,7 @@ e2e-tests:
       echo "Waiting for backend to be ready... ($$i)"; \
       sleep 1; \
     done
-    source venv/bin/activate && pytest tests/e2e -m e2e
+    source venv/bin/activate && pytest tests/e2e -m e2e -rs
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
 all:

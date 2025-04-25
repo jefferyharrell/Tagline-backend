@@ -3,6 +3,7 @@ Root API routes for Tagline backend.
 """
 
 import os
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -87,6 +88,23 @@ def list_photos(
         limit=limit,
         offset=offset,
         items=items,
+    )
+
+
+@router.get("/photos/{id}", response_model=Photo)
+def get_photo_by_id(id: UUID, db: Session = Depends(get_db)):
+    """
+    Get a photo and its metadata by ID. Returns 404 if not found, 422 if ID is invalid.
+    """
+    repo = PhotoRepository(db)
+    photo = repo.get(id)
+    if photo is None:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return Photo(
+        id=str(photo.id),
+        object_key=photo.filename,
+        metadata=PhotoMetadataFields(description=photo.description),
+        last_modified=photo.updated_at.isoformat(),
     )
 
 
