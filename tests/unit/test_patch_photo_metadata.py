@@ -10,18 +10,17 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-import tagline_backend_app.deps
 from tagline_backend_app.main import create_app
-
-
-@pytest.fixture(autouse=True)
-def bypass_auth(monkeypatch):
-    monkeypatch.setattr(tagline_backend_app.deps, "get_current_user", lambda: True)
 
 
 @pytest.fixture
 def client():
-    return TestClient(create_app())
+    app = create_app()
+    from tagline_backend_app.deps import get_current_user
+
+    app.dependency_overrides = getattr(app, "dependency_overrides", {})
+    app.dependency_overrides[get_current_user] = lambda: True
+    return TestClient(app)
 
 
 @pytest.fixture
@@ -43,7 +42,7 @@ def mock_photo():
 
 def test_patch_photo_valid_update(client, mock_photo):
     with (
-        patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo,
+        patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo,
         patch("sqlalchemy.orm.Session.commit"),
         patch("sqlalchemy.orm.Session.refresh"),
     ):
@@ -60,7 +59,7 @@ def test_patch_photo_valid_update(client, mock_photo):
 
 def test_patch_photo_empty_description(client, mock_photo):
     with (
-        patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo,
+        patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo,
         patch("sqlalchemy.orm.Session.commit"),
         patch("sqlalchemy.orm.Session.refresh"),
     ):
@@ -76,7 +75,7 @@ def test_patch_photo_empty_description(client, mock_photo):
 
 
 def test_patch_photo_missing_description(client, mock_photo):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = mock_photo
         response = client.patch(
@@ -88,7 +87,7 @@ def test_patch_photo_missing_description(client, mock_photo):
 
 
 def test_patch_photo_nonstring_description(client, mock_photo):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = mock_photo
         response = client.patch(
@@ -100,7 +99,7 @@ def test_patch_photo_nonstring_description(client, mock_photo):
 
 
 def test_patch_photo_nonexistent_id(client):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = None
         fake_id = uuid.uuid4()
@@ -122,7 +121,7 @@ def test_patch_photo_invalid_uuid(client):
 
 def test_patch_photo_last_modified_valid(client, mock_photo):
     with (
-        patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo,
+        patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo,
         patch("sqlalchemy.orm.Session.commit"),
         patch("sqlalchemy.orm.Session.refresh"),
     ):
@@ -144,7 +143,7 @@ def test_patch_photo_last_modified_valid(client, mock_photo):
 
 
 def test_patch_photo_last_modified_invalid(client, mock_photo):
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.photos.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = mock_photo
         response = client.patch(
