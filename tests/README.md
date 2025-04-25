@@ -6,6 +6,34 @@ This directory contains all unit, integration, and end-to-end (e2e) tests for th
 
 ---
 
+## Testing Methodology
+
+We organize our tests into three categories, each with a different philosophy and environment:
+
+### 1. Unit Tests
+- **Goal:** Test a single unit of code in isolation (e.g., a function, method, or class).
+- **Mocking:** Everything external is mocked—databases, storage, network calls, etc.
+- **Environment:** Runs fast, requires no backend server or real dependencies.
+- **Typical location:** `tests/unit/`
+
+### 2. Integration Tests
+- **Goal:** Test interactions between multiple components (e.g., API + DB + storage), but still within a controlled Python process.
+- **Mocking:** Minimal. Real implementations are used for most dependencies, but some external services may still be mocked.
+- **Environment:** Uses FastAPI's `TestClient` to exercise real code paths, but does not require a running backend server or Docker.
+- **Typical location:** `tests/integration/`
+
+### 3. End-to-End (E2E) Tests
+- **Goal:** Test the system as a whole, as a user would interact with it.
+- **Mocking:** None. Requires a real backend server running (usually via Docker Compose), configured with the actual storage provider, database, etc.
+- **Environment:** Interacts with the running server over HTTP, simulating real-world usage. May require setup/teardown of test data.
+- **Typical location:** `tests/e2e/`
+
+**Note for LLMs and humans:**
+- Always choose the right test type for your goal. Unit tests are fast and focused, integration tests cover real component boundaries, and E2E tests verify the full stack in a production-like setup.
+- E2E tests will fail if the backend server isn't running or is misconfigured. Unit/integration tests should never depend on external services.
+
+---
+
 ## SQLite, SQLAlchemy, and Integration Tests: The "No Such Table" Saga
 
 ### The Problem
