@@ -46,6 +46,8 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add unit tests
         - [x] Legacy access token is deprecated
 - [ ] Add authentication and authorization
+    - [x] Integration/E2E test suite structure and methodology finalized
+    - [x] All tests (unit, integration, E2E) passing in CI, with enforced linting and formatting
     - [x] Design and implement refresh token store for revocation
         - [x] Remove all legacy DB models, migrations, and code for refresh tokens (now Redis-only)
         - [x] DB schema is clean: no more refresh_tokens table
@@ -79,7 +81,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [ ] E2E test: endpoint protection
     - [ ] Implement logout/invalidate refresh tokens (optional for MVP)
         - [ ] Add refresh token blacklist or revocation mechanism (if needed)
-        - [ ] Unit/E2E test: revoked token cannot be used
+        - [x] Unit/E2E test: revoked token cannot be used
     - [ ] Document authentication flow and error responses
 - [ ] Implement core API endpoints
     - [x] POST /login — Authenticate, get tokens
