@@ -2,16 +2,24 @@
 E2E tests for the /refresh endpoint.
 """
 
+import os
+
 import pytest
 import requests
+from dotenv import load_dotenv
 
-API_URL = "http://localhost:8000"
+# Load variables from .env into the environment
+load_dotenv()
+
+API_URL = os.getenv("E2E_API_URL", "http://localhost:8000")
 
 
 @pytest.mark.e2e
 def test_refresh_valid_login_and_refresh():
     # Step 1: Login to get refresh token
-    login_resp = requests.post(f"{API_URL}/login", json={"password": "abc123"})
+    password = os.getenv("BACKEND_PASSWORD")
+    assert password, "BACKEND_PASSWORD not found in environment or .env file"
+    login_resp = requests.post(f"{API_URL}/login", json={"password": password})
     assert login_resp.status_code == 200
     tokens = login_resp.json()
     refresh_token = tokens["refresh_token"]
@@ -34,7 +42,9 @@ def test_refresh_revoked_token_cannot_be_used():
     E2E: After a refresh token is used, it is revoked and cannot be used again.
     """
     # Step 1: Login to get refresh token
-    login_resp = requests.post(f"{API_URL}/login", json={"password": "abc123"})
+    password = os.getenv("BACKEND_PASSWORD")
+    assert password, "BACKEND_PASSWORD not found in environment or .env file"
+    login_resp = requests.post(f"{API_URL}/login", json={"password": password})
     assert login_resp.status_code == 200
     tokens = login_resp.json()
     refresh_token = tokens["refresh_token"]
