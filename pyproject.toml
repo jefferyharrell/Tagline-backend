@@ -11,9 +11,9 @@ license = { text = "MIT" }
 
 [tool.pytest.ini_options]
 markers = [
-    "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')"
+    "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')",
+    "integration: marks tests as integration (deselect with '-m \"not integration\"')"
 ]
-addopts = "-m 'not e2e'"
 
 [tool.black]
 line-length = 88

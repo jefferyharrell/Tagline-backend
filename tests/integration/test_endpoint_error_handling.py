@@ -2,12 +2,14 @@
 Integration test: endpoint returns clear error if storage provider is misconfigured
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.config import get_settings
 from app.main import create_app
 
 
+@pytest.mark.integration
 def test_root_endpoint_returns_503_if_storage_provider_misconfigured(monkeypatch):
     """
     If FILESYSTEM_STORAGE_PATH is missing, the root endpoint should return 503 with a clear error.

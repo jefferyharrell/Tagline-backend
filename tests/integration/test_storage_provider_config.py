@@ -14,6 +14,7 @@ from app.storage.filesystem import (
 )
 
 
+@pytest.mark.integration
 def test_filesystem_provider_env(monkeypatch):
     """Provider is correctly instantiated from env config."""
     with tempfile.TemporaryDirectory() as tempdir:
@@ -25,6 +26,7 @@ def test_filesystem_provider_env(monkeypatch):
         assert provider._root == Path(tempdir).resolve()
 
 
+@pytest.mark.integration
 def test_missing_filesystem_path(monkeypatch):
     """Missing FILESYSTEM_STORAGE_PATH raises StorageProviderMisconfigured at provider instantiation."""
     monkeypatch.setenv("STORAGE_PROVIDER", "filesystem")
@@ -36,6 +38,7 @@ def test_missing_filesystem_path(monkeypatch):
     assert "FILESYSTEM_STORAGE_PATH is not set" in str(excinfo.value)
 
 
+@pytest.mark.integration
 def test_unsupported_storage_provider(monkeypatch):
     """Unsupported STORAGE_PROVIDER raises NotImplementedError."""
     monkeypatch.setenv("STORAGE_PROVIDER", "s3")
@@ -54,6 +57,7 @@ def test_unsupported_storage_provider(monkeypatch):
     assert "Storage provider 's3' is not supported yet." in str(excinfo.value)
 
 
+@pytest.mark.integration
 def test_filesystem_provider_case_insensitive(monkeypatch):
     """STORAGE_PROVIDER is case-insensitive ('FiLeSyStEm' works)."""
     with tempfile.TemporaryDirectory() as tempdir:

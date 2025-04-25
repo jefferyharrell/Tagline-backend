@@ -2,12 +2,14 @@
 Integration tests for the /smoke-test endpoint.
 """
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.config import get_settings
 from app.main import create_app
 
 
+@pytest.mark.integration
 def test_smoke_test_ok(monkeypatch):
     """Returns 200 and provider info if storage provider is configured."""
     with monkeypatch.context() as m:
@@ -23,6 +25,7 @@ def test_smoke_test_ok(monkeypatch):
         assert data["provider"] == "FilesystemPhotoStorageProvider"
 
 
+@pytest.mark.integration
 def test_smoke_test_misconfigured(monkeypatch):
     """Returns 503 if provider is misconfigured (missing env var)."""
     with monkeypatch.context() as m:

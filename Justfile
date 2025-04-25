@@ -28,7 +28,10 @@ lint:
 
 # Testing
 unit-tests:
-    source venv/bin/activate && pytest --cov=app --cov-report=term-missing
+    source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e' --cov=app --cov-report=term-missing
+
+integration-tests:
+    source venv/bin/activate && pytest tests/integration -m integration
 
 e2e-tests:
     # Start backend containers and run end-to-end tests (pytest -m e2e)
@@ -41,13 +44,14 @@ e2e-tests:
       echo "Waiting for backend to be ready... ($$i)"; \
       sleep 1; \
     done
-    source venv/bin/activate && pytest -m e2e
+    source venv/bin/activate && pytest tests/e2e -m e2e
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
 all:
     just format
     just lint
     just unit-tests
+    just integration-tests
     just e2e-tests
     just pre-commit
 

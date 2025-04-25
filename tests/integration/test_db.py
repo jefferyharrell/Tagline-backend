@@ -2,16 +2,19 @@
 Unit tests for app.db (engine and session setup).
 """
 
+import pytest
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 
+@pytest.mark.integration
 def test_engine_is_engine():
     from app.db import get_engine
 
     assert isinstance(get_engine(), Engine)
 
 
+@pytest.mark.integration
 def test_engine_sqlite_check_same_thread():
     # This test assumes the default config is SQLite
     from app.db import get_engine
@@ -31,6 +34,7 @@ def test_engine_sqlite_check_same_thread():
         assert result == 1
 
 
+@pytest.mark.integration
 def test_sessionlocal_works():
     from app.db import get_session_local
 
