@@ -8,13 +8,15 @@ from fastapi import APIRouter, Request
 
 from ..constants import API_VERSION, APP_NAME
 from .auth import router as auth_router
+from .health import router as health_router
 from .photos import router as photos_router
 from .rescan import router as rescan_router
 
 router = APIRouter()
 router.include_router(auth_router)
-router.include_router(rescan_router)
 router.include_router(photos_router)
+router.include_router(health_router)
+router.include_router(rescan_router)
 
 APP_ENV = os.environ.get("APP_ENV", "production").lower()
 
@@ -36,10 +38,3 @@ def root(request: Request):
         }
     else:
         return {"status": "ok"}
-
-
-@router.get("/smoke-test")
-def smoke_test(request: Request):
-    """Health check: verifies storage provider config. Returns 200 if OK, 503 if misconfigured."""
-    provider = request.app.state.get_photo_storage_provider(request.app)
-    return {"status": "ok", "provider": type(provider).__name__}
