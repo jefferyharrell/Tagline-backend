@@ -1,15 +1,15 @@
 """
-NullPhotoStorageProvider: a /dev/null implementation for Tagline.
+NullStorageProvider: a /dev/null implementation for Tagline.
 Accepts all operations, stores nothing, returns nothing, never raises config errors.
 Useful for CI, demo, or when no real storage is needed.
 """
 
 from typing import BinaryIO, Iterable, Optional
 
-from .provider import PhotoStorageProvider
+from .provider import StorageProvider
 
 
-class NullPhotoStorageProvider(PhotoStorageProvider):
+class NullStorageProvider(StorageProvider):
     """
     /dev/null provider: accepts all, returns nothing.
     - list: always empty

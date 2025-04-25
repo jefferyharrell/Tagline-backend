@@ -38,7 +38,7 @@ The backend is configured using environment variables, which can be set in a `.e
 BACKEND_PASSWORD=your-backend-password-here
 JWT_SECRET_KEY=superlongrandomstringforjwt
 STORAGE_PROVIDER=filesystem
-FILESYSTEM_STORAGE_PATH=/absolute/path/to/photo/storage
+FILESYSTEM_STORAGE_PATH=/absolute/path/to/item storage
 DROPBOX_REFRESH_TOKEN=your-dropbox-refresh-token-here
 DROPBOX_APP_KEY=your-dropbox-app-key-here
 DROPBOX_APP_SECRET=your-dropbox-app-secret-here
@@ -65,12 +65,12 @@ You can copy `.env.example` to `.env` and edit as needed.
 
 For detailed instructions, troubleshooting tips, and gotchas about running unit, integration, and e2e tests—including how to set up SQLite and SQLAlchemy for reliable integration tests—see [tests/README.md](tests/README.md).
 
-## Extending Photo Storage Providers (For Developers)
+## Extending Storage Providers (For Developers)
 
 To add a new storage backend:
 
 1. **Implement the interface:**
-   - Subclass `PhotoStorageProvider` (see `app/storage/provider.py`).
+   - Subclass `StorageProvider` (see `app/storage/provider.py`).
    - Implement all required methods: `list`, `retrieve`, and optionally `upload`, `delete`, `get_url`.
 2. **Add provider settings:**
    - Create a Pydantic settings class for your provider in `app/config.py`.
@@ -80,7 +80,7 @@ To add a new storage backend:
 4. **Test your provider:**
    - Add unit and (eventually) integration tests in `tests/unit/` or `tests/integration/` as appropriate.
 
-See the existing `FilesystemPhotoStorageProvider` and `DropboxStorageProvider` for examples.
+See the existing `FilesystemStorageProvider`, `InMemoryStorageProvider`, and `NullStorageProvider` for examples.
 
 ---
 

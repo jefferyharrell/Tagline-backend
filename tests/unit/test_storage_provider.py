@@ -1,14 +1,14 @@
 """
-Unit tests for the PhotoStorageProvider interface contract.
+Unit tests for the StorageProvider interface contract.
 Ensures NotImplementedError is raised for upload/delete, and get_url returns None by default.
 """
 
 import pytest
 
-from app.storage.provider import PhotoStorageProvider
+from app.storage.provider import StorageProvider
 
 
-class DummyProvider(PhotoStorageProvider):
+class DummyProvider(StorageProvider):
     def list(self, prefix=None):
         return []
 

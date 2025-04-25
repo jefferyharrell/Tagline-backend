@@ -1,17 +1,17 @@
 """
-Unit tests for InMemoryPhotoStorageProvider.
+Unit tests for InMemoryStorageProvider.
 """
 
 from io import BytesIO
 
 import pytest
 
-from app.storage.memory import InMemoryPhotoStorageProvider
+from app.storage.memory import InMemoryStorageProvider
 
 
 @pytest.fixture
 def provider():
-    return InMemoryPhotoStorageProvider()
+    return InMemoryStorageProvider()
 
 
 def test_list_and_upload(provider):

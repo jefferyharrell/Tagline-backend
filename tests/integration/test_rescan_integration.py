@@ -1,7 +1,7 @@
 """
 Integration test for the /rescan endpoint using:
 - In-memory SQLite DB
-- InMemoryPhotoStorageProvider
+- InMemoryStorageProvider
 - Real FastAPI app stack (no mocks)
 
 Marked with @pytest.mark.integration for easy selection.
@@ -16,7 +16,7 @@ from app.config import get_settings
 from app.db import get_engine
 from app.main import create_app
 from app.models import Base
-from app.storage.memory import InMemoryPhotoStorageProvider
+from app.storage.memory import InMemoryStorageProvider
 
 
 @pytest.fixture
@@ -59,7 +59,7 @@ def integration_app(tmp_path_factory):
     app.dependency_overrides[get_session_local] = override_get_db
 
     # Inject a real memory provider into app state (for direct manipulation)
-    provider = InMemoryPhotoStorageProvider()
+    provider = InMemoryStorageProvider()
     app.state.get_photo_storage_provider = lambda app: provider
     return app, provider
 

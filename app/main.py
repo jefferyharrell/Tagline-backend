@@ -6,8 +6,8 @@ from .redis_token_store import RedisTokenStore
 from .storage.filesystem import (
     StorageProviderMisconfigured,
 )
-from .storage.memory import InMemoryPhotoStorageProvider
-from .storage.null import NullPhotoStorageProvider
+from .storage.memory import InMemoryStorageProvider
+from .storage.null import NullStorageProvider
 
 
 def create_app() -> FastAPI:
@@ -82,15 +82,13 @@ def create_app() -> FastAPI:
     def get_photo_storage_provider(app_instance):
         kind = getattr(app_instance.state, "photo_storage_provider_kind", None)
         if kind == "filesystem":
-            from .storage.filesystem import FilesystemPhotoStorageProvider
+            from .storage.filesystem import FilesystemStorageProvider
 
-            return FilesystemPhotoStorageProvider(
-                app_instance.state.filesystem_storage_path
-            )
+            return FilesystemStorageProvider(app_instance.state.filesystem_storage_path)
         elif kind == "null":
-            return NullPhotoStorageProvider()
+            return NullStorageProvider()
         elif kind == "memory":
-            return InMemoryPhotoStorageProvider()
+            return InMemoryStorageProvider()
         elif kind == "dropbox":
             from .storage.dropbox import DropboxStorageProvider
 

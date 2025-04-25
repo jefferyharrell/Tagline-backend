@@ -1,5 +1,5 @@
 """
-Dropbox implementation of PhotoStorageProvider (stub).
+Dropbox implementation of StorageProvider (stub).
 All methods raise NotImplementedError. This is a placeholder for future Dropbox integration.
 """
 
@@ -10,10 +10,10 @@ import dropbox
 from dropbox.exceptions import ApiError
 from dropbox.files import FileMetadata
 
-from app.storage.provider import PhotoStorageProvider, StorageProviderMisconfigured
+from app.storage.provider import StorageProvider, StorageProviderMisconfigured
 
 
-class DropboxStorageProvider(PhotoStorageProvider):
+class DropboxStorageProvider(StorageProvider):
     """
     Media storage provider using Dropbox via the official SDK.
     Supports listing and retrieving files under a configured root path.

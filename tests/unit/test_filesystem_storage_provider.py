@@ -1,5 +1,5 @@
 """
-Unit tests for FilesystemPhotoStorageProvider.
+Unit tests for FilesystemStorageProvider.
 Covers edge cases and security for list and retrieve.
 """
 
@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 from app.storage.filesystem import (
-    FilesystemPhotoStorageProvider,
+    FilesystemStorageProvider,
     StorageProviderMisconfigured,
 )
 
@@ -34,30 +34,30 @@ def temp_photo_dir():
 
 
 def test_init_accepts_valid_dir(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     assert provider._root == temp_photo_dir.resolve()
 
 
 def test_init_rejects_nonexistent():
     with pytest.raises(StorageProviderMisconfigured):
-        FilesystemPhotoStorageProvider(Path("/no/such/dir"))
+        FilesystemStorageProvider(Path("/no/such/dir"))
 
 
 def test_init_rejects_file(tmp_path):
     file = tmp_path / "file.txt"
     file.write_text("hi")
     with pytest.raises(StorageProviderMisconfigured):
-        FilesystemPhotoStorageProvider(file)
+        FilesystemStorageProvider(file)
 
 
 def test_list_all_keys(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     keys = sorted(provider.list())
     assert keys == ["bar.png", "foo.jpg", str(Path("sub") / "baz.gif")]
 
 
 def test_list_with_prefix(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     keys = list(provider.list("foo"))
     assert keys == ["foo.jpg"]
     keys = list(provider.list("sub/"))
@@ -65,7 +65,7 @@ def test_list_with_prefix(temp_photo_dir):
 
 
 def test_retrieve_returns_file(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     with provider.retrieve("foo.jpg") as f:
         assert f.read() == b"foo"
     with provider.retrieve(str(Path("sub") / "baz.gif")) as f:
@@ -73,13 +73,13 @@ def test_retrieve_returns_file(temp_photo_dir):
 
 
 def test_retrieve_missing_raises(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     with pytest.raises(FileNotFoundError):
         provider.retrieve("nope.jpg")
 
 
 def test_retrieve_traversal_raises(temp_photo_dir):
-    provider = FilesystemPhotoStorageProvider(temp_photo_dir)
+    provider = FilesystemStorageProvider(temp_photo_dir)
     # Attempt to escape root with ..
     with pytest.raises(FileNotFoundError):
         provider.retrieve("../foo.jpg")

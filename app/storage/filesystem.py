@@ -1,5 +1,5 @@
 """
-Local filesystem implementation of PhotoStorageProvider.
+Local filesystem implementation of StorageProvider.
 All file operations are sandboxed to a configured root directory.
 This provider is read-only: upload and delete are not supported.
 """
@@ -7,12 +7,12 @@ This provider is read-only: upload and delete are not supported.
 from pathlib import Path
 from typing import BinaryIO, Iterable, Optional
 
-from app.storage.provider import PhotoStorageProvider, StorageProviderMisconfigured
+from app.storage.provider import StorageProvider, StorageProviderMisconfigured
 
 
-class FilesystemPhotoStorageProvider(PhotoStorageProvider):
+class FilesystemStorageProvider(StorageProvider):
     """
-    Photo storage provider using the local filesystem (read-only).
+    Item storage provider using the local filesystem (read-only).
     All keys are paths relative to the configured root directory.
     Prevents path traversal and access outside the root.
     """
@@ -21,7 +21,7 @@ class FilesystemPhotoStorageProvider(PhotoStorageProvider):
         """
         Initialize the provider with a root directory.
         Args:
-            root_path: pathlib.Path to the photo storage root directory, or None.
+            root_path: pathlib.Path to the item storage root directory, or None.
         Raises:
             StorageProviderMisconfigured: If root_path is None or invalid.
         """
@@ -38,7 +38,7 @@ class FilesystemPhotoStorageProvider(PhotoStorageProvider):
 
     def list(self, prefix: Optional[str] = None) -> Iterable[str]:
         """
-        List all photo keys (relative paths) in the root directory, optionally filtered by prefix.
+        List all item keys (relative paths) in the root directory, optionally filtered by prefix.
         Args:
             prefix: Optional string to filter returned keys.
         Returns:
@@ -52,7 +52,7 @@ class FilesystemPhotoStorageProvider(PhotoStorageProvider):
 
     def retrieve(self, key: str) -> BinaryIO:
         """
-        Retrieve a photo by key (relative path from root).
+        Retrieve an item by key (relative path from root).
         Args:
             key: Relative path to the file under root.
         Returns:
@@ -67,7 +67,7 @@ class FilesystemPhotoStorageProvider(PhotoStorageProvider):
         except ValueError:
             raise FileNotFoundError(f"Access denied: {key}")
         if not file_path.is_file():
-            raise FileNotFoundError(f"Photo not found: {key}")
+            raise FileNotFoundError(f"Item not found: {key}")
         return file_path.open("rb")
 
     # upload and delete are inherited (NotImplementedError)

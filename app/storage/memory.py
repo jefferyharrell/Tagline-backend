@@ -1,15 +1,15 @@
 """
-InMemoryPhotoStorageProvider: ephemeral, in-memory storage for Tagline.
-Stores files in a process-local dict; wiped on restart. Great for tests and CI!
+InMemoryStorageProvider: ephemeral, in-memory storage for Tagline.
+Stores items in a process-local dict; wiped on restart. Great for tests and CI!
 """
 
 from io import BytesIO
 from typing import BinaryIO, Dict, Iterable, Optional
 
-from .provider import PhotoStorageProvider
+from .provider import StorageProvider
 
 
-class InMemoryPhotoStorageProvider(PhotoStorageProvider):
+class InMemoryStorageProvider(StorageProvider):
     """
     In-memory provider: stores files in a dict, lost on process exit.
     - list: returns all stored keys

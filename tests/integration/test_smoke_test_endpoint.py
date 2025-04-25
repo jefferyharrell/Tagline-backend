@@ -22,7 +22,7 @@ def test_smoke_test_ok(monkeypatch):
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert data["provider"] == "FilesystemPhotoStorageProvider"
+        assert data["provider"] == "FilesystemStorageProvider"
 
 
 @pytest.mark.integration

@@ -1,15 +1,15 @@
 """
-Unit tests for NullPhotoStorageProvider.
+Unit tests for NullStorageProvider.
 """
 
 import pytest
 
-from app.storage.null import NullPhotoStorageProvider
+from app.storage.null import NullStorageProvider
 
 
 @pytest.fixture
 def provider():
-    return NullPhotoStorageProvider()
+    return NullStorageProvider()
 
 
 def test_list_always_empty(provider):

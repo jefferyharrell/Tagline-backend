@@ -9,7 +9,7 @@ import pytest
 
 from app.config import get_settings
 from app.storage.filesystem import (
-    FilesystemPhotoStorageProvider,
+    FilesystemStorageProvider,
     StorageProviderMisconfigured,
 )
 
@@ -22,7 +22,7 @@ def test_filesystem_provider_env(monkeypatch):
         monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tempdir)
         get_settings.cache_clear()
         s = get_settings()
-        provider = FilesystemPhotoStorageProvider(s.filesystem_storage.path)
+        provider = FilesystemStorageProvider(s.filesystem_storage.path)
         assert provider._root == Path(tempdir).resolve()
 
 
@@ -34,7 +34,7 @@ def test_missing_filesystem_path(monkeypatch):
     get_settings.cache_clear()
     s = get_settings()
     with pytest.raises(StorageProviderMisconfigured) as excinfo:
-        FilesystemPhotoStorageProvider(s.filesystem_storage.path)
+        FilesystemStorageProvider(s.filesystem_storage.path)
     assert "FILESYSTEM_STORAGE_PATH is not set" in str(excinfo.value)
 
 
@@ -65,5 +65,5 @@ def test_filesystem_provider_case_insensitive(monkeypatch):
         monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", tempdir)
         get_settings.cache_clear()
         s = get_settings()
-        provider = FilesystemPhotoStorageProvider(s.filesystem_storage.path)
+        provider = FilesystemStorageProvider(s.filesystem_storage.path)
         assert provider._root == Path(tempdir).resolve()
