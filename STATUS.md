@@ -109,11 +109,11 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Unit test: valid/invalid metadata payloads (including empty desc, invalid last_modified)
         - [x] Integration test: real DB + in-memory storage provider (see tests/integration/test_patch_photo_metadata_integration.py)
         - [x] E2E test: endpoint behavior (see tests/e2e/test_patch_photo_metadata_e2e.py, all scenarios passing as of 2025-04-25)
-    - [ ] GET /photos/{id}/image — Get image file
-        - [ ] Define response model or headers (content-type, etc.)
-        - [ ] Add validation for path param (UUID format)
-        - [ ] Unit test: valid/invalid photo ID
-        - [ ] E2E test: endpoint behavior
+    - [x] GET /photos/{id}/image — Get image file
+        - [x] Define response model or headers (content-type, etc.)
+        - [x] Add validation for path param (UUID format)
+        - [x] Unit test: valid/invalid photo ID (see tests/unit/test_get_photo_image.py)
+        - [x] E2E test: endpoint behavior (see tests/e2e/test_get_photo_image_e2e.py, all scenarios passing as of 2025-04-25)
     - [x] POST /rescan — Scan storage, import new photos
         - [x] Define response model if needed
         - [x] Validate triggering conditions

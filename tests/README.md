@@ -47,6 +47,9 @@ This pattern is used in integration tests for endpoints like PATCH `/photos/{id}
 - **Environment:** Interacts with the running server over HTTP, simulating real-world usage. May require setup/teardown of test data.
 - **Typical location:** `tests/e2e/`
 
+**E2E Test Environment Variables:**
+- `TAGLINE_E2E_PHOTO_ID`: (optional) UUID of a photo with a valid image in your backend, used by E2E tests for the GET `/photos/{id}/image` endpoint. If unset, the "happy path" E2E test for this endpoint will be skipped. This variable is ignored by the application unless a test explicitly uses it, and is safe to leave in `.env` thanks to permissive settings config.
+
 **Note for LLMs and humans:**
 - Always choose the right test type for your goal. Unit tests are fast and focused, integration tests cover real component boundaries, and E2E tests verify the full stack in a production-like setup.
 - E2E tests will fail if the backend server isn't running or is misconfigured. Unit/integration tests should never depend on external services.
