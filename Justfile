@@ -16,6 +16,10 @@ setup:
     if [ ! -f ".env" ]; then cp .env.example .env; fi
     echo -e "\033[1;32mSetup complete! Activate your venv with 'source venv/bin/activate' and start coding.\033[0m"
 
+format:
+    source venv/bin/activate && isort .
+    source venv/bin/activate && black .
+
 lint:
     source venv/bin/activate && ruff check --fix .
     source venv/bin/activate && pyright
@@ -42,13 +46,17 @@ e2e-tests:
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
 test:
-    just pre-commit
     just unit-tests
     just integration-tests
     just e2e-tests
 
 coverage:
     source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e' --cov=app --cov-report=term-missing
+
+all:
+    just format
+    just lint
+    just test
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
 clean:
