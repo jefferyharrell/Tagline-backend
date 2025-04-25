@@ -165,7 +165,6 @@ jobs:
           exit 1
       - name: Run E2E tests
         run: |
-          source venv/bin/activate
           pytest -m e2e --maxfail=1 --disable-warnings -v
       - name: Show backend logs on failure
         if: failure()
