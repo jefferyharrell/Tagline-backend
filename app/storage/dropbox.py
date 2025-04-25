@@ -90,19 +90,20 @@ class DropboxStorageProvider(StorageProvider):
         Returns:
             List of keys (relative to root_path).
         """
-        result: list[str] = []
         path = self.root_path
         try:
             res = self.dbx.files_list_folder(path, recursive=True)
-            entries = getattr(res, "entries", None)
-
-            # Only process if we got a list back
-            if isinstance(entries, list):
-                return self._process_entries(entries, prefix)
-
+            entries = list(getattr(res, "entries", []))
+            # Handle Dropbox pagination: fetch all pages using files_list_folder_continue
+            while getattr(res, "has_more", False):
+                cursor = getattr(res, "cursor", None)
+                if not cursor:
+                    break  # Defensive: can't continue without a cursor
+                res = self.dbx.files_list_folder_continue(cursor)
+                entries.extend(getattr(res, "entries", []))
+            return self._process_entries(entries, prefix)
         except ApiError as e:
             raise FileNotFoundError(f"Dropbox listing failed: {e}")
-        return result
 
     def retrieve(self, key: str) -> BytesIO:
         """

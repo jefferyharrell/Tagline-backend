@@ -67,6 +67,7 @@ def test_dropbox_list(mock_dropbox):
     folder.path_display = "/test/path/subdir"
 
     mock_result.entries = [file1, file2, folder]
+    mock_result.has_more = False
     mock_dbx.files_list_folder.return_value = mock_result
 
     # Initialize with test root path
@@ -84,6 +85,37 @@ def test_dropbox_list(mock_dropbox):
     # Test listing with prefix
     result = provider.list(prefix="subdir/")
     assert result == ["subdir/photo2.jpg"]
+
+
+@patch("dropbox.Dropbox")
+def test_dropbox_list_pagination(mock_dropbox):
+    """Test that list() correctly handles paginated Dropbox listings."""
+    mock_dbx = mock_dropbox.return_value
+    # First page
+    file1 = MagicMock(spec=FileMetadata)
+    file1.path_display = "/test/path/photo1.jpg"
+    file2 = MagicMock(spec=FileMetadata)
+    file2.path_display = "/test/path/photo2.jpg"
+    page1 = MagicMock()
+    page1.entries = [file1]
+    page1.has_more = True
+    page1.cursor = "cursor1"
+    # Second page
+    page2 = MagicMock()
+    page2.entries = [file2]
+    page2.has_more = False
+    page2.cursor = "cursor2"
+    # Setup SDK mocks
+    mock_dbx.files_list_folder.return_value = page1
+    mock_dbx.files_list_folder_continue.return_value = page2
+    provider = DropboxStorageProvider(
+        refresh_token="dummy-refresh-token",
+        app_key="dummy-app-key",
+        app_secret="dummy-app-secret",
+        root_path="/test/path",
+    )
+    result = provider.list()
+    assert sorted(result) == ["photo1.jpg", "photo2.jpg"]
 
 
 @patch("dropbox.Dropbox")
