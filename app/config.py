@@ -27,41 +27,6 @@ class FilesystemProviderSettings(BaseSettings):
     )
 
 
-class DropboxProviderSettings(BaseSettings):
-    """
-    Settings for Dropbox storage provider.
-    Uses refresh token flow (recommended for server-to-server auth).
-    All fields are optional, but provider will raise if required fields are missing at runtime.
-    """
-
-    refresh_token: Optional[str] = Field(
-        default=None,
-        alias="DROPBOX_REFRESH_TOKEN",
-        description="Dropbox OAuth2 refresh token (required for server-to-server auth)",
-    )
-    app_key: Optional[str] = Field(
-        default=None,
-        alias="DROPBOX_APP_KEY",
-        description="Dropbox app key (required for refresh token auth)",
-    )
-    app_secret: Optional[str] = Field(
-        default=None,
-        alias="DROPBOX_APP_SECRET",
-        description="Dropbox app secret (required for refresh token auth)",
-    )
-    root_path: Optional[str] = Field(
-        default=None,
-        alias="DROPBOX_ROOT_PATH",
-        description="Root path in Dropbox. All keys are relative to this path.",
-    )
-    # Deprecated: for legacy/testing only
-    access_token: Optional[str] = Field(
-        default=None,
-        alias="DROPBOX_ACCESS_TOKEN",
-        description="[DEPRECATED] Long-lived Dropbox access token. Use refresh token flow instead.",
-    )
-
-
 class Settings(BaseSettings):
     """
     App settings loaded from environment variables.
@@ -93,7 +58,32 @@ class Settings(BaseSettings):
             Callable[[], FilesystemProviderSettings], FilesystemProviderSettings
         )
     )
-    dropbox_photo_storage: Optional[DropboxProviderSettings] = None
+    # Dropbox storage provider settings (flat)
+    dropbox_refresh_token: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_REFRESH_TOKEN",
+        description="Dropbox OAuth2 refresh token (required for server-to-server auth)",
+    )
+    dropbox_app_key: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_APP_KEY",
+        description="Dropbox app key (required for refresh token auth)",
+    )
+    dropbox_app_secret: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_APP_SECRET",
+        description="Dropbox app secret (required for refresh token auth)",
+    )
+    dropbox_root_path: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_ROOT_PATH",
+        description="Root path in Dropbox. All keys are relative to this path.",
+    )
+    dropbox_access_token: Optional[str] = Field(
+        default=None,
+        alias="DROPBOX_ACCESS_TOKEN",
+        description="[DEPRECATED] Long-lived Dropbox access token. Use refresh token flow instead.",
+    )
 
     BACKEND_PASSWORD: Optional[str] = Field(
         default=None,  # Will be set in __init__ for test environments

@@ -52,8 +52,20 @@ def create_app() -> FastAPI:
         app.state.photo_storage_provider_kind = "memory"
     elif provider_kind == "dropbox":
         app.state.photo_storage_provider_kind = "dropbox"
-        dropbox_cfg = settings.dropbox_photo_storage or None
-        if not dropbox_cfg:
+        # Build a config dict for the provider
+        dropbox_cfg = {
+            "refresh_token": settings.dropbox_refresh_token,
+            "app_key": settings.dropbox_app_key,
+            "app_secret": settings.dropbox_app_secret,
+            "access_token": settings.dropbox_access_token,
+            "root_path": settings.dropbox_root_path,
+        }
+        # Fail fast if required fields are missing
+        if not (
+            dropbox_cfg["refresh_token"]
+            and dropbox_cfg["app_key"]
+            and dropbox_cfg["app_secret"]
+        ):
             raise RuntimeError(
                 "DROPBOX provider selected but config is missing (check env vars)"
             )
@@ -87,11 +99,11 @@ def create_app() -> FastAPI:
                     "Dropbox config missing from app state"
                 )
             return DropboxStorageProvider(
-                refresh_token=cfg.refresh_token,
-                app_key=cfg.app_key,
-                app_secret=cfg.app_secret,
-                access_token=cfg.access_token,
-                root_path=cfg.root_path,
+                refresh_token=cfg["refresh_token"],
+                app_key=cfg["app_key"],
+                app_secret=cfg["app_secret"],
+                access_token=cfg["access_token"],
+                root_path=cfg["root_path"],
             )
         raise NotImplementedError(
             "Only filesystem, null, memory, and dropbox providers are supported."

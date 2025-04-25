@@ -39,6 +39,10 @@ BACKEND_PASSWORD=your-backend-password-here
 JWT_SECRET_KEY=superlongrandomstringforjwt
 STORAGE_PROVIDER=filesystem
 FILESYSTEM_STORAGE_PATH=/absolute/path/to/photo/storage
+DROPBOX_REFRESH_TOKEN=your-dropbox-refresh-token-here
+DROPBOX_APP_KEY=your-dropbox-app-key-here
+DROPBOX_APP_SECRET=your-dropbox-app-secret-here
+DROPBOX_ROOT_PATH=/dropbox_storage
 ```
 
 ### Redis Token Store & REDIS_URL
