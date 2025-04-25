@@ -27,7 +27,7 @@ def client(test_app):
 # Helper: Patch PhotoRepository in the endpoint module
 @pytest.fixture
 def mock_photo_repo():
-    with patch("tagline_backend_app.routes.root.PhotoRepository") as repo_cls:
+    with patch("tagline_backend_app.routes.rescan.PhotoRepository") as repo_cls:
         yield repo_cls
 
 
