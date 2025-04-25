@@ -73,3 +73,16 @@ class PhotoListResponse(BaseModel):
     limit: int
     offset: int
     items: list[Photo]
+
+
+class UpdateMetadataRequest(BaseModel):
+    """
+    Request payload for PATCH /photos/{id}/metadata.
+    Accepts a metadata dictionary with at least a non-empty description.
+    Optionally includes last_modified (RFC3339/ISO8601 string).
+    """
+
+    metadata: dict = Field(
+        ...,
+        description="Dictionary of metadata fields (must include non-empty description; may include last_modified as RFC3339/ISO8601 string)",
+    )

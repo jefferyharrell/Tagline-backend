@@ -22,6 +22,25 @@ We organize our tests into three categories, each with a different philosophy an
 - **Environment:** Uses FastAPI's `TestClient` to exercise real code paths, but does not require a running backend server or Docker.
 - **Typical location:** `tests/integration/`
 
+#### Storage Provider Configuration in Integration Tests
+
+By default, Tagline's backend selects its storage provider (filesystem, memory, dropbox, etc.) based on the `STORAGE_PROVIDER` environment variable. For integration tests, you almost always want to use the in-memory provider for speed, isolation, and to avoid filesystem side effects.
+
+**How to do it:**
+- Use `monkeypatch.setenv("STORAGE_PROVIDER", "memory")` in your test or fixture _before_ creating the FastAPI app.
+- This ensures all storage operations are ephemeral and test-isolated.
+
+**Example:**
+```python
+@pytest.fixture(scope="function")
+def client(db_session, monkeypatch):
+    monkeypatch.setenv("STORAGE_PROVIDER", "memory")
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: db_session
+    return TestClient(app)
+```
+This pattern is used in integration tests for endpoints like PATCH `/photos/{id}/metadata`, ensuring that both the database and storage layer are isolated and reproducible for each test run.
+
 ### 3. End-to-End (E2E) Tests
 - **Goal:** Test the system as a whole, as a user would interact with it.
 - **Mocking:** None. Requires a real backend server running (usually via Docker Compose), configured with the actual storage provider, database, etc.

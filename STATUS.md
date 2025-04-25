@@ -103,11 +103,12 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
         - [x] Add validation for path param (UUID format)
         - [x] Unit test: valid/invalid photo ID
         - [x] E2E test: endpoint behavior
-    - [ ] PATCH /photos/{id}/metadata — Update metadata (description)
-        - [ ] Define `UpdateMetadataRequest` model
-        - [ ] Add validation for description and last_modified
-        - [ ] Unit test: valid/invalid metadata payloads
-        - [ ] E2E test: endpoint behavior
+    - [x] PATCH /photos/{id}/metadata — Update metadata (description)
+        - [x] Define `UpdateMetadataRequest` model
+        - [x] Add validation for description and last_modified (empty string allowed)
+        - [x] Unit test: valid/invalid metadata payloads (including empty desc, invalid last_modified)
+        - [x] Integration test: real DB + in-memory storage provider (see tests/integration/test_patch_photo_metadata_integration.py)
+        - [x] E2E test: endpoint behavior (see tests/e2e/test_patch_photo_metadata_e2e.py, all scenarios passing as of 2025-04-25)
     - [ ] GET /photos/{id}/image — Get image file
         - [ ] Define response model or headers (content-type, etc.)
         - [ ] Add validation for path param (UUID format)
@@ -124,7 +125,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
 - [ ] Production readiness checklist
 
 ## Last Updated
-2025-04-24
+2025-04-25
 
 ---
 
