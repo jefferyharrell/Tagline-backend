@@ -28,7 +28,7 @@ lint:
 
 # Testing
 unit-tests:
-    source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e' --cov=app --cov-report=term-missing
+    source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e'
 
 integration-tests:
     source venv/bin/activate && pytest tests/integration -m integration
@@ -54,6 +54,9 @@ all:
     just integration-tests
     just e2e-tests
     just pre-commit
+
+coverage:
+    source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e' --cov=app --cov-report=term-missing
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
 clean:
