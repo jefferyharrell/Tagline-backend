@@ -14,6 +14,7 @@ markers = [
     "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')",
     "integration: marks tests as integration (deselect with '-m \"not integration\"')"
 ]
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.black]
 line-length = 88
