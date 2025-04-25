@@ -9,8 +9,8 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.deps import get_current_user
-from app.main import create_app
+from tagline_backend_app.deps import get_current_user
+from tagline_backend_app.main import create_app
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def mock_photo():
 
 
 def test_get_photo_valid_id(client, mock_photo):
-    with patch("app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = mock_photo
         response = client.get(f"/photos/{mock_photo.id}")
@@ -54,7 +54,7 @@ def test_get_photo_valid_id(client, mock_photo):
 
 
 def test_get_photo_nonexistent_id(client):
-    with patch("app.routes.root.PhotoRepository") as MockRepo:
+    with patch("tagline_backend_app.routes.root.PhotoRepository") as MockRepo:
         instance = MockRepo.return_value
         instance.get.return_value = None
         fake_id = uuid.uuid4()

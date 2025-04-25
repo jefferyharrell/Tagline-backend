@@ -6,7 +6,7 @@ from io import BytesIO
 
 import pytest
 
-from app.storage.memory import InMemoryStorageProvider
+from tagline_backend_app.storage.memory import InMemoryStorageProvider
 
 
 @pytest.fixture

@@ -34,12 +34,12 @@ This guide explains how to configure, initialize, and manage the database for th
     ```
     This creates all tables as defined in the latest models.
 
-4. **Run the app:**
-    ```sh
-    just run
-    # or
-    uvicorn app.main:app --reload
+4. **Run the Server:**
+    Start the FastAPI development server:
+    ```bash
+    uvicorn tagline_backend_app.main:app --reload
     ```
+    FastAPI should now connect to your database using the URL specified in `.env` (or the default SQLite DB if `.env` or `DATABASE_URL` is not set).
 
 ## Environment Variables
 - `DATABASE_URL` (optional): SQLAlchemy connection string. If not set, defaults to `sqlite:///./tagline.db`.
@@ -68,5 +68,5 @@ This guide explains how to configure, initialize, and manage the database for th
 
 ## See Also
 - `.env.example` for sample environment variables.
-- `app/config.py` and `app/db/session.py` for DB connection logic.
+- `tagline_backend_app/config.py` and `tagline_backend_app/db.py` for DB connection logic.
 - [SQLAlchemy docs](https://docs.sqlalchemy.org/) for connection string formats and advanced usage.

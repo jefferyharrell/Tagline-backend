@@ -5,7 +5,7 @@ Ensures NotImplementedError is raised for upload/delete, and get_url returns Non
 
 import pytest
 
-from app.storage.provider import StorageProvider
+from tagline_backend_app.storage.provider import StorageProvider
 
 
 class DummyProvider(StorageProvider):

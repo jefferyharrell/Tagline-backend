@@ -16,9 +16,9 @@ import uuid
 
 import pytest
 
-from app import config
-from app.db import get_engine, get_session_local
-from app.models import Base
+from tagline_backend_app import config
+from tagline_backend_app.db import get_engine, get_session_local
+from tagline_backend_app.models import Base
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -88,7 +88,7 @@ def db_session(monkeypatch, set_filesystem_storage_path):
     monkeypatch.setenv("DATABASE_URL", db_url)
     import importlib
 
-    import app.config as config
+    import tagline_backend_app.config as config
 
     importlib.reload(config)
     engine = get_engine()
@@ -118,10 +118,10 @@ def client(tmp_path_factory):
 
     from fastapi.testclient import TestClient
 
-    from app.config import get_settings  # Import only get_settings
-    from app.db import get_engine
-    from app.main import create_app
-    from app.models import Base
+    from tagline_backend_app.config import get_settings  # Import only get_settings
+    from tagline_backend_app.db import get_engine
+    from tagline_backend_app.main import create_app
+    from tagline_backend_app.models import Base
 
     # --- Set Test Environment Variables ---
     os.environ["APP_ENV"] = "test"

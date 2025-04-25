@@ -10,7 +10,10 @@ import dropbox
 from dropbox.exceptions import ApiError
 from dropbox.files import FileMetadata
 
-from app.storage.provider import StorageProvider, StorageProviderMisconfigured
+from tagline_backend_app.storage.provider import (
+    StorageProvider,
+    StorageProviderMisconfigured,
+)
 
 
 class DropboxStorageProvider(StorageProvider):

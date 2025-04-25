@@ -7,9 +7,9 @@ Moved from E2E: This test uses FastAPI TestClient and seeds the DB directly, so 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.crud.photo import PhotoRepository
-from app.db import get_db
-from app.main import create_app
+from tagline_backend_app.crud.photo import PhotoRepository
+from tagline_backend_app.db import get_db
+from tagline_backend_app.main import create_app
 
 
 @pytest.fixture(scope="module")

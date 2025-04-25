@@ -17,7 +17,40 @@ We will use [Pydantic](https://docs.pydantic.dev/latest/usage/settings/) `BaseSe
 - All config is centralized, type-checked, and self-documenting.
 - `.env` files are supported for local development, but not required in production.
 - Future config changes (adding/removing variables) are explicit and easy to review.
-- Contributors should use `from app.config import settings` instead of `os.environ` or `python-dotenv` directly.
+- Contributors should use `from tagline_backend_app.config import settings` instead of `os.environ` or `python-dotenv` directly.
+
+### Usage
+
+- Define settings in `tagline_backend_app/config.py` using `BaseSettings`.
+- Access settings via `from tagline_backend_app.config import settings` or dependency injection `Depends(get_settings)`.
+- Use `.env` file for environment-specific overrides (automatically loaded).
+
+## Consequences
+
+- **Positive:**
+    - Improved configuration management.
+    - Early error detection.
+    - Better developer experience (DX).
+- **Negative:**
+    - Adds `pydantic-settings` dependency.
+    - Slight learning curve for those unfamiliar with Pydantic Settings.
+- **Decision Drivers:**
+    - Need for robust and type-safe configuration.
+    - Alignment with FastAPI best practices.
+
+- **Considerations:**
+    - Ensure `.env` is in `.gitignore`.
+    - Document required environment variables in `.env.example`.
+    - Contributors should use `from tagline_backend_app.config import settings` instead of `os.environ` or `python-dotenv` directly.
+
+## Status
+
+Accepted
+
+## References
+
+- [Pydantic Settings Documentation](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
+- [FastAPI Settings Documentation](https://fastapi.tiangolo.com/advanced/settings/)
 
 ---
 

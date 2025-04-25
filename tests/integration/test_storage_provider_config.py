@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from app.config import get_settings
-from app.storage.filesystem import (
+from tagline_backend_app.config import get_settings
+from tagline_backend_app.storage.filesystem import (
     FilesystemStorageProvider,
     StorageProviderMisconfigured,
 )

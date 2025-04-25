@@ -5,7 +5,7 @@ Unit tests for RefreshRequest and RefreshResponse models.
 import pytest
 from pydantic import ValidationError
 
-from app.schemas import RefreshRequest, RefreshResponse
+from tagline_backend_app.schemas import RefreshRequest, RefreshResponse
 
 
 def test_refresh_request_valid():

@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 import pytest
 
-from app import config
+from tagline_backend_app import config
 
 
 @pytest.fixture(autouse=True)
@@ -28,14 +28,14 @@ def test_root_production(monkeypatch: pytest.MonkeyPatch) -> None:
 
     from fastapi.testclient import TestClient
 
-    from app.main import create_app
+    from tagline_backend_app.main import create_app
 
     app = create_app()
     client = TestClient(app)
 
-    import app.routes.root
+    import tagline_backend_app.routes.root
 
-    importlib.reload(app.routes.root)
+    importlib.reload(tagline_backend_app.routes.root)
 
     response: httpx.Response = client.get("/")
     assert response.status_code == 200
@@ -54,14 +54,14 @@ def test_root_explicit_production(
 
     from fastapi.testclient import TestClient
 
-    from app.main import create_app
+    from tagline_backend_app.main import create_app
 
     app = create_app()
     client = TestClient(app)
 
-    import app.routes.root
+    import tagline_backend_app.routes.root
 
-    importlib.reload(app.routes.root)
+    importlib.reload(tagline_backend_app.routes.root)
     response: httpx.Response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
@@ -77,14 +77,14 @@ def test_root_development(monkeypatch: pytest.MonkeyPatch) -> None:
 
     from fastapi.testclient import TestClient
 
-    from app.main import create_app
+    from tagline_backend_app.main import create_app
 
     app = create_app()
     client = TestClient(app)
 
-    import app.routes.root
+    import tagline_backend_app.routes.root
 
-    importlib.reload(app.routes.root)
+    importlib.reload(tagline_backend_app.routes.root)
     response: httpx.Response = client.get("/")
     assert response.status_code == 200
     data: dict[str, Any] = response.json()
@@ -107,14 +107,14 @@ def test_root_env_case_insensitive(
 
     from fastapi.testclient import TestClient
 
-    from app.main import create_app
+    from tagline_backend_app.main import create_app
 
     app = create_app()
     client = TestClient(app)
 
-    import app.routes.root
+    import tagline_backend_app.routes.root
 
-    importlib.reload(app.routes.root)
+    importlib.reload(tagline_backend_app.routes.root)
     response: httpx.Response = client.get("/")
     assert response.status_code == 200
     data: dict[str, Any] = response.json()

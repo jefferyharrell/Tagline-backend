@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.redis_token_store import RedisTokenStore
+from tagline_backend_app.redis_token_store import RedisTokenStore
 
 
 @pytest.fixture
@@ -13,7 +13,9 @@ def redis_url():
 
 @pytest.fixture
 def mock_redis():
-    with patch("app.redis_token_store.redis.Redis.from_url") as mock_from_url:
+    with patch(
+        "tagline_backend_app.redis_token_store.redis.Redis.from_url"
+    ) as mock_from_url:
         mock_client = MagicMock()
         mock_from_url.return_value = mock_client
         yield mock_client

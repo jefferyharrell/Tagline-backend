@@ -12,7 +12,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import Photo
+from tagline_backend_app.models import Photo
 
 
 def test_photo_instantiation_defaults(db_session: Session) -> None:

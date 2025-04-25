@@ -9,9 +9,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.crud.photo import PhotoRepository
-from app.deps import get_current_user
-from app.schemas import (
+from tagline_backend_app.crud.photo import PhotoRepository
+from tagline_backend_app.deps import get_current_user
+from tagline_backend_app.schemas import (
     Photo,
     PhotoListResponse,
     PhotoMetadataFields,

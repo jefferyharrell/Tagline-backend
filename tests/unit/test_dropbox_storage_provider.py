@@ -9,8 +9,8 @@ import pytest
 from dropbox.exceptions import ApiError
 from dropbox.files import FileMetadata
 
-from app.storage.dropbox import DropboxStorageProvider
-from app.storage.provider import StorageProviderMisconfigured
+from tagline_backend_app.storage.dropbox import DropboxStorageProvider
+from tagline_backend_app.storage.provider import StorageProviderMisconfigured
 
 
 def test_dropbox_init_raises_when_misconfigured():

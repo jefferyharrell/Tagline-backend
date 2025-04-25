@@ -7,8 +7,8 @@ Dependency injection helpers for FastAPI.
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.auth_service import AuthService
-from app.config import get_settings
+from tagline_backend_app.auth_service import AuthService
+from tagline_backend_app.config import get_settings
 
 security = HTTPBearer()
 

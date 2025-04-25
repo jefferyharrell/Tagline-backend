@@ -7,7 +7,10 @@ This provider is read-only: upload and delete are not supported.
 from pathlib import Path
 from typing import BinaryIO, Iterable, Optional
 
-from app.storage.provider import StorageProvider, StorageProviderMisconfigured
+from tagline_backend_app.storage.provider import (
+    StorageProvider,
+    StorageProviderMisconfigured,
+)
 
 
 class FilesystemStorageProvider(StorageProvider):

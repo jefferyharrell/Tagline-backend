@@ -12,11 +12,11 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from app.config import get_settings
-from app.db import get_engine
-from app.main import create_app
-from app.models import Base
-from app.storage.memory import InMemoryStorageProvider
+from tagline_backend_app.config import get_settings
+from tagline_backend_app.db import get_engine
+from tagline_backend_app.main import create_app
+from tagline_backend_app.models import Base
+from tagline_backend_app.storage.memory import InMemoryStorageProvider
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def integration_app(tmp_path_factory):
     get_settings.cache_clear()
     from sqlalchemy.orm import sessionmaker
 
-    from app.db import get_session_local
+    from tagline_backend_app.db import get_session_local
 
     # Bust the lru_cache so we get a fresh engine/sessionmaker
     get_engine.cache_clear()
@@ -41,7 +41,7 @@ def integration_app(tmp_path_factory):
     Base.metadata.create_all(engine)
 
     # Patch both get_engine and get_session_local globally (for extra safety)
-    import app.db as app_db
+    import tagline_backend_app.db as app_db
 
     app_db.get_engine = lambda: engine
     app_db.get_session_local = lambda: SessionLocal

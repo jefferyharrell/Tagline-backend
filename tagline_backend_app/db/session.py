@@ -4,7 +4,7 @@ session.py
 FastAPI dependency for providing a SQLAlchemy session per request.
 
 Usage:
-    from app.db.session import get_db
+    from tagline_backend_app.db.session import get_db
 
     @app.get("/some-route")
     def some_route(db: Session = Depends(get_db)):
@@ -24,7 +24,7 @@ def get_db() -> Generator[Session, None, None]:
     Yields:
         Session: SQLAlchemy session object.
     """
-    from app.db import get_session_local
+    from tagline_backend_app.db import get_session_local
 
     db = get_session_local()()
     try:

@@ -19,12 +19,12 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy application code and Alembic migration files
-COPY ./app ./app
+COPY ./tagline_backend_app ./tagline_backend_app
 COPY ./alembic ./alembic
 COPY ./alembic.ini ./alembic.ini
 
 # Expose port
 EXPOSE 8000
 
-# Command to run the app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application
+CMD ["uvicorn", "tagline_backend_app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.models import Photo
+from tagline_backend_app.models import Photo
 
 
 class PhotoRepository:

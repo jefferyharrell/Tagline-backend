@@ -7,13 +7,13 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from app.auth_service import AuthService
+from tagline_backend_app.auth_service import AuthService
 from tests.unit.test_token_store import DummyTokenStore
 
 
 @pytest.fixture
 def settings(set_filesystem_storage_path):
-    from app.config import get_settings
+    from tagline_backend_app.config import get_settings
 
     return get_settings()
 

@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 
-from .config import get_settings
-from .constants import APP_NAME
-from .redis_token_store import RedisTokenStore
-from .storage.filesystem import (
+from tagline_backend_app.config import get_settings
+from tagline_backend_app.constants import APP_NAME
+from tagline_backend_app.redis_token_store import RedisTokenStore
+from tagline_backend_app.storage.filesystem import (
     StorageProviderMisconfigured,
 )
-from .storage.memory import InMemoryStorageProvider
-from .storage.null import NullStorageProvider
+from tagline_backend_app.storage.memory import InMemoryStorageProvider
+from tagline_backend_app.storage.null import NullStorageProvider
 
 
 def create_app() -> FastAPI:
@@ -82,7 +82,7 @@ def create_app() -> FastAPI:
     def get_photo_storage_provider(app_instance):
         kind = getattr(app_instance.state, "photo_storage_provider_kind", None)
         if kind == "filesystem":
-            from .storage.filesystem import FilesystemStorageProvider
+            from tagline_backend_app.storage.filesystem import FilesystemStorageProvider
 
             return FilesystemStorageProvider(app_instance.state.filesystem_storage_path)
         elif kind == "null":
@@ -90,7 +90,7 @@ def create_app() -> FastAPI:
         elif kind == "memory":
             return InMemoryStorageProvider()
         elif kind == "dropbox":
-            from .storage.dropbox import DropboxStorageProvider
+            from tagline_backend_app.storage.dropbox import DropboxStorageProvider
 
             cfg = getattr(app_instance.state, "dropbox_provider_config", None)
             if not cfg:
@@ -116,7 +116,7 @@ def create_app() -> FastAPI:
     # Register routes dynamically (reload to pick up changes/env)
     import importlib as _importlib
 
-    import app.routes.root as _root_module
+    import tagline_backend_app.routes.root as _root_module
 
     _importlib.reload(_root_module)
     app.include_router(_root_module.router)

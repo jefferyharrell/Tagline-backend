@@ -69,14 +69,15 @@ For detailed instructions, troubleshooting tips, and gotchas about running unit,
 
 To add a new storage backend:
 
-1. **Implement the interface:**
-   - Subclass `StorageProvider` (see `app/storage/provider.py`).
-   - Implement all required methods: `list`, `retrieve`, and optionally `upload`, `delete`, `get_url`.
-2. **Add provider settings:**
-   - Create a Pydantic settings class for your provider in `app/config.py`.
-   - Add any required environment variables to `.env.example` and document them in the README.
-3. **Register the provider in `main.py`:**
-   - Update the provider selection logic in `create_app()` to instantiate your provider when `STORAGE_PROVIDER` matches your backend.
+1. **Implement the Provider:**
+   - Create a new Python module in `tagline_backend_app/storage/` (e.g., `s3.py`).
+   - Subclass `StorageProvider` (see `tagline_backend_app/storage/provider.py`).
+   - Implement all required abstract methods (`__init__`, `list_objects`, `get_object`, `head_object`, `delete_object`, `save_object`).
+2. **Configuration:**
+   - Create a Pydantic settings class for your provider in `tagline_backend_app/config.py`.
+   - Add corresponding environment variables to `.env.example`.
+3. **Registration:**
+   - Update the provider selection logic in `tagline_backend_app/main.py` to instantiate your provider when `STORAGE_PROVIDER` matches your backend.
 4. **Test your provider:**
    - Add unit and (eventually) integration tests in `tests/unit/` or `tests/integration/` as appropriate.
 
@@ -92,10 +93,14 @@ See the existing `FilesystemStorageProvider`, `InMemoryStorageProvider`, and `Nu
 
 ## Running the Development Server
 
-Use `uvicorn` to run the development server:
+To run the FastAPI development server:
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Make sure your venv is active
+# source .venv/bin/activate
+
+# Run the server with auto-reload
+uvicorn tagline_backend_app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The API will be available at [http://localhost:8000](http://localhost:8000).

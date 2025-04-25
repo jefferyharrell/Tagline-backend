@@ -14,8 +14,8 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-from app.deps import get_current_user
-from app.main import create_app
+from tagline_backend_app.deps import get_current_user
+from tagline_backend_app.main import create_app
 
 app = create_app()
 app.dependency_overrides = getattr(app, "dependency_overrides", {})
@@ -37,12 +37,13 @@ def fake_photo():
 def test_get_photo_image_success(monkeypatch, fake_photo):
     # Patch DB repo to return a photo
     monkeypatch.setattr(
-        "app.crud.photo.PhotoRepository.get", lambda self, id: fake_photo
+        "tagline_backend_app.crud.photo.PhotoRepository.get",
+        lambda self, id: fake_photo,
     )
     # Patch storage provider to return image bytes
     fake_file = io.BytesIO(b"fake image data")
     monkeypatch.setattr(
-        "app.storage.memory.InMemoryStorageProvider.retrieve",
+        "tagline_backend_app.storage.memory.InMemoryStorageProvider.retrieve",
         lambda self, key: fake_file,
     )
     # Patch provider getter to use in-memory
@@ -58,7 +59,9 @@ def test_get_photo_image_success(monkeypatch, fake_photo):
 
 
 def test_get_photo_image_photo_not_found(monkeypatch):
-    monkeypatch.setattr("app.crud.photo.PhotoRepository.get", lambda self, id: None)
+    monkeypatch.setattr(
+        "tagline_backend_app.crud.photo.PhotoRepository.get", lambda self, id: None
+    )
     response = client.get("/photos/123e4567-e89b-12d3-a456-426614174000/image")
     assert response.status_code == 404
     assert response.json()["detail"] == "Photo not found"
@@ -66,7 +69,8 @@ def test_get_photo_image_photo_not_found(monkeypatch):
 
 def test_get_photo_image_file_not_found(monkeypatch, fake_photo):
     monkeypatch.setattr(
-        "app.crud.photo.PhotoRepository.get", lambda self, id: fake_photo
+        "tagline_backend_app.crud.photo.PhotoRepository.get",
+        lambda self, id: fake_photo,
     )
 
     class FakeProvider:
@@ -83,7 +87,8 @@ def test_get_photo_image_file_not_found(monkeypatch, fake_photo):
 
 def test_get_photo_image_storage_error(monkeypatch, fake_photo):
     monkeypatch.setattr(
-        "app.crud.photo.PhotoRepository.get", lambda self, id: fake_photo
+        "tagline_backend_app.crud.photo.PhotoRepository.get",
+        lambda self, id: fake_photo,
     )
 
     class FakeProvider:

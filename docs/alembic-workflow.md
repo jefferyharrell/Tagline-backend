@@ -21,7 +21,7 @@ Alembic is the official migration tool for SQLAlchemy. It lets you:
 ## Typical Migration Workflow
 
 ### 1. **Change your models**
-Edit `app/models.py` to add, change, or remove tables/columns.
+Edit `tagline_backend_app/models.py` to add, change, or remove tables/columns.
 
 ### 2. **Generate a migration script**
 - **Inside Docker (recommended):**

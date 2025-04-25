@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from app.storage.filesystem import (
+from tagline_backend_app.storage.filesystem import (
     FilesystemStorageProvider,
     StorageProviderMisconfigured,
 )

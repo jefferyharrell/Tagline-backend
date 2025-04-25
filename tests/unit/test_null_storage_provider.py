@@ -4,7 +4,7 @@ Unit tests for NullStorageProvider.
 
 import pytest
 
-from app.storage.null import NullStorageProvider
+from tagline_backend_app.storage.null import NullStorageProvider
 
 
 @pytest.fixture

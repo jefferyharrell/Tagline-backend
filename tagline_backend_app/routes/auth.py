@@ -8,11 +8,16 @@ Includes /login (and /refresh in the future).
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..auth_service import AuthService
-from ..config import get_settings
-from ..db import get_db
-from ..deps import get_token_store
-from ..schemas import LoginRequest, LoginResponse, RefreshRequest, RefreshResponse
+from tagline_backend_app.auth_service import AuthService
+from tagline_backend_app.config import get_settings
+from tagline_backend_app.db import get_db
+from tagline_backend_app.deps import get_token_store
+from tagline_backend_app.schemas import (
+    LoginRequest,
+    LoginResponse,
+    RefreshRequest,
+    RefreshResponse,
+)
 
 router = APIRouter()
 

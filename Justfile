@@ -47,7 +47,7 @@ e2e-tests:
     source venv/bin/activate && pytest tests/e2e -m e2e -rs
     echo -e '\033[1;36mE2E tests complete!\033[0m'
 
-all:
+test:
     just format
     just lint
     just unit-tests

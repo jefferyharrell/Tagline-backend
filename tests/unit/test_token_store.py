@@ -4,7 +4,7 @@ Unit tests for the TokenStore ABC and (eventually) the RedisTokenStore implement
 
 import pytest
 
-from app.token_store import TokenStore
+from tagline_backend_app.token_store import TokenStore
 
 
 class DummyTokenStore(TokenStore):

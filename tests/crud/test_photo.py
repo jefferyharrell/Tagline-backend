@@ -2,8 +2,8 @@
 Tests for PhotoRepository CRUD operations.
 """
 
-from app.crud.photo import PhotoRepository
-from app.models import Photo
+from tagline_backend_app.crud.photo import PhotoRepository
+from tagline_backend_app.models import Photo
 
 
 # TODO: Uncomment and implement after PhotoRepository is created

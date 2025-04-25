@@ -5,13 +5,13 @@ Service layer for authentication: password verification, token issuance, validat
 """
 
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
 from jose import jwt
 
-from app.config import Settings
-from app.token_store import TokenStore
+from tagline_backend_app.config import Settings
+from tagline_backend_app.token_store import TokenStore
 
 
 class AuthService:
@@ -45,7 +45,7 @@ class AuthService:
         Ensures the refresh token is unique in the store.
         Returns (access_token, refresh_token, access_expiry, refresh_expiry)
         """
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         access_exp = now + timedelta(seconds=self.settings.ACCESS_TOKEN_EXPIRE_SECONDS)
         refresh_exp = now + timedelta(
             seconds=self.settings.REFRESH_TOKEN_EXPIRE_SECONDS

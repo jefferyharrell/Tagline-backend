@@ -11,9 +11,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
-from app.db import get_db
-from app.main import create_app
-from app.models import Base, Photo
+from tagline_backend_app.db import get_db
+from tagline_backend_app.main import create_app
+from tagline_backend_app.models import Base, Photo
 
 
 @pytest.fixture(scope="function")

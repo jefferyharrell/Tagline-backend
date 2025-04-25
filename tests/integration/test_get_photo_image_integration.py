@@ -12,9 +12,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.db import get_db, get_engine, get_session_local
-from app.main import create_app
-from app.models import Base, Photo
+from tagline_backend_app.db import get_db, get_engine, get_session_local
+from tagline_backend_app.main import create_app
+from tagline_backend_app.models import Base, Photo
 
 
 @pytest.fixture(scope="function")
@@ -59,7 +59,7 @@ def client(db_session):
     app.dependency_overrides[get_db] = override_get_db
 
     # Patch storage provider to always use InMemoryStorageProvider
-    from app.storage.memory import InMemoryStorageProvider
+    from tagline_backend_app.storage.memory import InMemoryStorageProvider
 
     provider = InMemoryStorageProvider()
     app.state.get_photo_storage_provider = lambda app_: provider

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import create_app
+from tagline_backend_app.main import create_app
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def client(test_app):
 # Helper: Patch PhotoRepository in the endpoint module
 @pytest.fixture
 def mock_photo_repo():
-    with patch("app.routes.root.PhotoRepository") as repo_cls:
+    with patch("tagline_backend_app.routes.root.PhotoRepository") as repo_cls:
         yield repo_cls
 
 

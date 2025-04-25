@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from tagline_backend_app.main import app
 
 
 @pytest.fixture
@@ -11,7 +11,7 @@ def client():
     return TestClient(app)
 
 
-@patch("app.routes.auth.AuthService")
+@patch("tagline_backend_app.routes.auth.AuthService")
 def test_login_success(mock_auth_service, client):
     mock_auth_service.return_value.verify_password.return_value = True
     mock_auth_service.return_value.issue_tokens.return_value = (
@@ -31,7 +31,7 @@ def test_login_success(mock_auth_service, client):
     assert data["token_type"] == "bearer"
 
 
-@patch("app.routes.auth.AuthService")
+@patch("tagline_backend_app.routes.auth.AuthService")
 def test_login_invalid_password(mock_auth_service, client):
     mock_auth_service.return_value.verify_password.return_value = False
     payload = {"password": "wrong"}
@@ -40,7 +40,7 @@ def test_login_invalid_password(mock_auth_service, client):
     assert response.json()["detail"] == "Invalid password"
 
 
-@patch("app.routes.auth.AuthService")
+@patch("tagline_backend_app.routes.auth.AuthService")
 def test_refresh_success(mock_auth_service, client):
     mock_auth_service.return_value.refresh_tokens.return_value = (
         "access",
@@ -59,7 +59,7 @@ def test_refresh_success(mock_auth_service, client):
     assert data["token_type"] == "bearer"
 
 
-@patch("app.routes.auth.AuthService")
+@patch("tagline_backend_app.routes.auth.AuthService")
 def test_refresh_invalid_token(mock_auth_service, client):
     mock_auth_service.return_value.refresh_tokens.side_effect = Exception("fail")
     payload = {"refresh_token": "badtoken"}
