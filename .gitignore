@@ -91,4 +91,7 @@ node_modules/
 # Ignore yarn lock just in case
 yarn.lock
 
+# Ignore PLAN.md
+PLAN.md
+
 # End of file
