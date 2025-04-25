@@ -51,22 +51,25 @@ class PhotoMetadataFields(BaseModel):
     description: str | None = None  # Required for MVP, add more fields as needed
 
 
-class PhotoMetadata(BaseModel):
-    """Metadata for a single photo in list responses."""
+class Photo(BaseModel):
+    """Canonical Photo object for both single-photo and list responses (spec-compliant)."""
 
-    id: str
-    filename: str
+    id: str = Field(..., description="Unique photo ID (UUID)")
+    object_key: str = Field(
+        ..., description="Storage path/object key for the photo blob"
+    )
     metadata: PhotoMetadataFields = Field(
         ..., description="Dictionary of metadata fields (at minimum: description)"
     )
-    created_at: str
-    updated_at: str
+    last_modified: str = Field(
+        ..., description="RFC3339/ISO8601 last modified timestamp"
+    )
 
 
 class PhotoListResponse(BaseModel):
-    """Paginated list of photos."""
+    """Paginated list of photos (spec-compliant)."""
 
     total: int
     limit: int
     offset: int
-    items: list[PhotoMetadata]
+    items: list[Photo]

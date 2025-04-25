@@ -58,9 +58,12 @@ def test_photos_list_happy_path(client):
     assert data["offset"] == 2
     assert len(data["items"]) == 5
     for i, item in enumerate(data["items"]):
-        assert item["filename"] == f"img_{i+2}.jpg"
+        assert "object_key" in item
+        assert item["object_key"] == f"img_{i+2}.jpg"
         assert "metadata" in item
         assert item["metadata"]["description"] == f"desc {i+2}"
+        assert "last_modified" in item
+        assert isinstance(item["last_modified"], str)
 
 
 def test_photos_list_limit_validation(client):

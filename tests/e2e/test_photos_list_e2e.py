@@ -34,6 +34,9 @@ def test_photos_list_e2e(client):
     assert data["offset"] == 4
     assert len(data["items"]) == 3
     for i, item in enumerate(data["items"]):
-        assert item["filename"] == f"img_{i+4}.jpg"
+        assert "object_key" in item
+        assert item["object_key"] == f"img_{i+4}.jpg"
         assert "metadata" in item
         assert item["metadata"]["description"] == f"desc {i+4}"
+        assert "last_modified" in item
+        assert isinstance(item["last_modified"], str)
