@@ -65,6 +65,10 @@ You can copy `.env.example` to `.env` and edit as needed.
 
 For detailed instructions, troubleshooting tips, and gotchas about running unit, integration, and e2e tests—including how to set up SQLite and SQLAlchemy for reliable integration tests—see [tests/README.md](tests/README.md).
 
+## FAQ
+
+Have a question about why something works the way it does? Check our [FAQ](docs/FAQ.md) for answers to common (and uncommon) Tagline backend questions.
+
 ## Extending Storage Providers (For Developers)
 
 To add a new storage backend:
