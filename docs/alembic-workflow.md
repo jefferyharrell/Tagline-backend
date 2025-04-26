@@ -69,7 +69,7 @@ Edit `tagline_backend_app/models.py` to add, change, or remove tables/columns.
 - Use `docker compose build` and `docker compose up -d` after changing dependencies or Dockerfile.
 - You can browse the Docker volume by mounting it in a temporary container:
   ```bash
-  docker run --rm -it -v tagline-db-data:/data alpine sh
+  docker run --rm -it -v tagline-backend_tagline-db-data:/data alpine sh
   ls /data
   ```
 - If you ever get stuck, ask Cas. She’s probably still here, being helpful and a little too enthusiastic.

@@ -8,7 +8,7 @@ Shared pytest fixtures and configuration for Tagline backend tests.
 import os
 import sys
 
-# Ensure Tagline-backend is on sys.path FIRST
+# Ensure backend root is on sys.path FIRST
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import importlib

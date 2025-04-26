@@ -1,4 +1,4 @@
-# Development requirements for Tagline-backend
+# Development requirements for the backend (Tagline)
 -r requirements.txt
 
 # Testing

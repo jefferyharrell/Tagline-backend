@@ -10,8 +10,8 @@ This guide explains how to configure, initialize, and manage the database for th
 
 1. **Clone the repository and set up your virtual environment:**
     ```sh
-    git clone https://github.com/jefferyharrell/Tagline-backend.git
-    cd Tagline-backend
+    git clone https://github.com/jefferyharrell/tagline-backend.git
+    cd tagline-backend
     python -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
