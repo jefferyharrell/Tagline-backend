@@ -5,7 +5,10 @@ Authentication-related routes for the Tagline backend.
 Includes /login (and /refresh in the future).
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
+
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from tagline_backend_app.auth_service import AuthService
@@ -14,18 +17,33 @@ from tagline_backend_app.db import get_db
 from tagline_backend_app.deps import get_token_store
 from tagline_backend_app.schemas import (
     LoginRequest,
-    LoginResponse,
     RefreshRequest,
-    RefreshResponse,
 )
 
 router = APIRouter()
 
 
-@router.post("/refresh", response_model=RefreshResponse, status_code=200)
+@router.post("/logout", status_code=200)
+def logout(response: Response):
+    """
+    Clear authentication cookies.
+
+    Returns:
+        JSON response indicating successful logout.
+    """
+    # Clear both access and refresh token cookies
+    response.delete_cookie(key="tagline_access_token", path="/")
+    response.delete_cookie(key="tagline_refresh_token", path="/")
+
+    return {"detail": "Successfully logged out"}
+
+
+@router.post("/refresh", status_code=200)
 def refresh(
-    payload: RefreshRequest,
-    db: Session = Depends(get_db),  # DB used only for unrelated features
+    response: Response,
+    payload: Optional[RefreshRequest] = None,
+    refresh_token: str = Cookie(None, alias="tagline_refresh_token"),
+    db: Session = Depends(get_db),
     token_store=Depends(get_token_store),
 ):
     """
@@ -41,26 +59,58 @@ def refresh(
     """
     settings = get_settings()
     auth_service = AuthService(settings, token_store)
+
+    # Hybrid: use cookie if present, else request body
+    token = refresh_token
+    if not token and payload is not None:
+        token = payload.refresh_token
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No refresh token provided",
+        )
     try:
-        access_token, refresh_token, expires_in, refresh_expires_in = (
-            auth_service.refresh_tokens(payload.refresh_token)
+        access_token, new_refresh_token, expires_in, refresh_expires_in = (
+            auth_service.refresh_tokens(token)
         )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
-    return RefreshResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        expires_in=expires_in,
-        refresh_expires_in=refresh_expires_in,
+    # Set cookies for tokens
+    settings = get_settings()
+    response.set_cookie(
+        key="tagline_access_token",
+        value=access_token,
+        max_age=expires_in,
+        httponly=True,
+        secure=False,  # Set to False for local testing over HTTP
+        samesite="lax",  # Use 'strict' for maximum security, 'lax' for better UX
+        path="/",
+    )
+    response.set_cookie(
+        key="tagline_refresh_token",
+        value=new_refresh_token,
+        max_age=refresh_expires_in,
+        httponly=True,
+        secure=False,  # Set to False for local testing over HTTP
+        samesite="lax",
+        path="/",
     )
 
+    # Return the response object directly after setting content
+    response.status_code = status.HTTP_200_OK
+    response.headers["Content-Type"] = "application/json"
+    response.body = JSONResponse(
+        content={"detail": "Token refreshed successfully"}
+    ).body
+    return response
 
-@router.post("/login", response_model=LoginResponse, status_code=200)
+
+@router.post("/login", status_code=200)
 def login(
+    response: Response,
     payload: LoginRequest,
     db: Session = Depends(get_db),  # DB used only for unrelated features
     token_store=Depends(get_token_store),
@@ -86,10 +136,29 @@ def login(
     access_token, refresh_token, expires_in, refresh_expires_in = (
         auth_service.issue_tokens()
     )
-    return LoginResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-        expires_in=expires_in,
-        refresh_expires_in=refresh_expires_in,
+    # Set cookies for tokens
+    settings = get_settings()
+    response.set_cookie(
+        key="tagline_access_token",
+        value=access_token,
+        max_age=expires_in,
+        httponly=True,
+        secure=False,  # Set to False for local testing over HTTP
+        samesite="lax",  # Use 'strict' for maximum security, 'lax' for better UX
+        path="/",
     )
+    response.set_cookie(
+        key="tagline_refresh_token",
+        value=refresh_token,
+        max_age=refresh_expires_in,
+        httponly=True,
+        secure=False,  # Set to False for local testing over HTTP
+        samesite="lax",
+        path="/",
+    )
+
+    # Return the response object directly after setting content
+    response.status_code = status.HTTP_200_OK
+    response.headers["Content-Type"] = "application/json"
+    response.body = JSONResponse(content={"detail": "Login successful"}).body
+    return response

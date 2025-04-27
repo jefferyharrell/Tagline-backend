@@ -7,7 +7,8 @@ import os
 import uuid
 
 import pytest
-import requests
+
+from tests.e2e.auth_utils import get_auth_session
 
 pytestmark = pytest.mark.e2e
 
@@ -23,23 +24,17 @@ def test_photo_id():
     return os.getenv("TAGLINE_E2E_PHOTO_ID")
 
 
-def get_access_token():
-    import os
-
-    password = os.getenv("BACKEND_PASSWORD")
-    assert password, "BACKEND_PASSWORD not found in environment or .env file"
-    resp = requests.post(f"{BACKEND_URL}/login", json={"password": password})
-    assert resp.status_code == 200, f"Login failed: {resp.text}"
-    return resp.json()["access_token"]
+# We no longer need this function since we're using cookie auth
+# The get_auth_session() from auth_utils.py replaces it
 
 
 def test_get_photo_image_success(test_photo_id):
     if not test_photo_id:
         pytest.skip("No E2E test photo ID set in env; skipping.")
     url = f"{BACKEND_URL}/photos/{test_photo_id}/image"
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
-    resp = requests.get(url, headers=headers)
+    # Use the authenticated session with cookies instead of tokens
+    session = get_auth_session()
+    resp = session.get(url)
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("image/")
     assert resp.content  # Should have some bytes
@@ -49,17 +44,17 @@ def test_get_photo_image_photo_not_found():
     # Use a random UUID that should not exist
     fake_id = str(uuid.uuid4())
     url = f"{BACKEND_URL}/photos/{fake_id}/image"
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
-    resp = requests.get(url, headers=headers)
+    # Use the authenticated session with cookies instead of tokens
+    session = get_auth_session()
+    resp = session.get(url)
     assert resp.status_code == 404
     assert resp.json()["detail"] == "Photo not found"
 
 
 def test_get_photo_image_invalid_uuid():
     url = f"{BACKEND_URL}/photos/not-a-uuid/image"
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
-    resp = requests.get(url, headers=headers)
+    # Use the authenticated session with cookies instead of tokens
+    session = get_auth_session()
+    resp = session.get(url)
     assert resp.status_code == 422
     assert "detail" in resp.json()

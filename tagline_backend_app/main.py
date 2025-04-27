@@ -33,9 +33,10 @@ def create_app() -> FastAPI:
         app.add_middleware(
             CORSMiddleware,
             allow_origins=allowed_origins,
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_credentials=True,  # Required for cookies
+            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            allow_headers=["Content-Type", "Accept"],
+            expose_headers=["Set-Cookie"],  # Allow Set-Cookie header to be exposed
         )
 
     # Register global exception handler for StorageProviderMisconfigured

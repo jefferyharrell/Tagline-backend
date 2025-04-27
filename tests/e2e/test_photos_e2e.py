@@ -9,26 +9,22 @@ import uuid
 import pytest
 import requests
 
+from tests.e2e.auth_utils import get_auth_session
+
 API_BASE = "http://localhost:8000"
 
 
-def get_access_token():
-    import os
-
-    password = os.getenv("BACKEND_PASSWORD")
-    assert password, "BACKEND_PASSWORD not found in environment or .env file"
-    resp = requests.post(f"{API_BASE}/login", json={"password": password})
-    assert resp.status_code == 200, f"Login failed: {resp.text}"
-    return resp.json()["access_token"]
+# We no longer need this function since we're using cookie auth
+# The get_auth_session() from auth_utils.py replaces it
 
 
 @pytest.mark.e2e
 def test_get_photo_valid_id():
     # Get the first photo from the list endpoint (authenticated)
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
+    # Use the authenticated session with cookies instead of tokens
+    session = get_auth_session()
     list_url = f"{API_BASE}/photos"
-    list_resp = requests.get(list_url, headers=headers)
+    list_resp = session.get(list_url)
     assert list_resp.status_code == 200
     items = list_resp.json().get("items", [])
     if not items:
@@ -38,7 +34,7 @@ def test_get_photo_valid_id():
     photo = items[0]
     photo_id = photo["id"]
     url = f"{API_BASE}/photos/{photo_id}"
-    resp = requests.get(url, headers=headers)
+    resp = session.get(url)
     assert resp.status_code == 200
     data = resp.json()
     assert data["id"] == str(photo_id)
@@ -49,29 +45,28 @@ def test_get_photo_valid_id():
 
 @pytest.mark.e2e
 def test_get_photo_invalid_uuid():
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
+    # Use the authenticated session with cookies instead of tokens
+    session = get_auth_session()
     url = f"{API_BASE}/photos/not-a-uuid"
-    resp = requests.get(url, headers=headers)
+    resp = session.get(url)
     assert resp.status_code == 422
 
 
 @pytest.mark.e2e
 def test_get_photo_requires_auth():
-    """Requesting /photos without auth should return 403 (FastAPI HTTPBearer default)."""
+    """Requesting /photos without auth should return 401 (cookie-based auth)."""
     list_url = f"{API_BASE}/photos"
     resp = requests.get(list_url)
-    assert resp.status_code == 403
+    assert resp.status_code == 401
     assert "detail" in resp.json()
     assert "detail" in resp.json()
 
 
 @pytest.mark.e2e
 def test_get_photo_nonexistent_id():
-    token = get_access_token()
-    headers = {"Authorization": f"Bearer {token}"}
+    # Use a session with cookies instead of tokens
+    session = get_auth_session()
     fake_id = uuid.uuid4()
-    url = f"{API_BASE}/photos/{fake_id}"
-    resp = requests.get(url, headers=headers)
+    resp = session.get(f"{API_BASE}/photos/{fake_id}")
     assert resp.status_code == 404
     assert resp.json()["detail"] == "Photo not found"

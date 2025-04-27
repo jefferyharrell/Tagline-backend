@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from tagline_backend_app.main import app
@@ -22,13 +23,14 @@ def test_login_success(mock_auth_service, client):
     )
     payload = {"password": "secret"}
     response = client.post("/login", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["access_token"] == "access"
-    assert data["refresh_token"] == "refresh"
-    assert data["expires_in"] == 123
-    assert data["refresh_expires_in"] == 456
-    assert data["token_type"] == "bearer"
+    assert response.status_code == status.HTTP_200_OK
+    # Check if cookies are set correctly
+    assert "tagline_access_token" in response.cookies
+    assert "tagline_refresh_token" in response.cookies
+    assert response.cookies["tagline_access_token"] == "access"
+    assert response.cookies["tagline_refresh_token"] == "refresh"
+    # Ensure response body is correct
+    assert response.json() == {"detail": "Login successful"}
 
 
 @patch("tagline_backend_app.routes.auth.AuthService")
@@ -50,13 +52,14 @@ def test_refresh_success(mock_auth_service, client):
     )
     payload = {"refresh_token": "goodtoken"}
     response = client.post("/refresh", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["access_token"] == "access"
-    assert data["refresh_token"] == "refresh"
-    assert data["expires_in"] == 123
-    assert data["refresh_expires_in"] == 456
-    assert data["token_type"] == "bearer"
+    assert response.status_code == status.HTTP_200_OK
+    # Check if cookies are set correctly
+    assert "tagline_access_token" in response.cookies
+    assert "tagline_refresh_token" in response.cookies
+    assert response.cookies["tagline_access_token"] == "access"
+    assert response.cookies["tagline_refresh_token"] == "refresh"
+    # Ensure response body is correct
+    assert response.json() == {"detail": "Token refreshed successfully"}
 
 
 @patch("tagline_backend_app.routes.auth.AuthService")

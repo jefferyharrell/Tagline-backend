@@ -24,14 +24,16 @@ def test_login_valid():
     # Add an assertion to ensure the password was actually loaded
     assert password, "BACKEND_PASSWORD not found in environment or .env file"
     payload = {"password": password}
-    resp = requests.post(f"{API_URL}/login", json=payload, timeout=5)
+    # Create a session to track cookies
+    session = requests.Session()
+    resp = session.post(f"{API_URL}/login", json=payload, timeout=5)
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
     data = resp.json()
-    assert "access_token" in data
-    assert "refresh_token" in data
-    assert data["token_type"] == "bearer"
-    assert isinstance(data["expires_in"], int)
-    assert isinstance(data["refresh_expires_in"], int)
+    assert data["detail"] == "Login successful"
+
+    # Verify cookies were set
+    assert session.cookies.get("tagline_access_token"), "Access token cookie not set"
+    assert session.cookies.get("tagline_refresh_token"), "Refresh token cookie not set"
 
 
 @pytest.mark.e2e
