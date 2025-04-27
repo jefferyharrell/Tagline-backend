@@ -4,6 +4,9 @@ This directory contains the FastAPI backend for the Tagline photo management app
 
 > **Note:** Architectural decisions (like config, libraries, etc.) are documented in [docs/adr/](docs/adr/).
 
+**Authentication & Error Handling:**
+See [docs/api_auth.md](docs/api_auth.md) for up-to-date details on authentication flow, cookies, and error responses.
+
 ## Setup
 
 ### Environment Variables

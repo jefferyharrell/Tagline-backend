@@ -84,7 +84,7 @@ This document tracks the progress of the Tagline backend (FastAPI) implementatio
     - [ ] Implement logout/invalidate refresh tokens (optional for MVP)
         - [ ] Add refresh token blacklist or revocation mechanism (if needed)
         - [x] Unit/E2E test: revoked token cannot be used
-    - [ ] Document authentication flow and error responses
+    - [x] Document authentication flow and error responses
 - [ ] Implement core API endpoints
     - [x] POST /login — Authenticate, get tokens
         - [x] Add validation for login payload (password required, type)
