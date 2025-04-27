@@ -135,6 +135,8 @@ jobs:
         run: cp .env.example .env
       - name: Start backend with Docker Compose
         run: docker compose up -d
+      - name: Run database migrations
+        run: docker compose run --rm backend alembic upgrade head
       - name: Wait for backend container to be healthy
         run: |
           for i in {1..30}; do
@@ -148,8 +150,6 @@ jobs:
           echo "Backend container did not start in time" >&2
           docker compose logs tagline-backend-dev
           exit 1
-      - name: Run database migrations
-        run: docker compose run --rm backend alembic upgrade head
       - name: Wait for backend to be ready
         run: |
           for i in {1..30}; do
