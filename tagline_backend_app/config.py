@@ -128,7 +128,7 @@ class Settings(BaseSettings):
                 kwargs.get("DATABASE_URL") is None
                 and os.environ.get("DATABASE_URL") is None
             ):
-                kwargs["DATABASE_URL"] = "sqlite:///:memory:"
+                kwargs["DATABASE_URL"] = "sqlite:////data/tagline.db"
 
         super().__init__(**kwargs)
 
