@@ -46,6 +46,7 @@ all:
     just format
     just lint
     just test
+    just pre-commit
 
 # Remove Python cache files, test artifacts, and __pycache__ dirs
 clean:
