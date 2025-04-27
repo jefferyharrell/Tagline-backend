@@ -17,6 +17,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Just
+        uses: extractions/setup-just@v2
       - name: Cache pre-commit environments
         uses: actions/cache@v4
         with:
@@ -40,7 +42,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install just
       - name: Run Pre-commit checks
         run: just pre-commit
 
@@ -54,6 +55,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Just
+        uses: extractions/setup-just@v2
       - name: Get pip cache dir
         id: pip-cache
         run: |
@@ -70,7 +73,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install just
       - name: Run unit tests
         run: just unit-tests
 
@@ -84,6 +86,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Just
+        uses: extractions/setup-just@v2
       - name: Get pip cache dir
         id: pip-cache
         run: |
@@ -100,7 +104,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install just
       - name: Run integration tests
         run: just integration-tests
 
@@ -114,6 +117,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Just
+        uses: extractions/setup-just@v2
       - name: Get pip cache dir
         id: pip-cache
         run: |
@@ -130,7 +135,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install just
       - name: Copy .env.example to .env
         run: cp .env.example .env
       - name: Start backend with Docker Compose
