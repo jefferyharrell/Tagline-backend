@@ -32,18 +32,7 @@ integration-tests:
     source venv/bin/activate && pytest tests/integration -m integration
 
 e2e-tests:
-    # Start backend containers and run end-to-end tests (pytest -m e2e)
-    just up
-    for i in {1..30}; do \
-      if curl -s http://localhost:8000/ > /dev/null; then \
-        echo "Backend is up!"; \
-        break; \
-      fi; \
-      echo "Waiting for backend to be ready... ($$i)"; \
-      sleep 1; \
-    done
     source venv/bin/activate && pytest tests/e2e -m e2e -rs
-    echo -e '\033[1;36mE2E tests complete!\033[0m'
 
 test:
     just unit-tests

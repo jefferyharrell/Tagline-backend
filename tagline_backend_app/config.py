@@ -34,7 +34,13 @@ class Settings(BaseSettings):
     Includes authentication and security parameters:
     - BACKEND_PASSWORD: Password for admin or privileged backend actions.
     - JWT_SECRET_KEY: Secret key used to sign JWT tokens (keep this secret and stable!).
+    - CORS_ALLOWED_ORIGINS: Comma-separated list of allowed CORS origins (e.g. 'https://frontend.com,https://admin.frontend.com'). If empty or unset, CORS is not enabled (secure default).
     """
+
+    CORS_ALLOWED_ORIGINS: str = Field(
+        default="",
+        description="Comma-separated list of allowed CORS origins. If empty, CORS is not enabled.",
+    )
 
     APP_ENV: str = Field(
         default="production",

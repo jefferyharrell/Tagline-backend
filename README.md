@@ -28,6 +28,7 @@ The backend is configured using environment variables, which can be set in a `.e
 - `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
 - `JWT_SECRET_KEY`: Secret key for signing JWT tokens (required; must be long, random, and kept secret!).
 - `DROPBOX_ACCESS_TOKEN`: [DEPRECATED] Legacy long-lived access token (not recommended; use refresh token flow instead).
+- `CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins (e.g., `http://localhost:3000,https://myfrontend.com`). If empty or unset, CORS is not enabled (secure default). Used to allow browser-based frontends to access the backend API.
 
 **Provider config is now validated at runtime, not startup.**
 - The app will start even if FILESYSTEM_STORAGE_PATH is unset, but endpoints that require the storage provider will return a clear error if misconfigured.

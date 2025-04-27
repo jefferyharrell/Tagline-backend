@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from tagline_backend_app.config import get_settings
 from tagline_backend_app.constants import APP_NAME
@@ -23,6 +24,19 @@ def create_app() -> FastAPI:
             "REDIS_URL must be set in environment/config for token storage!"
         )
     app = FastAPI(title=APP_NAME, version="0.1.0")
+
+    # Enable CORS if allowed origins are set
+    allowed_origins = [
+        o.strip() for o in settings.CORS_ALLOWED_ORIGINS.split(",") if o.strip()
+    ]
+    if allowed_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=allowed_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     # Register global exception handler for StorageProviderMisconfigured
     from fastapi import Request
