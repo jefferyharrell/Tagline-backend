@@ -52,8 +52,8 @@ class Settings(BaseSettings):
         description="Which storage backend to use (e.g., 'filesystem', 's3', 'dropbox'). Defaults to 'filesystem'.",
     )
     DATABASE_URL: str = Field(
-        default="sqlite:///./tagline.db",
-        description="Database connection string. Defaults to SQLite local file if not set.",
+        default="sqlite:////data/tagline.db",
+        description="Database connection string. Defaults to SQLite file in /data volume if not set.",
     )
     REDIS_URL: Optional[str] = Field(
         default=None,
@@ -129,11 +129,6 @@ class Settings(BaseSettings):
                 and os.environ.get("DATABASE_URL") is None
             ):
                 kwargs["DATABASE_URL"] = "sqlite:///:memory:"
-        elif (
-            kwargs.get("DATABASE_URL") is None
-            and os.environ.get("DATABASE_URL") is None
-        ):
-            kwargs["DATABASE_URL"] = "sqlite:////data/tagline.db"
 
         super().__init__(**kwargs)
 
