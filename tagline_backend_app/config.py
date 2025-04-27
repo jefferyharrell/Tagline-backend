@@ -5,7 +5,6 @@ Configuration for the Tagline backend application.
 Reads environment variables using Pydantic's BaseSettings.
 """
 
-import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Optional, cast

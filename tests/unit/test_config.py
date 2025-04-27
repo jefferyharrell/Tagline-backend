@@ -1,11 +1,17 @@
 """
 Unit tests for tagline_backend_app.config (Settings, FilesystemProviderSettings, get_settings)
 """
-import os
+
 import pytest
-from tagline_backend_app.config import Settings, FilesystemProviderSettings, get_settings
+
+from tagline_backend_app.config import (
+    FilesystemProviderSettings,
+    Settings,
+    get_settings,
+)
 
 pytestmark = pytest.mark.unit
+
 
 def test_settings_env_loading(monkeypatch):
     # Patch Settings to ignore .env file
@@ -21,6 +27,7 @@ def test_settings_env_loading(monkeypatch):
     assert s.JWT_SECRET_KEY == "envsecret"
     assert s.APP_ENV == "production"
 
+
 def test_settings_defaults(monkeypatch):
     monkeypatch.setitem(Settings.model_config, "env_file", None)
     monkeypatch.setenv("APP_ENV", "production")
@@ -33,6 +40,7 @@ def test_settings_defaults(monkeypatch):
     assert s.STORAGE_PROVIDER == "filesystem"
     assert s.ACCESS_TOKEN_EXPIRE_SECONDS == 900
     assert s.REFRESH_TOKEN_EXPIRE_SECONDS == 604800
+
 
 def test_settings_test_overrides(monkeypatch):
     monkeypatch.setitem(Settings.model_config, "env_file", None)
@@ -47,14 +55,17 @@ def test_settings_test_overrides(monkeypatch):
     assert s.REDIS_URL == "redis://localhost:6379/1"
     assert s.DATABASE_URL == "sqlite:///:memory:"
 
+
 def test_filesystem_provider_settings_env(monkeypatch):
     monkeypatch.setenv("FILESYSTEM_STORAGE_PATH", "/tmp/photos")
     fs = FilesystemProviderSettings()
     assert str(fs.path) == "/tmp/photos"
 
+
 def test_filesystem_provider_settings_default():
     fs = FilesystemProviderSettings()
     assert fs.path is None
+
 
 def test_get_settings_cached(monkeypatch):
     # Clear lru_cache

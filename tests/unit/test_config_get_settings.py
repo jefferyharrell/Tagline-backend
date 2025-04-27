@@ -2,10 +2,13 @@
 Unit tests for tagline_backend_app.config.get_settings
 Ensures get_settings returns a cached singleton instance and is consistent.
 """
+
 import pytest
-from tagline_backend_app.config import get_settings, Settings
+
+from tagline_backend_app.config import Settings, get_settings
 
 pytestmark = pytest.mark.unit
+
 
 def test_get_settings_returns_singleton(monkeypatch):
     # Patch Settings.model_config to ignore .env for deterministic test

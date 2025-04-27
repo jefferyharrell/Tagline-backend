@@ -2,15 +2,18 @@
 Unit tests for tagline_backend_app.models.Photo
 Covers: Instantiation, field defaults, constraints (in-memory SQLite DB)
 """
+
 import uuid
 from datetime import datetime, timezone
 
 import pytest
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
+
 from tagline_backend_app.models import Base, Photo
 
 pytestmark = pytest.mark.unit
+
 
 @pytest.fixture(scope="function")
 def db_session():
@@ -23,6 +26,7 @@ def db_session():
     finally:
         session.close()
         engine.dispose()
+
 
 def test_photo_instantiation_defaults(db_session):
     photo = Photo(filename="cat.jpg")
@@ -42,12 +46,17 @@ def test_photo_instantiation_defaults(db_session):
         # Should be naive UTC
         assert photo.created_at.utcoffset() is None
     else:
-        assert photo.created_at.tzinfo.utcoffset(photo.created_at) == timezone.utc.utcoffset(photo.created_at)
+        assert photo.created_at.tzinfo.utcoffset(
+            photo.created_at
+        ) == timezone.utc.utcoffset(photo.created_at)
     assert isinstance(photo.updated_at, datetime)
     if photo.updated_at.tzinfo is None:
         assert photo.updated_at.utcoffset() is None
     else:
-        assert photo.updated_at.tzinfo.utcoffset(photo.updated_at) == timezone.utc.utcoffset(photo.updated_at)
+        assert photo.updated_at.tzinfo.utcoffset(
+            photo.updated_at
+        ) == timezone.utc.utcoffset(photo.updated_at)
+
 
 def test_photo_constraints(db_session):
     # filename is required
@@ -61,6 +70,7 @@ def test_photo_constraints(db_session):
     db_session.commit()
     db_session.refresh(photo)
     assert photo.description == "A dog."
+
 
 def test_photo_table_schema(db_session):
     inspector = inspect(db_session.get_bind())
