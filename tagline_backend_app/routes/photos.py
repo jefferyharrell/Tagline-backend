@@ -62,10 +62,15 @@ def get_photo_image(
     - **422**: Returned if the ID is not a valid UUID.
     - **500**: Returned if storage provider fails.
     """
+    import logging
     import mimetypes
 
     repo = PhotoRepository(db)
-    photo = repo.get(id)
+    try:
+        photo = repo.get(id)
+    except Exception as exc:
+        logging.error(f"DB error in get_photo_image for id {id}: {exc}")
+        raise HTTPException(status_code=500, detail="Database error")
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")
 
@@ -80,7 +85,10 @@ def get_photo_image(
         fileobj = provider.retrieve(filename)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Photo file not found")
-    except Exception:
+    except Exception as exc:
+        logging.error(
+            f"Storage provider error in get_photo_image for file {filename}: {exc}"
+        )
         raise HTTPException(status_code=500, detail="Internal server error")
     return StreamingResponse(fileobj, media_type=media_type)
 
