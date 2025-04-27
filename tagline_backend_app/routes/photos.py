@@ -64,13 +64,29 @@ def get_photo_image(
     """
     import logging
     import mimetypes
+    import traceback
+
+    from sqlalchemy.exc import SQLAlchemyError
+
+    # Handle UUID validation errors
+    if not isinstance(id, UUID):
+        logging.error(f"Invalid UUID in get_photo_image: {id}")
+        raise HTTPException(status_code=422, detail="Invalid UUID format")
 
     repo = PhotoRepository(db)
+
+    # Handle database lookup
     try:
         photo = repo.get(id)
-    except Exception as exc:
-        logging.error(f"DB error in get_photo_image for id {id}: {exc}")
-        raise HTTPException(status_code=500, detail="Database error")
+    except SQLAlchemyError as exc:
+        # Log the full error with traceback for debugging
+        logging.error(
+            f"DB error in get_photo_image for id {id}: {exc}\n{traceback.format_exc()}"
+        )
+        # For SQLAlchemy errors with non-existent photos, return 404 not 500
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    # Handle photo not found case
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")
 
