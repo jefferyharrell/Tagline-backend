@@ -15,11 +15,21 @@ if not BACKEND_PASSWORD_RAW:
 # Clean the value (remove comments, whitespace)
 BACKEND_PASSWORD = BACKEND_PASSWORD_RAW.strip().split()[0]
 
-client = TestClient(create_app())
+
+@pytest.fixture(scope="session")
+def client():
+    return TestClient(create_app())
+
+
+BACKEND_PASSWORD_RAW = os.getenv("BACKEND_PASSWORD")
+if not BACKEND_PASSWORD_RAW:
+    raise RuntimeError("BACKEND_PASSWORD is not set in the environment or .env file!")
+# Clean the value (remove comments, whitespace)
+BACKEND_PASSWORD = BACKEND_PASSWORD_RAW.strip().split()[0]
 
 
 @pytest.mark.integration
-def test_login_success():
+def test_login_success(client):
     """Test login with valid credentials returns access and refresh tokens as cookies."""
     response = client.post("/login", json={"password": BACKEND_PASSWORD})
     assert response.status_code == 200
@@ -32,7 +42,7 @@ def test_login_success():
 
 
 @pytest.mark.integration
-def test_login_invalid_credentials():
+def test_login_invalid_credentials(client):
     """Test login with invalid credentials returns 401 Unauthorized."""
     response = client.post("/login", json={"password": "wrongpassword"})
     assert response.status_code == 401
