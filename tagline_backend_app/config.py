@@ -112,7 +112,7 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""
         # If we're in a test environment, set test defaults for auth fields
-        is_test = kwargs.get("APP_ENV", "").lower() == "test" or "pytest" in sys.modules
+        is_test = kwargs.get("APP_ENV", "").lower() == "test"
 
         import os
 

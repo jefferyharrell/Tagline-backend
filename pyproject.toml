@@ -11,6 +11,7 @@ license = { text = "MIT" }
 
 [tool.pytest.ini_options]
 markers = [
+    "unit: marks tests as unit tests",
     "e2e: marks tests as end-to-end (deselect with '-m \"not e2e\"')",
     "integration: marks tests as integration (deselect with '-m \"not integration\"')"
 ]
