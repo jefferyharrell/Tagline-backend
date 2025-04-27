@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 from typing import Generator
 
+from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from sqlalchemy.pool import NullPool, StaticPool
@@ -79,8 +80,13 @@ def session_scope() -> Generator[Session, None, None]:
         yield session
         session.commit()
         logger.debug("Database session committed.")
+    except HTTPException:
+        # Just rollback and re-raise without logging for expected HTTP exceptions
+        session.rollback()
+        raise
     except Exception:
-        logger.exception("Exception occurred, rolling back database session.")
+        # Log and re-raise other exceptions
+        logger.exception("Unexpected exception during DB session, rolling back.")
         session.rollback()
         raise
     finally:

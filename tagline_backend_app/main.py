@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from tagline_backend_app.config import get_settings
@@ -39,7 +39,6 @@ def create_app() -> FastAPI:
         )
 
     # Register global exception handler for StorageProviderMisconfigured
-    from fastapi import Request
     from fastapi.responses import JSONResponse
 
     @app.exception_handler(StorageProviderMisconfigured)
@@ -52,6 +51,21 @@ def create_app() -> FastAPI:
                 "error": "StorageProviderMisconfigured",
                 "detail": str(exc),
             },
+        )
+
+    # Add this new handler
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        """
+        Custom handler for HTTPException to prevent logging tracebacks
+        for expected client errors (4xx).
+        """
+        # Optionally, log a simple info message without traceback
+        # logger.info(f"HTTPException handled: {exc.status_code} - {exc.detail}")
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=getattr(exc, "headers", None),  # Include headers if present
         )
 
     # Store provider config (not the instance) for lazy instantiation

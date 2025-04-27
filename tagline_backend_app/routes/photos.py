@@ -50,8 +50,8 @@ router = APIRouter()
 def get_photo_image(
     id: UUID,
     request: Request,
-    db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Retrieve the binary image file for a photo by unique ID.
@@ -125,8 +125,8 @@ def get_photo_image(
 def update_photo_metadata(
     id: UUID,
     payload: UpdateMetadataRequest,
-    db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Update a photo's metadata (description, optionally last_modified).
@@ -192,8 +192,8 @@ def update_photo_metadata(
 )
 def get_photo_by_id(
     id: UUID,
-    db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
     Retrieve a single photo and its metadata by unique ID.
@@ -230,8 +230,8 @@ def get_photo_by_id(
     },
 )
 def list_photos(
-    db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
     limit: int = 50,
     offset: int = 0,
 ):

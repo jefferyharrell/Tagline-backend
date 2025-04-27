@@ -45,11 +45,11 @@ def refresh(
         access_token, refresh_token, expires_in, refresh_expires_in = (
             auth_service.refresh_tokens(payload.refresh_token)
         )
-    except Exception as exc:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
-        ) from exc
+        )
     return RefreshResponse(
         access_token=access_token,
         refresh_token=refresh_token,
