@@ -72,7 +72,7 @@ You do NOT need to include Authorization headers. The backend reads your cookies
 ### Auth & Token Issues
 - **401 Unauthorized**: Missing or invalid access/refresh token, or wrong password.
   ```json
-  { "detail": "Not authenticated" }
+  { "detail": "Missing authentication token" }
   ```
 - **403 Forbidden**: Token present but user not authorized (should not happen in MVP, but may occur in future multi-user version).
 - **422 Unprocessable Entity**: Malformed request body or missing required fields.
@@ -83,13 +83,13 @@ You do NOT need to include Authorization headers. The backend reads your cookies
 ### Example: Expired/Invalid Token
 - Response:
   ```json
-  { "detail": "Could not validate credentials" }
+  { "detail": "Invalid or expired token" }
   ```
 
 ### Example: Failed Login
 - Response:
   ```json
-  { "detail": "Incorrect password" }
+  { "detail": "Invalid password" }
   ```
 
 ---
