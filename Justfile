@@ -61,14 +61,6 @@ rebuild:
     just up
     echo "Rebuilt and started fresh containers."
 
-# Destroy and recreate the dev/test DB (fresh start)
-reset-db:
-    just down
-    docker volume rm tagline-backend_tagline-db-data || true
-    just up
-    just migrate
-    echo "Database reset and migrations applied."
-
 # Upgrade all pip packages in requirements-dev.txt
 update-deps:
     source venv/bin/activate
@@ -112,8 +104,8 @@ makemigration MESSAGE="Describe your migration":
     docker exec -it tagline-backend-dev alembic revision --autogenerate -m "{{MESSAGE}}"
 
 dbshell:
-    # Open a SQLite shell on the persistent DB in Docker
-    docker exec -it tagline-backend-dev sqlite3 /data/tagline.db
+    # Open a Postgres shell in the Postgres container for integration/dev DB
+    docker exec -it tagline-postgres-dev psql -U tagline -d tagline_test
 
 # Connect to the Redis shell in the dev container
 redis-shell:

@@ -4,9 +4,16 @@ services:
     container_name: tagline-redis-dev
     ports:
       - "6379:6379"
-    # No persistence in dev; for prod, add a volume:
-    # volumes:
-    #   - tagline-redis-data:/data
+
+  postgres:
+    image: postgres:16
+    container_name: tagline-postgres-dev
+    environment:
+      POSTGRES_USER: tagline
+      POSTGRES_PASSWORD: tagline
+      POSTGRES_DB: tagline_test
+    ports:
+      - "5432:5432"
 
   backend:
     build:
@@ -15,7 +22,6 @@ services:
     command: uvicorn tagline_backend_app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - .:/code
-      - tagline-db-data:/data
     ports:
       - "8000:8000"
     environment:
@@ -24,6 +30,4 @@ services:
       - .env
     depends_on:
       - redis
-
-volumes:
-  tagline-db-data:
+      - postgres
