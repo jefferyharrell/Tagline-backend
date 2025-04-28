@@ -7,8 +7,6 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from tagline_backend_app.main import create_app
-
 BACKEND_PASSWORD_RAW = os.getenv("BACKEND_PASSWORD")
 if not BACKEND_PASSWORD_RAW:
     raise RuntimeError("BACKEND_PASSWORD is not set in the environment or .env file!")
@@ -18,6 +16,8 @@ BACKEND_PASSWORD = BACKEND_PASSWORD_RAW.strip().split()[0]
 
 @pytest.fixture(scope="session")
 def client():
+    from tagline_backend_app.main import create_app
+
     return TestClient(create_app())
 
 

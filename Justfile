@@ -26,13 +26,13 @@ lint:
 
 # Testing
 unit-tests:
-    source venv/bin/activate && pytest tests/unit -m 'not integration and not e2e'
+    source venv/bin/activate && pytest -v tests/unit -m 'not integration and not e2e'
 
 integration-tests:
-    source venv/bin/activate && pytest tests/integration -m integration
+    source venv/bin/activate && pytest -v tests/integration -m integration
 
 e2e-tests:
-    source venv/bin/activate && pytest tests/e2e -m e2e -rs
+    source venv/bin/activate && pytest -v tests/e2e -m e2e -rs
 
 test:
     just unit-tests
