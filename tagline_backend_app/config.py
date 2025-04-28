@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     - CORS_ALLOWED_ORIGINS: Comma-separated list of allowed CORS origins (e.g. 'https://frontend.com,https://admin.frontend.com'). If empty or unset, CORS is not enabled (secure default).
     """
 
+    @property
+    def COOKIE_SECURE(self) -> bool:
+        """Return True only if APP_ENV is 'production' (case-insensitive)."""
+        return self.APP_ENV.strip().lower() == "production"
+
     CORS_ALLOWED_ORIGINS: str = Field(
         default="",
         description="Comma-separated list of allowed CORS origins. If empty, CORS is not enabled.",

@@ -78,54 +78,65 @@ def logout(
 @router.post("/refresh", status_code=200)
 def refresh(
     response: Response,
-    payload: Optional[RefreshRequest] = None,
-    refresh_token: str = Cookie(None, alias="tagline_refresh_token"),
+    token_store: Annotated[TokenStore, Depends(get_token_store)],
     db: Session = Depends(get_db),
-    token_store=Depends(get_token_store),
+    payload: Optional[RefreshRequest] = None,
+    refresh_token: Annotated[str | None, Cookie(alias="tagline_refresh_token")] = None,
 ):
     """
     Exchange a refresh token for new access and refresh tokens.
 
     Args:
-        payload (RefreshRequest): The refresh request payload.
-        db (Session): SQLAlchemy DB session (injected).
+        response: The FastAPI Response object.
+        db: SQLAlchemy DB session (injected).
+        token_store: TokenStore dependency (injected).
+        payload: Optional request body containing refresh token (fallback).
+        refresh_token: Refresh token from the cookie (preferred).
+
     Returns:
-        RefreshResponse: New tokens if refresh succeeds.
+        JSON response indicating successful token refresh.
+
     Raises:
-        HTTPException: 401 if refresh token is invalid/expired/revoked.
+        HTTPException: 401 if refresh token is invalid/expired/revoked or missing.
     """
     settings = get_settings()
     auth_service = AuthService(settings, token_store)
 
-    # Hybrid: use cookie if present, else request body
-    token = refresh_token
-    if not token and payload is not None:
-        token = payload.refresh_token
-    if not token:
-        logger.warning("Refresh attempt failed: No refresh token provided")
+    # Prefer cookie, fallback to payload
+    token_to_refresh = refresh_token
+    if not token_to_refresh and payload is not None:
+        token_to_refresh = payload.refresh_token
+
+    if not token_to_refresh:
+        logger.warning(
+            "Refresh attempt failed: No refresh token provided in cookie or body"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No refresh token provided",
         )
+
     try:
         access_token, new_refresh_token, expires_in, refresh_expires_in = (
-            auth_service.refresh_tokens(token)
+            auth_service.refresh_tokens(token_to_refresh)
         )
-    except Exception:
-        logger.warning("Refresh attempt failed: Invalid or expired refresh token")
+    except Exception as e:  # Catch specific exceptions if needed
+        logger.warning(
+            f"Refresh attempt failed: Invalid/expired refresh token. Error: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
+
     # Set cookies for tokens
-    settings = get_settings()
     response.set_cookie(
         key="tagline_access_token",
         value=access_token,
         max_age=expires_in,
         httponly=True,
-        secure=False,  # Set to False for local testing over HTTP
-        samesite="lax",  # Use 'strict' for maximum security, 'lax' for better UX
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
         path="/",
     )
     response.set_cookie(
@@ -133,19 +144,13 @@ def refresh(
         value=new_refresh_token,
         max_age=refresh_expires_in,
         httponly=True,
-        secure=False,  # Set to False for local testing over HTTP
+        secure=settings.COOKIE_SECURE,
         samesite="lax",
         path="/",
     )
 
-    # Return the response object directly after setting content
-    response.status_code = status.HTTP_200_OK
-    response.headers["Content-Type"] = "application/json"
-    response.body = JSONResponse(
-        content={"detail": "Token refreshed successfully"}
-    ).body
     logger.info("Token refresh successful")
-    return response
+    return {"detail": "Token refreshed successfully"}
 
 
 @router.post("/login", status_code=200)
@@ -195,7 +200,7 @@ def login(
         value=access_token,
         max_age=expires_in,
         httponly=True,
-        secure=False,  # Set to False for local testing over HTTP
+        secure=settings.COOKIE_SECURE,
         samesite="lax",  # Use 'strict' for maximum security, 'lax' for better UX
         path="/",
     )
@@ -204,7 +209,7 @@ def login(
         value=refresh_token,
         max_age=refresh_expires_in,
         httponly=True,
-        secure=False,  # Set to False for local testing over HTTP
+        secure=settings.COOKIE_SECURE,
         samesite="lax",
         path="/",
     )
