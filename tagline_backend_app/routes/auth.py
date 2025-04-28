@@ -195,6 +195,8 @@ def login(
     )
     # Set cookies for tokens
     settings = get_settings()
+    logger.debug(f"ROUTE /login: settings.APP_ENV = {settings.APP_ENV}")
+    logger.debug(f"ROUTE /login: settings.COOKIE_SECURE = {settings.COOKIE_SECURE}")
     response.set_cookie(
         key="tagline_access_token",
         value=access_token,
