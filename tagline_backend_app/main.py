@@ -31,11 +31,7 @@ def create_app(settings=None) -> FastAPI:
     #     raise RuntimeError(
     #         "JWT_SECRET_KEY must be set in environment/config for security!"
     #     )
-    if not settings.REDIS_URL and settings.APP_ENV.lower() != "test":
-        logger.critical("REDIS_URL is not set in environment/config!")
-        raise RuntimeError(
-            "REDIS_URL must be set in environment/config for token storage!"
-        )
+
     app = FastAPI(title=APP_NAME, version="0.1.0")
 
     # Enable CORS if allowed origins are set

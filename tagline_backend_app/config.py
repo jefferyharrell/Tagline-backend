@@ -32,7 +32,6 @@ class Settings(BaseSettings):
 
     Includes authentication and security parameters:
     - BACKEND_PASSWORD: Password for admin or privileged backend actions.
-    - JWT_SECRET_KEY: Secret key used to sign JWT tokens (keep this secret and stable!).
     - CORS_ALLOWED_ORIGINS: Comma-separated list of allowed CORS origins (e.g. 'https://frontend.com,https://admin.frontend.com'). If empty or unset, CORS is not enabled (secure default).
     """
 
@@ -126,8 +125,7 @@ class Settings(BaseSettings):
             # Don't override if already set
             if kwargs.get("TAGLINE_API_KEY") is None:
                 kwargs["TAGLINE_API_KEY"] = "test_api_key_for_testing_only"
-            if kwargs.get("REDIS_URL") is None:
-                kwargs["REDIS_URL"] = "redis://localhost:6379/1"
+
             if (
                 kwargs.get("DATABASE_URL") is None
                 and os.environ.get("DATABASE_URL") is None

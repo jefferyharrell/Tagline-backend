@@ -29,7 +29,7 @@ The backend is configured using environment variables, which can be set in a `.e
 - `DROPBOX_APP_SECRET`: Dropbox app secret (required).
 - `DROPBOX_ROOT_PATH`: Root path in Dropbox (all keys are relative to this path).
 - `BACKEND_PASSWORD`: Password for backend authentication (required; keep this secret!).
-- `JWT_SECRET_KEY`: Secret key for signing JWT tokens (required; must be long, random, and kept secret!).
+
 - `DROPBOX_ACCESS_TOKEN`: [DEPRECATED] Legacy long-lived access token (not recommended; use refresh token flow instead).
 - `CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins (e.g., `http://localhost:3000,https://myfrontend.com`). If empty or unset, CORS is not enabled (secure default). Used to allow browser-based frontends to access the backend API.
 
@@ -40,7 +40,6 @@ The backend is configured using environment variables, which can be set in a `.e
 **Example values:**
 ```env
 BACKEND_PASSWORD=your-backend-password-here
-JWT_SECRET_KEY=superlongrandomstringforjwt
 STORAGE_PROVIDER=filesystem
 FILESYSTEM_STORAGE_PATH=/absolute/path/to/item storage
 DROPBOX_REFRESH_TOKEN=your-dropbox-refresh-token-here
@@ -49,21 +48,6 @@ DROPBOX_APP_SECRET=your-dropbox-app-secret-here
 DROPBOX_ROOT_PATH=/dropbox_storage
 ```
 
-### Redis Token Store & REDIS_URL
-
-The backend uses Redis for authentication token storage (see ADR 0004).
-
-- In development, Docker Compose provides a Redis service. Set `REDIS_URL=redis://redis:6379/0` in your `.env` file (see `.env.example`).
-- In production, set `REDIS_URL` to your managed Redis instance (e.g., AWS ElastiCache, Upstash).
-- The backend will refuse to start if `REDIS_URL` is not set.
-
-See `.env.example` for sample configuration.
-
-> **Security Note:** Never check real secrets into version control. Generate a strong, random JWT_SECRET_KEY for production (see README for tips).
-
-You can copy `.env.example` to `.env` and edit as needed.
-
----
 
 ## Testing & Integration Test Setup
 

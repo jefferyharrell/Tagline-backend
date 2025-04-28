@@ -12,8 +12,7 @@ from tagline_backend_app.main import create_app
 # Determine project root for .env loading
 project_root = Path(__file__).parent.parent.parent
 
-# Override Redis URL for integration tests (local) - We keep this but won't use it
-os.environ["REDIS_URL"] = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
 # Force in-memory SQLite DB for integration tests
 os.environ["DB_URL"] = "sqlite:///:memory:"
 
