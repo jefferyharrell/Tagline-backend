@@ -3,7 +3,10 @@ import logging
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from tagline_backend_app.caching import initialize_thumbnail_cache
+from tagline_backend_app.caching import (
+    initialize_image_cache,
+    initialize_thumbnail_cache,
+)
 from tagline_backend_app.config import get_settings
 from tagline_backend_app.constants import APP_NAME
 from tagline_backend_app.logging_config import setup_logging
@@ -186,6 +189,7 @@ def create_app(settings=None) -> FastAPI:
 
     # Initialize Thumbnail Cache
     initialize_thumbnail_cache()
+    initialize_image_cache()
     logger.info("Thumbnail cache initialized.")
 
     # Register routes dynamically (reload to pick up changes/env)

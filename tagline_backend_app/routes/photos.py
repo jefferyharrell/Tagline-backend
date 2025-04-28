@@ -10,11 +10,10 @@ from uuid import UUID
 
 import pillow_heif  # Ensure it's imported, though registration happens in main
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from fastapi.responses import StreamingResponse
 from PIL import Image
 from sqlalchemy.orm import Session
 
-from tagline_backend_app.caching import get_thumbnail_cache
+from tagline_backend_app.caching import get_image_cache, get_thumbnail_cache
 from tagline_backend_app.crud.photo import PhotoRepository
 from tagline_backend_app.db import get_db
 from tagline_backend_app.deps import get_current_user
@@ -62,59 +61,96 @@ def get_photo_image(
     db: Session = Depends(get_db),
 ):
     """
-    Retrieve the binary image file for a photo by unique ID.
+    Returns a 1024x1024 padded JPEG of the photo (not the original), with in-memory LRU caching.
 
     - **id**: UUID of the photo to retrieve.
-    - **Returns**: The raw image file (not JSON).
-    - **404**: Returned if no photo or file with the given ID exists.
-    - **422**: Returned if the ID is not a valid UUID.
-    - **500**: Returned if storage provider fails.
+    - **Returns**: 1024x1024 JPEG image (padded as needed).
+    - **404**: If photo or file not found.
+    - **422**: If ID is not a valid UUID.
+    - **500**: If storage or processing fails.
     """
+    import io
     import logging
-    import mimetypes
     import traceback
 
-    from sqlalchemy.exc import SQLAlchemyError
+    import pillow_heif
+    from PIL import Image
 
-    # Handle UUID validation errors
+    # 1. Validate UUID
     if not isinstance(id, UUID):
         logging.error(f"Invalid UUID in get_photo_image: {id}")
         raise HTTPException(status_code=422, detail="Invalid UUID format")
 
+    # 2. Get photo metadata
     repo = PhotoRepository(db)
-
-    # Handle database lookup
     try:
         photo = repo.get(id)
-    except SQLAlchemyError as exc:
-        # Log the full error with traceback for debugging
-        logging.error(
-            f"DB error in get_photo_image for id {id}: {exc}\n{traceback.format_exc()}"
-        )
-        # For SQLAlchemy errors with non-existent photos, return 404 not 500
-        raise HTTPException(status_code=404, detail="Photo not found")
-
-    # Handle photo not found case
-    if photo is None:
-        raise HTTPException(status_code=404, detail="Photo not found")
-
-    provider = request.app.state.get_photo_storage_provider(request.app)
-    filename = photo.filename
-    # Guess MIME type from filename
-    media_type, _ = mimetypes.guess_type(filename)
-    if not media_type:
-        # Default to application/octet-stream if unknown
-        media_type = "application/octet-stream"
-    try:
-        fileobj = provider.retrieve(filename)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Photo file not found")
+        if photo is None:
+            raise HTTPException(status_code=404, detail="Photo not found")
     except Exception as exc:
         logging.error(
-            f"Storage provider error in get_photo_image for file {filename}: {exc}"
+            f"DB error getting photo {id} for image: {exc}\n{traceback.format_exc()}"
         )
-        raise HTTPException(status_code=500, detail="Internal server error")
-    return StreamingResponse(fileobj, media_type=media_type)
+        raise HTTPException(status_code=500, detail="Database error")
+
+    # 3. Check image cache
+    cache = get_image_cache()
+    cache_key = str(id)
+    if cache is not None and cache_key in cache:
+        logging.debug(f"Image cache hit for {id}")
+        return Response(content=cache[cache_key], media_type="image/jpeg")
+
+    # 4. Get original image from storage
+    provider = request.app.state.get_photo_storage_provider(request.app)
+    filename = photo.filename
+    try:
+        image_bytes_io = provider.retrieve(filename)
+        if not image_bytes_io:
+            raise FileNotFoundError
+        image_data = image_bytes_io.read()
+        if not image_data:
+            raise ValueError("Image file is empty")
+    except FileNotFoundError:
+        logging.warning(f"Original image file not found for photo {id}: {filename}")
+        raise HTTPException(status_code=404, detail="Original image file not found")
+    except Exception as exc:
+        logging.error(f"Storage error retrieving {filename} for image: {exc}")
+        raise HTTPException(status_code=500, detail="Storage provider error")
+
+    # 5. Generate 1024x1024 padded JPEG
+    try:
+        # Ensure pillow_heif is registered (should be via main.py lifespan)
+        if (
+            not pillow_heif.is_supported(io.BytesIO(image_data))
+            and not Image.open(io.BytesIO(image_data)).format
+        ):
+            pillow_heif.register_heif_opener()
+        img = Image.open(io.BytesIO(image_data))
+        # Convert to RGB for JPEG
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        # Resize so the longest edge is 1024px, preserving aspect ratio
+        img.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+        # Save the resized image to JPEG in memory (no padding)
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=85)
+        image_bytes = buffer.getvalue()
+    except Exception:
+        logging.exception(f"Error generating fullsize image for photo {id}")
+        raise HTTPException(status_code=500, detail="Image processing failed")
+
+    # 6. Cache the result
+    if cache is not None:
+        try:
+            cache[cache_key] = image_bytes
+            logging.debug(
+                f"Cached 1024x1024 image for photo {id} ({len(image_bytes)/1024:.1f} KB)"
+            )
+        except Exception as exc:
+            logging.error(f"Failed to cache image for photo {id}: {exc}")
+
+    # 7. Return the image
+    return Response(content=image_bytes, media_type="image/jpeg")
 
 
 @router.get(

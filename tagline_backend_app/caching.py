@@ -9,6 +9,8 @@ from tagline_backend_app.config import get_settings
 
 # Global thumbnail cache instance (initialized later)
 THUMBNAIL_CACHE: Optional[LRUCache] = None
+# Global image cache instance (initialized later)
+IMAGE_CACHE: Optional[LRUCache] = None
 
 
 def initialize_thumbnail_cache():
@@ -45,3 +47,36 @@ def get_thumbnail_cache() -> Optional[LRUCache]:
             "Thumbnail cache accessed before initialization or is disabled."
         )
     return THUMBNAIL_CACHE
+
+
+def initialize_image_cache():
+    """Initializes the global image cache based on environment settings."""
+    global IMAGE_CACHE
+    settings = get_settings()
+
+    max_size_mb = settings.IMAGE_CACHE_MAX_MB
+    # Estimate cache item size (1024x1024 JPEG can vary, using a rough estimate)
+    # Assume avg 400KB per image for sizing calculation
+    avg_image_size_kb = 400
+    max_items = int((max_size_mb * 1024) / avg_image_size_kb)
+
+    if max_items <= 0:
+        logging.warning(
+            f"Calculated max_items for image cache is {max_items}. "
+            f"Disabling cache. Check IMAGE_CACHE_MAX_MB ({max_size_mb}MB)."
+        )
+        IMAGE_CACHE = None  # Explicitly disable if size is too small
+        return
+
+    logging.info(
+        f"Initializing image LRU cache: max_size={max_size_mb}MB, "
+        f"estimated max_items={max_items} (assuming ~{avg_image_size_kb}KB/image)"
+    )
+    IMAGE_CACHE = LRUCache(maxsize=max_items)
+
+
+def get_image_cache() -> Optional[LRUCache]:
+    """Returns the initialized global image cache instance."""
+    if IMAGE_CACHE is None:
+        logging.warning("Image cache accessed before initialization or is disabled.")
+    return IMAGE_CACHE

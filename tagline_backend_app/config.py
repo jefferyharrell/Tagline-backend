@@ -120,7 +120,11 @@ class Settings(BaseSettings):
 
     THUMBNAIL_CACHE_MAX_MB: int = Field(
         default=100,
-        description="Default cache size in MB",
+        description="Default thumbnail cache size in MB",
+    )
+    IMAGE_CACHE_MAX_MB: int = Field(
+        default=200,
+        description="Default image cache size in MB",
     )
 
     def __init__(self, **kwargs: Any) -> None:
