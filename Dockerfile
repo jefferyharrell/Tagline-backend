@@ -1,34 +1,50 @@
-# Tagline Backend Dockerfile
-FROM python:3.12-slim
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim as builder
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set work directory
-WORKDIR /code
+# Set the working directory in the container
+WORKDIR /app
 
-# Install system dependencies and HEIC/HEIF support
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    sqlite3 \
-    libheif1 \
-    libde265-0 \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies if needed (e.g., for Pillow or other C extensions)
+# RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev
 
-# Note: libheif/libde265 are required for HEIC/HEIF image support via pillow-heif
+# Install Poetry (if you use it - adjust if using pip directly)
+# RUN pip install poetry
+# COPY poetry.lock pyproject.toml ./
+# RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi --no-root
 
-# Install Python dependencies
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# --- If using requirements.txt directly ---
+# Copy the requirements file into the container
+COPY requirements.txt .
 
-# Copy application code and Alembic migration files
-COPY ./tagline_backend_app ./tagline_backend_app
-COPY ./alembic ./alembic
-COPY ./alembic.ini ./alembic.ini
+# Install any needed packages specified in requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+# -------
 
-# Expose port
+# --- Stage 2: Final image ---
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Copy installed wheels from builder stage
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+
+# Install packages from wheels
+RUN pip install --no-cache /wheels/*
+
+# Copy the current directory contents into the container at /app
+COPY . /app/
+
+# Expose port 8000 to the outside world
 EXPOSE 8000
 
-# Command to run the application
-CMD ["uvicorn", "tagline_backend_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the application (adjust if your entrypoint is different)
+# For development with live reload (matches docker-compose.yml command):
+CMD ["uvicorn", "tagline_backend_app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# For production (usually without reload):
+# CMD ["uvicorn", "tagline_backend_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
