@@ -108,6 +108,11 @@ class Settings(BaseSettings):
         description="Refresh token expiration time in seconds. Defaults to 604800 (7 days). Override with REFRESH_TOKEN_EXPIRE_SECONDS env var.",
     )
 
+    LOG_LEVEL: str = Field(
+        default="INFO",
+        description="Default log level",
+    )
+
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""
         # If we're in a test environment, set test defaults for auth fields

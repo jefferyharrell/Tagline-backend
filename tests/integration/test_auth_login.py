@@ -5,7 +5,6 @@ Integration tests for the login authentication flow using FastAPI TestClient (no
 import os
 
 import pytest
-from fastapi.testclient import TestClient
 
 BACKEND_PASSWORD_RAW = os.getenv("BACKEND_PASSWORD")
 if not BACKEND_PASSWORD_RAW:
@@ -14,11 +13,8 @@ if not BACKEND_PASSWORD_RAW:
 BACKEND_PASSWORD = BACKEND_PASSWORD_RAW.strip().split()[0]
 
 
-@pytest.fixture(scope="session")
-def client():
-    from tagline_backend_app.main import create_app
-
-    return TestClient(create_app())
+# Use the test_client fixture from conftest.py instead
+# It properly sets up mocking and dependency overrides
 
 
 BACKEND_PASSWORD_RAW = os.getenv("BACKEND_PASSWORD")
@@ -29,9 +25,9 @@ BACKEND_PASSWORD = BACKEND_PASSWORD_RAW.strip().split()[0]
 
 
 @pytest.mark.integration
-def test_login_success(client):
+def test_login_success(test_client):
     """Test login with valid credentials returns access and refresh tokens as cookies."""
-    response = client.post("/login", json={"password": BACKEND_PASSWORD})
+    response = test_client.post("/login", json={"password": BACKEND_PASSWORD})
     assert response.status_code == 200
     data = response.json()
     assert data["detail"] == "Login successful"
@@ -42,9 +38,9 @@ def test_login_success(client):
 
 
 @pytest.mark.integration
-def test_login_invalid_credentials(client):
+def test_login_invalid_credentials(test_client):
     """Test login with invalid credentials returns 401 Unauthorized."""
-    response = client.post("/login", json={"password": "wrongpassword"})
+    response = test_client.post("/login", json={"password": "wrongpassword"})
     assert response.status_code == 401
     data = response.json()
     assert "detail" in data

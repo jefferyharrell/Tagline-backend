@@ -1,8 +1,11 @@
+import logging
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from tagline_backend_app.config import get_settings
 from tagline_backend_app.constants import APP_NAME
+from tagline_backend_app.logging_config import setup_logging
 from tagline_backend_app.redis_token_store import RedisTokenStore
 from tagline_backend_app.storage.filesystem import (
     StorageProviderMisconfigured,
@@ -11,15 +14,21 @@ from tagline_backend_app.storage.memory import InMemoryStorageProvider
 from tagline_backend_app.storage.null import NullStorageProvider
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+def create_app(settings=None) -> FastAPI:
+    # Use provided settings if given, otherwise get from config
+    if settings is None:
+        settings = get_settings()
+    setup_logging(settings)
+    logger = logging.getLogger(__name__)
 
     # Fail fast if JWT_SECRET_KEY is not set (except in test)
     if not settings.JWT_SECRET_KEY and settings.APP_ENV.lower() != "test":
+        logger.critical("JWT_SECRET_KEY is not set in environment/config!")
         raise RuntimeError(
             "JWT_SECRET_KEY must be set in environment/config for security!"
         )
     if not settings.REDIS_URL and settings.APP_ENV.lower() != "test":
+        logger.critical("REDIS_URL is not set in environment/config!")
         raise RuntimeError(
             "REDIS_URL must be set in environment/config for token storage!"
         )
@@ -30,6 +39,7 @@ def create_app() -> FastAPI:
         o.strip() for o in settings.CORS_ALLOWED_ORIGINS.split(",") if o.strip()
     ]
     if allowed_origins:
+        logger.info(f"Configuring CORS for origins: {allowed_origins}")
         app.add_middleware(
             CORSMiddleware,
             allow_origins=allowed_origins,
@@ -46,6 +56,7 @@ def create_app() -> FastAPI:
     async def storage_provider_misconfigured_handler(
         request: Request, exc: StorageProviderMisconfigured
     ):
+        logger.error(f"Storage provider misconfigured: {exc}", exc_info=True)
         return JSONResponse(
             status_code=503,
             content={
@@ -62,7 +73,14 @@ def create_app() -> FastAPI:
         for expected client errors (4xx).
         """
         # Optionally, log a simple info message without traceback
-        # logger.info(f"HTTPException handled: {exc.status_code} - {exc.detail}")
+        if exc.status_code < 500:
+            logger.info(f"HTTPException handled: {exc.status_code} - {exc.detail}")
+        else:
+            logger.error(
+                f"HTTPException occurred: {exc.status_code} - {exc.detail}",
+                exc_info=True,
+            )
+
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail},
@@ -96,12 +114,15 @@ def create_app() -> FastAPI:
             and dropbox_cfg["app_key"]
             and dropbox_cfg["app_secret"]
         ):
+            logger.critical("Dropbox provider selected but config is missing")
             raise RuntimeError(
                 "DROPBOX provider selected but config is missing (check env vars)"
             )
         app.state.dropbox_provider_config = dropbox_cfg
+        logger.info("Using Dropbox storage provider.")
 
     else:
+        logger.error(f"Unsupported storage provider: {settings.STORAGE_PROVIDER}")
         raise NotImplementedError(
             f"Storage provider '{settings.STORAGE_PROVIDER}' is not supported yet. "
             "Available: filesystem, null, memory."
@@ -139,9 +160,22 @@ def create_app() -> FastAPI:
 
     app.state.get_photo_storage_provider = get_photo_storage_provider
     # Wire up RedisTokenStore
-    app.state.token_store = RedisTokenStore(
-        settings.REDIS_URL or "redis://localhost:6379/0"
-    )
+    # Use a more robust check for test environment
+    if settings.APP_ENV.lower() == "test":
+        logger.info(
+            "Test environment detected. Skipping initial RedisTokenStore setup in main.py"
+        )
+        # In test, the store will be set/overridden by fixtures
+        app.state.token_store = None  # Or a placeholder if needed
+    else:
+        if not isinstance(settings.REDIS_URL, str) or not settings.REDIS_URL:
+            logger.critical("REDIS_URL must be a non-empty string.")
+            raise RuntimeError(
+                "REDIS_URL must be a non-empty string for RedisTokenStore."
+            )
+        logger.info(f"Connecting to Redis at {settings.REDIS_URL}")
+        app.state.token_store = RedisTokenStore(settings.REDIS_URL)
+
     # Register routes dynamically (reload to pick up changes/env)
     import importlib as _importlib
 

@@ -5,6 +5,7 @@ Authentication-related routes for the Tagline backend.
 Includes /login (and /refresh in the future).
 """
 
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
@@ -19,6 +20,9 @@ from tagline_backend_app.schemas import (
     LoginRequest,
     RefreshRequest,
 )
+
+# Get logger for this module
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -65,6 +69,7 @@ def refresh(
     if not token and payload is not None:
         token = payload.refresh_token
     if not token:
+        logger.warning("Refresh attempt failed: No refresh token provided")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No refresh token provided",
@@ -74,6 +79,7 @@ def refresh(
             auth_service.refresh_tokens(token)
         )
     except Exception:
+        logger.warning("Refresh attempt failed: Invalid or expired refresh token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
@@ -105,6 +111,7 @@ def refresh(
     response.body = JSONResponse(
         content={"detail": "Token refreshed successfully"}
     ).body
+    logger.info("Token refresh successful")
     return response
 
 
@@ -112,9 +119,16 @@ def refresh(
 def login(
     response: Response,
     payload: LoginRequest,
-    db: Session = Depends(get_db),  # DB used only for unrelated features
+    db: Session = Depends(get_db),
     token_store=Depends(get_token_store),
 ):
+    # Add explicit type logging to help debug test issues
+    import inspect
+
+    logger.debug(f"ROUTE /login: token_store type = {type(token_store).__name__}")
+    module = inspect.getmodule(token_store)
+    module_name = module.__name__ if module is not None else "<unknown>"
+    logger.debug(f"ROUTE /login: token_store module = {module_name}")
     """
     Authenticate user with password and issue access/refresh tokens.
 
@@ -126,9 +140,14 @@ def login(
     Raises:
         HTTPException: 401 if password is invalid.
     """
+    logger.debug(f"ROUTE /login: Received token_store dependency: {token_store}")
     settings = get_settings()
     auth_service = AuthService(settings, token_store)
+    logger.debug(
+        f"ROUTE /login: Created auth_service with store: {auth_service.token_store}"
+    )
     if not auth_service.verify_password(payload.password):
+        logger.warning("Login attempt failed: Invalid password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid password",
@@ -161,4 +180,5 @@ def login(
     response.status_code = status.HTTP_200_OK
     response.headers["Content-Type"] = "application/json"
     response.body = JSONResponse(content={"detail": "Login successful"}).body
+    logger.info("Login successful")
     return response

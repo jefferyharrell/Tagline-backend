@@ -14,7 +14,7 @@ config = context.config
 
 # Ensure Alembic always has a DB URL, even if DATABASE_URL is unset
 config.set_main_option(
-    "sqlalchemy.url", os.environ.get("DATABASE_URL") or "sqlite:////data/tagline.db"
+    "sqlalchemy.url", os.environ.get("DATABASE_URL") or "sqlite:///:memory:"
 )
 
 # Interpret the config file for Python logging.

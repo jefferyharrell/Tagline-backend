@@ -39,7 +39,8 @@ def settings():
 
 @pytest.fixture
 def token_store():
-    return DummyTokenStore()
+    instance = DummyTokenStore()
+    return instance
 
 
 @pytest.fixture

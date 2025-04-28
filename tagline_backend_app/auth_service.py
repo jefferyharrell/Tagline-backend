@@ -4,6 +4,7 @@ auth_service.py
 Service layer for authentication: password verification, token issuance, validation, and revocation.
 """
 
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
@@ -12,6 +13,8 @@ from jose import jwt
 
 from tagline_backend_app.config import Settings
 from tagline_backend_app.token_store import TokenStore
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -71,24 +74,33 @@ class AuthService:
                 algorithm="HS256",
             )
             # Try to store the token, fail if it already exists
+            logger.debug(
+                f"AUTH_SVC issue_tokens: Checking token validity with store: {self.token_store}"
+            )
             if not self.token_store.is_refresh_token_valid(refresh_token):
                 try:
                     self.token_store.store_refresh_token(
                         refresh_token, self.settings.REFRESH_TOKEN_EXPIRE_SECONDS
                     )
-                    break
-                except Exception:
-                    continue
-        else:
-            raise RuntimeError(
-                "Could not generate a unique refresh token after several attempts."
-            )
-        return (
-            access_token,
-            refresh_token,
-            self.settings.ACCESS_TOKEN_EXPIRE_SECONDS,
-            self.settings.REFRESH_TOKEN_EXPIRE_SECONDS,
-        )
+                    # Return the tokens on successful storage
+                    return (
+                        access_token,
+                        refresh_token,
+                        self.settings.ACCESS_TOKEN_EXPIRE_SECONDS,
+                        self.settings.REFRESH_TOKEN_EXPIRE_SECONDS,
+                    )
+                except Exception as e:
+                    logger.warning(f"Error storing refresh token: {e}", exc_info=True)
+                    continue  # Try generating again
+            else:
+                # Log if the token collision happens several times
+                if _ == 4:
+                    logger.error(
+                        "Failed to generate a unique refresh token after 5 attempts"
+                    )
+                logger.warning(f"Refresh token collision detected, attempt {_ + 1}")
+
+        raise RuntimeError("Failed to issue a unique refresh token after 5 attempts.")
 
     def validate_token(self, token: str, token_type: str = "access") -> Optional[dict]:
         """
@@ -104,8 +116,14 @@ class AuthService:
             if payload.get("type") != token_type:
                 return None
             if token_type == "refresh":
-                # Check if refresh token is revoked/expired in the token store
+                # For refresh tokens, also check if it's revoked in the store
+                logger.debug(
+                    f"Validating refresh token {payload.get('jti')} against store: {self.token_store}"
+                )
                 if not self.token_store.is_refresh_token_valid(token):
+                    logger.warning(
+                        f"Refresh token {payload.get('jti')} is revoked or invalid in store"
+                    )
                     return None
             return payload
         except Exception:

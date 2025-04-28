@@ -4,6 +4,7 @@ deps.py
 Dependency injection helpers for FastAPI.
 """
 
+import logging
 from typing import Optional
 
 from fastapi import Cookie, HTTPException, Request, status
@@ -11,9 +12,13 @@ from fastapi import Cookie, HTTPException, Request, status
 from tagline_backend_app.auth_service import AuthService
 from tagline_backend_app.config import get_settings
 
+logger = logging.getLogger(__name__)
+
 
 def get_token_store(request: Request):
-    return request.app.state.token_store
+    store = request.app.state.token_store
+    logger.debug(f"DEPS: get_token_store returning from app.state: {store}")
+    return store
 
 
 def get_current_user(
