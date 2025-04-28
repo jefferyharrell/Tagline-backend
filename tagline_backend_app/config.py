@@ -118,6 +118,11 @@ class Settings(BaseSettings):
         description="Default log level",
     )
 
+    THUMBNAIL_CACHE_MAX_MB: int = Field(
+        default=100,
+        description="Default cache size in MB",
+    )
+
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""
         # If we're in a test environment, set test defaults for auth fields

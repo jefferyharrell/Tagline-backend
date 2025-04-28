@@ -2,13 +2,19 @@
 Photos API routes for Tagline backend.
 """
 
+# Imports for thumbnail generation
+import io
+import logging
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+import pillow_heif  # Ensure it's imported, though registration happens in main
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
+from PIL import Image
 from sqlalchemy.orm import Session
 
+from tagline_backend_app.caching import get_thumbnail_cache
 from tagline_backend_app.crud.photo import PhotoRepository
 from tagline_backend_app.db import get_db
 from tagline_backend_app.deps import get_current_user
@@ -20,6 +26,8 @@ from tagline_backend_app.schemas import (
 )
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @router.get(
@@ -107,6 +115,168 @@ def get_photo_image(
         )
         raise HTTPException(status_code=500, detail="Internal server error")
     return StreamingResponse(fileobj, media_type=media_type)
+
+
+@router.get(
+    "/photos/{id}/thumbnail",
+    responses={
+        200: {
+            "content": {"image/webp": {}},
+            "description": "A 512x512 WebP thumbnail for the photo.",
+        },
+        404: {
+            "description": "Photo, image file, or thumbnail not found/creatable",
+            "content": {"application/json": {"example": {"detail": "Not Found"}}},
+        },
+        422: {
+            "description": "Invalid UUID supplied",
+            "content": {
+                "application/json": {"example": {"detail": "value is not a valid uuid"}}
+            },
+        },
+        500: {
+            "description": "Internal server error during thumbnail generation",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Thumbnail generation failed"}
+                }
+            },
+        },
+    },
+    # Tell FastAPI this route returns a Response directly, not JSON
+    response_class=Response,
+)
+def get_photo_thumbnail(
+    id: UUID,
+    request: Request,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Retrieve a 512x512 lossy WebP thumbnail for a photo by unique ID.
+
+    - **id**: UUID of the photo to retrieve the thumbnail for.
+    - **Returns**: Raw WebP image bytes.
+    - **404**: Returned if photo or original image not found, or if image format is unsupported/corrupt.
+    - **422**: Returned if the ID is not a valid UUID.
+    - **500**: Returned if thumbnail generation fails unexpectedly.
+    """
+    cache = get_thumbnail_cache()
+    cache_key = f"thumbnail:{id}"
+
+    # 1. Check cache
+    if cache is not None:
+        cached_thumbnail = cache.get(cache_key)
+        if cached_thumbnail:
+            logger.debug(f"Thumbnail cache HIT for photo_id: {id}")
+            return Response(content=cached_thumbnail, media_type="image/webp")
+        else:
+            logger.debug(f"Thumbnail cache MISS for photo_id: {id}")
+
+    # 2. Get photo metadata from DB
+    repo = PhotoRepository(db)
+    try:
+        photo = repo.get(id)
+        if photo is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Photo metadata not found"
+            )
+    except Exception as e:
+        logger.error(f"DB error getting photo {id} for thumbnail: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error"
+        )
+
+    # 3. Get original image from storage
+    provider = request.app.state.get_photo_storage_provider(request.app)
+    filename = photo.filename
+    try:
+        image_bytes_io = provider.retrieve(filename)
+        if not image_bytes_io:
+            raise FileNotFoundError  # Should be caught below
+        # Read all bytes into memory for Pillow
+        image_data = image_bytes_io.read()
+        if not image_data:
+            raise ValueError("Image file is empty")
+
+    except FileNotFoundError:
+        logger.warning(
+            f"Original image file not found in storage for photo {id}: {filename}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Original image file not found",
+        )
+    except Exception as e:
+        logger.error(f"Storage error retrieving {filename} for thumbnail: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Storage provider error",
+        )
+
+    # 4. Generate thumbnail
+    try:
+        # Ensure pillow_heif is registered (should be via main.py lifespan)
+        if (
+            not pillow_heif.is_supported(io.BytesIO(image_data))
+            and not Image.open(io.BytesIO(image_data)).format
+        ):
+            pillow_heif.register_heif_opener()  # Attempt registration again just in case?
+
+        img = Image.open(io.BytesIO(image_data))
+
+        # Ensure image is in RGB or RGBA mode for WebP saving
+        if img.mode not in ["RGB", "RGBA"]:
+            logger.debug(
+                f"Converting image {id} from mode {img.mode} to RGBA for thumbnail."
+            )
+            img = img.convert("RGBA")
+
+        # Create the thumbnail, maintaining aspect ratio, fitting within 512x512
+        img.thumbnail((512, 512), Image.Resampling.LANCZOS)
+
+        # Create a new 512x512 blank RGBA image (transparent background)
+        thumbnail_bg = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
+
+        # Calculate position to paste the thumbnail in the center
+        paste_x = (512 - img.width) // 2
+        paste_y = (512 - img.height) // 2
+
+        # Paste the thumbnail onto the background
+        thumbnail_bg.paste(
+            img, (paste_x, paste_y), img if img.mode == "RGBA" else None
+        )  # Use mask if RGBA
+
+        # Save to a bytes buffer as lossy WebP
+        buffer = io.BytesIO()
+        # Use RGBA to preserve potential transparency from PNGs/HEICs
+        thumbnail_bg.save(
+            buffer, format="WEBP", quality=80, method=4
+        )  # method=4 is a good balance
+        thumbnail_bytes = buffer.getvalue()
+
+    except Exception:
+        logger.exception(
+            f"Unexpected error generating thumbnail for photo {id}"
+        )  # Use logger.exception
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Thumbnail generation failed",
+        )
+
+    # 5. Cache the result
+    if cache is not None:
+        try:
+            # Estimate size for logging, not for cachetools itself
+            size_kb = len(thumbnail_bytes) / 1024
+            cache[cache_key] = thumbnail_bytes
+            logger.debug(f"Cached thumbnail for photo {id} ({size_kb:.1f} KB)")
+        except Exception as e:
+            # Log caching errors but don't fail the request
+            logger.error(f"Failed to cache thumbnail for photo {id}: {e}")
+
+    # 6. Return thumbnail
+    return Response(content=thumbnail_bytes, media_type="image/webp")
 
 
 @router.patch(

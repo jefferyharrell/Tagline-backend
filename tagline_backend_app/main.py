@@ -3,10 +3,12 @@ import logging
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from tagline_backend_app.caching import initialize_thumbnail_cache
 from tagline_backend_app.config import get_settings
 from tagline_backend_app.constants import APP_NAME
 from tagline_backend_app.logging_config import setup_logging
 from tagline_backend_app.redis_token_store import RedisTokenStore
+from tagline_backend_app.routes import auth, health, photos
 from tagline_backend_app.storage.filesystem import (
     StorageProviderMisconfigured,
 )
@@ -176,6 +178,16 @@ def create_app(settings=None) -> FastAPI:
         logger.info(f"Connecting to Redis at {settings.REDIS_URL}")
         app.state.token_store = RedisTokenStore(settings.REDIS_URL)
 
+    # Initialize HEIF support for Pillow
+    import pillow_heif
+
+    pillow_heif.register_heif_opener()
+    logger.info("Pillow HEIF opener registered.")
+
+    # Initialize Thumbnail Cache
+    initialize_thumbnail_cache()
+    logger.info("Thumbnail cache initialized.")
+
     # Register routes dynamically (reload to pick up changes/env)
     import importlib as _importlib
 
@@ -183,6 +195,10 @@ def create_app(settings=None) -> FastAPI:
 
     _importlib.reload(_root_module)
     app.include_router(_root_module.router)
+    app.include_router(auth.router)
+    app.include_router(health.router)
+    app.include_router(photos.router)
+
     return app
 
 

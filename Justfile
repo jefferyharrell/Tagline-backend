@@ -87,6 +87,10 @@ build:
     # Build Docker images
     docker compose build
 
+pip-install:
+    # Install/sync Python dependencies inside the backend container
+    docker compose exec backend pip install -r /code/requirements.txt
+
 logs:
     # Tail backend logs
     docker compose logs -f backend
