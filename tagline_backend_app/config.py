@@ -95,22 +95,10 @@ class Settings(BaseSettings):
         description="[DEPRECATED] Long-lived Dropbox access token. Use refresh token flow instead.",
     )
 
-    BACKEND_PASSWORD: Optional[str] = Field(
-        default=None,  # Will be set in __init__ for test environments
-        description="Password for backend authentication. Set via BACKEND_PASSWORD env var. Required in production.",
-    )
-    JWT_SECRET_KEY: Optional[str] = Field(
-        default=None,  # Will be set in __init__ for test environments
-        description="Secret key for signing JWT tokens. Set via JWT_SECRET_KEY env var. Must be long, random, and kept secret in production.",
-    )
-
-    ACCESS_TOKEN_EXPIRE_SECONDS: int = Field(
-        default=900,
-        description="Access token expiration time in seconds. Defaults to 900 (15 minutes). Override with ACCESS_TOKEN_EXPIRE_SECONDS env var.",
-    )
-    REFRESH_TOKEN_EXPIRE_SECONDS: int = Field(
-        default=604800,
-        description="Refresh token expiration time in seconds. Defaults to 604800 (7 days). Override with REFRESH_TOKEN_EXPIRE_SECONDS env var.",
+    TAGLINE_API_KEY: str = Field(
+        default="",
+        alias="TAGLINE_API_KEY",
+        description="API key for backend authentication. Set via TAGLINE_API_KEY env var. Required.",
     )
 
     LOG_LEVEL: str = Field(
@@ -130,16 +118,14 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs: Any) -> None:
         """Initialize settings from environment variables"""
         # If we're in a test environment, set test defaults for auth fields
-        is_test = kwargs.get("APP_ENV", "").lower() == "test"
-
         import os
+
+        is_test = kwargs.get("APP_ENV", os.environ.get("APP_ENV", "")).lower() == "test"
 
         if is_test:
             # Don't override if already set
-            if kwargs.get("BACKEND_PASSWORD") is None:
-                kwargs["BACKEND_PASSWORD"] = "test_password"
-            if kwargs.get("JWT_SECRET_KEY") is None:
-                kwargs["JWT_SECRET_KEY"] = "test_jwt_secret_key_not_for_production"
+            if kwargs.get("TAGLINE_API_KEY") is None:
+                kwargs["TAGLINE_API_KEY"] = "test_api_key_for_testing_only"
             if kwargs.get("REDIS_URL") is None:
                 kwargs["REDIS_URL"] = "redis://localhost:6379/1"
             if (
@@ -161,3 +147,15 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return the cached Settings instance."""
     return Settings()  # type: ignore[reportCallIssue]
+
+
+def clear_settings_cache():
+    """Clears the cache for the get_settings() function."""
+    get_settings.cache_clear()
+    import logging
+
+    logger = logging.getLogger(__name__)
+    logger.debug("Cleared get_settings cache.")
+
+
+__all__ = ["get_settings", "Settings", "clear_settings_cache"]

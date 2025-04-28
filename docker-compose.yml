@@ -1,0 +1,18 @@
+services:
+
+  backend:
+    build:
+      dockerfile: Dockerfile
+    container_name: tagline-backend-dev
+    env_file:
+      - .env # Load variables from .env in the tagline-infra directory
+    volumes:
+      - ../tagline-backend:/app # Mount source code for live reload
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    restart: unless-stopped
+    command: uvicorn tagline_backend_app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:
+    driver: local

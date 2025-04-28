@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from tagline_backend_app.caching import get_image_cache, get_thumbnail_cache
 from tagline_backend_app.crud.photo import PhotoRepository
 from tagline_backend_app.db import get_db
-from tagline_backend_app.deps import get_current_user
+from tagline_backend_app.deps import verify_api_key
 from tagline_backend_app.schemas import (
     Photo,
     PhotoListResponse,
@@ -57,8 +57,8 @@ logger = logging.getLogger(__name__)
 def get_photo_image(
     id: UUID,
     request: Request,
-    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
+    _=Depends(verify_api_key),
 ):
     """
     Returns a 1024x1024 padded JPEG of the photo (not the original), with in-memory LRU caching.
@@ -185,8 +185,8 @@ def get_photo_image(
 def get_photo_thumbnail(
     id: UUID,
     request: Request,
-    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
+    _=Depends(verify_api_key),
 ):
     """
     Retrieve a 512x512 lossy WebP thumbnail for a photo by unique ID.
@@ -355,8 +355,8 @@ def get_photo_thumbnail(
 def update_photo_metadata(
     id: UUID,
     payload: UpdateMetadataRequest,
-    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
+    _=Depends(verify_api_key),
 ):
     """
     Update a photo's metadata (description, optionally last_modified).
@@ -422,8 +422,8 @@ def update_photo_metadata(
 )
 def get_photo_by_id(
     id: UUID,
-    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
+    _=Depends(verify_api_key),
 ):
     """
     Retrieve a single photo and its metadata by unique ID.
@@ -460,10 +460,10 @@ def get_photo_by_id(
     },
 )
 def list_photos(
-    current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
-    limit: int = 50,
     offset: int = 0,
+    limit: int = 50,
+    _=Depends(verify_api_key),
 ):
     """
     List photo metadata (paginated).

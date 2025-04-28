@@ -152,3 +152,20 @@ docker compose down
 ```
 
 When the frontend is added, it will also be available through Compose.
+
+## API Key Security
+
+The backend uses a single API key for authentication, specified by the `TAGLINE_API_KEY` environment variable.
+
+**🚨 IMPORTANT:**
+
+*   **Never commit this key to Git.**
+*   **Never expose this key in frontend code.**
+*   Store the key securely using environment variables (e.g., in a `.env` file for local development) or a secrets management service (for production).
+*   Use the `just generate-api-key` command (or `python generate_api_key.py` inside the container) to create a new key.
+
+Anyone with access to this key can fully control the backend API.
+
+## Contributing
+
+{{ ... }}

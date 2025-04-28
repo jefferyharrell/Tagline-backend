@@ -32,7 +32,6 @@ integration-tests:
     source venv/bin/activate && pytest -s -v tests/integration -m integration
 
 e2e-tests:
-    just migrate
     source venv/bin/activate && pytest -s -v tests/e2e -m e2e -rs
 
 test:

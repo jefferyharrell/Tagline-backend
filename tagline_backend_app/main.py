@@ -10,8 +10,7 @@ from tagline_backend_app.caching import (
 from tagline_backend_app.config import get_settings
 from tagline_backend_app.constants import APP_NAME
 from tagline_backend_app.logging_config import setup_logging
-from tagline_backend_app.redis_token_store import RedisTokenStore
-from tagline_backend_app.routes import auth, health, photos
+from tagline_backend_app.routes import health, photos
 from tagline_backend_app.storage.filesystem import (
     StorageProviderMisconfigured,
 )
@@ -26,12 +25,12 @@ def create_app(settings=None) -> FastAPI:
     setup_logging(settings)
     logger = logging.getLogger(__name__)
 
-    # Fail fast if JWT_SECRET_KEY is not set (except in test)
-    if not settings.JWT_SECRET_KEY and settings.APP_ENV.lower() != "test":
-        logger.critical("JWT_SECRET_KEY is not set in environment/config!")
-        raise RuntimeError(
-            "JWT_SECRET_KEY must be set in environment/config for security!"
-        )
+    # Removed JWT_SECRET_KEY check
+    # if not settings.JWT_SECRET_KEY and settings.APP_ENV.lower() != "test":
+    #     logger.critical("JWT_SECRET_KEY is not set in environment/config!")
+    #     raise RuntimeError(
+    #         "JWT_SECRET_KEY must be set in environment/config for security!"
+    #     )
     if not settings.REDIS_URL and settings.APP_ENV.lower() != "test":
         logger.critical("REDIS_URL is not set in environment/config!")
         raise RuntimeError(
@@ -164,22 +163,6 @@ def create_app(settings=None) -> FastAPI:
         )
 
     app.state.get_photo_storage_provider = get_photo_storage_provider
-    # Wire up RedisTokenStore
-    # Use a more robust check for test environment
-    if settings.APP_ENV.lower() == "test":
-        logger.info(
-            "Test environment detected. Skipping initial RedisTokenStore setup in main.py"
-        )
-        # In test, the store will be set/overridden by fixtures
-        app.state.token_store = None  # Or a placeholder if needed
-    else:
-        if not isinstance(settings.REDIS_URL, str) or not settings.REDIS_URL:
-            logger.critical("REDIS_URL must be a non-empty string.")
-            raise RuntimeError(
-                "REDIS_URL must be a non-empty string for RedisTokenStore."
-            )
-        logger.info(f"Connecting to Redis at {settings.REDIS_URL}")
-        app.state.token_store = RedisTokenStore(settings.REDIS_URL)
 
     # Initialize HEIF support for Pillow
     import pillow_heif
@@ -199,7 +182,6 @@ def create_app(settings=None) -> FastAPI:
 
     _importlib.reload(_root_module)
     app.include_router(_root_module.router)
-    app.include_router(auth.router)
     app.include_router(health.router)
     app.include_router(photos.router)
 

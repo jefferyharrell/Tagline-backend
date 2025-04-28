@@ -7,12 +7,17 @@ from sqlalchemy.orm import Session
 
 from tagline_backend_app.crud.photo import PhotoRepository
 from tagline_backend_app.db import get_db
+from tagline_backend_app.deps import verify_api_key
 
 router = APIRouter()
 
 
 @router.post("/rescan", status_code=200)
-def rescan_photos(request: Request, db: Session = Depends(get_db)):
+def rescan_photos(
+    request: Request,
+    db: Session = Depends(get_db),
+    _=Depends(verify_api_key),
+):
     """
     Scan storage for new photos and import them into the database.
     Returns a summary of new photos imported.

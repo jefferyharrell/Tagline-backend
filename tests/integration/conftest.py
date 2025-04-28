@@ -6,12 +6,8 @@ import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
-from tagline_backend_app.config import Settings
-
-# Local application imports
-from tagline_backend_app.deps import get_token_store
+from tagline_backend_app.config import Settings, clear_settings_cache, get_settings
 from tagline_backend_app.main import create_app
-from tests.test_utils.token_store import InMemoryTokenStore
 
 # Determine project root for .env loading
 project_root = Path(__file__).parent.parent.parent
@@ -26,68 +22,57 @@ env_path = project_root / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
-# --- Removed Mock Token Store Definition --- #
-# The MockTokenStore class previously defined here has been moved to
-# tests/test_utils/token_store.py and renamed to InMemoryTokenStore.
-
 logger = logging.getLogger(__name__)
-
-
-@pytest.fixture(scope="session")
-def mock_token_store():
-    """Pytest fixture that provides an InMemoryTokenStore instance."""
-    # Using session scope ensures the same instance is used across all tests
-    instance = InMemoryTokenStore()
-    logger.debug(f"CONFTEST: mock_token_store fixture created: {instance}")
-    return instance
 
 
 # --- Test Client Fixture --- #
 
 
 @pytest.fixture(scope="session")
-def test_client(mock_token_store):
+def test_client():
     logger.debug("CONFTEST: test_client fixture starting.")
 
-    # --- Key change: Create explicit test settings ---
-    # Load defaults, but force APP_ENV to 'test'
-    # We might need to load other essential keys if .env isn't read
-    # automatically in this context (e.g., JWT_SECRET_KEY)
-    test_settings = Settings(
-        APP_ENV="test",
-        # Load others from env or set defaults if needed
-        JWT_SECRET_KEY=os.getenv("JWT_SECRET_KEY", "default-test-secret"),
-        BACKEND_PASSWORD=os.getenv("BACKEND_PASSWORD", "default-test-password"),
-        DATABASE_URL=os.getenv(
-            "DATABASE_URL_TEST", "sqlite+pysqlite:///:memory:"
-        ),  # Use test DB URL
-        REDIS_URL=os.getenv("REDIS_URL", "redis://mock-redis:6379/0"),  # Mock Redis URL
-        # Add other necessary settings explicitly if tests fail later
-    )
+    # Set APP_ENV to test *before* creating Settings
+    # (ensure it's set if not already by e.g. .env file)
+    original_app_env = os.environ.get("APP_ENV")
+    os.environ["APP_ENV"] = "test"
+
+    # Create Settings instance; __init__ should handle test defaults now
+    test_settings = Settings()
     logger.debug(
-        f"CONFTEST: Created test_settings with APP_ENV='{test_settings.APP_ENV}'"
+        f"CONFTEST: Created test_settings. APP_ENV='{test_settings.APP_ENV}', "
+        f"API_KEY='{test_settings.TAGLINE_API_KEY}'"  # Log to verify
     )
+
+    # Restore original APP_ENV if it existed
+    if original_app_env is None:
+        del os.environ["APP_ENV"]
+    else:
+        os.environ["APP_ENV"] = original_app_env
 
     # Create the app using the specific test settings
     app = create_app(settings=test_settings)
     logger.debug("CONFTEST: FastAPI app created using test_settings.")
 
-    # Override the token store in app state
-    app.state.token_store = mock_token_store
-    logger.debug(f"CONFTEST: Overrode app.state.token_store with: {mock_token_store}")
+    # --- Key change: Override get_settings dependency ---
+    # Ensure that dependency injection uses *our* test_settings
+    def override_get_settings():
+        return test_settings
 
-    # Most importantly: Override the get_token_store DEPENDENCY
-    # This ensures route handlers receive our mock, not a new RedisTokenStore
-    app.dependency_overrides[get_token_store] = lambda: mock_token_store
+    # --- Key change: Clear cache before overriding ---
+    clear_settings_cache()
+    app.dependency_overrides[get_settings] = override_get_settings
     logger.debug(
-        f"CONFTEST: Set dependency override for get_token_store to use {mock_token_store}"
+        "CONFTEST: Cleared settings cache and overrode get_settings dependency."
     )
 
-    # Create the test client
-    client = TestClient(app)
-    with client:
+    # Yield the test client
+    with TestClient(app) as client:
         yield client
 
-    # Cleanup overrides after tests are done
-    app.dependency_overrides = {}
-    logger.debug("CONFTEST: Cleared dependency overrides.")
+    # Clean up dependency override after tests are done
+    app.dependency_overrides.clear()
+    clear_settings_cache()  # Clear cache again on teardown just in case
+    logger.debug("CONFTEST: Cleared dependency overrides and settings cache.")
+
+    logger.debug("CONFTEST: Test client fixture finished.")
