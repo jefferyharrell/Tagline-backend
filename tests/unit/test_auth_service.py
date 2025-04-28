@@ -100,7 +100,7 @@ def test_refresh_tokens_invalid(auth_service, monkeypatch):
 
 
 def test_validate_token_access(auth_service, settings):
-    access, refresh, _, _ = auth_service.issue_tokens()
+    access, _, _, _ = auth_service.issue_tokens()
     claims = auth_service.validate_token(access, token_type="access")
     assert claims is not None
     assert claims["type"] == "access"

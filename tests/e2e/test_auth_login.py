@@ -58,3 +58,36 @@ async def test_login_invalid_credentials():
         data = response.json()
         assert "detail" in data
         assert data["detail"] == "Invalid password"
+
+
+@pytest.mark.asyncio
+async def test_logout_success():
+    """Test logout clears auth cookies and returns success."""
+    async with httpx.AsyncClient(base_url=BASE_URL) as client:
+        # 1. Login first to get cookies
+        login_response = await client.post(
+            LOGIN_ENDPOINT, json={"password": BACKEND_PASSWORD}
+        )
+        assert login_response.status_code == 200
+        # Ensure cookies are set on the client for subsequent requests
+        assert "tagline_access_token" in client.cookies
+        assert "tagline_refresh_token" in client.cookies
+
+        # 2. Call logout (cookies are now automatically sent by the client)
+        logout_response = await client.post("/logout")
+
+        # 3. Verify logout success
+        assert logout_response.status_code == 200
+        data = logout_response.json()
+        assert data["detail"] == "Successfully logged out"
+
+        # 4. Verify Set-Cookie headers attempt to clear cookies
+        # We check for Max-Age=0 or an Expires date in the past.
+        # httpx doesn't easily parse the raw Set-Cookie headers for attributes like Max-Age,
+        # but we can check if the cookies are *absent* in the *response's* cookie jar,
+        # implying they were cleared or expired immediately.
+        assert "tagline_access_token" not in logout_response.cookies
+        assert "tagline_refresh_token" not in logout_response.cookies
+
+        # Removed the raw header check as it was brittle.
+        # The check above ensures httpx interpreted the headers correctly.

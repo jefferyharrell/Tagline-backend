@@ -22,7 +22,7 @@ format:
 
 lint:
     source venv/bin/activate && ruff check --fix .
-    source venv/bin/activate && pyright
+    source venv/bin/activate && pyright --project .
 
 # Testing
 unit-tests:

@@ -6,9 +6,17 @@ Includes /login (and /refresh in the future).
 """
 
 import logging
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+from fastapi import (
+    APIRouter,
+    Cookie,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -20,6 +28,7 @@ from tagline_backend_app.schemas import (
     LoginRequest,
     RefreshRequest,
 )
+from tagline_backend_app.token_store import TokenStore
 
 # Get logger for this module
 logger = logging.getLogger(__name__)
@@ -28,16 +37,40 @@ router = APIRouter()
 
 
 @router.post("/logout", status_code=200)
-def logout(response: Response):
+def logout(
+    response: Response,
+    request: Request,
+    token_store: Annotated[TokenStore, Depends(get_token_store)],
+    refresh_token: Annotated[str | None, Cookie(alias="tagline_refresh_token")] = None,
+):
     """
-    Clear authentication cookies.
+    Revoke the refresh token in the TokenStore and clear authentication cookies.
+
+    Args:
+        response: The FastAPI Response object.
+        request: The FastAPI Request object.
+        token_store: The TokenStore dependency.
+        refresh_token: The refresh token extracted from the cookie.
 
     Returns:
         JSON response indicating successful logout.
     """
+    # Revoke the refresh token if it exists
+    if refresh_token:
+        try:
+            token_store.revoke_refresh_token(refresh_token)
+        except Exception as e:
+            # Log the error, but proceed with cookie deletion
+            # Consider if specific exceptions should be handled differently
+            print(f"Error revoking token during logout: {e}")  # Basic logging
+
     # Clear both access and refresh token cookies
-    response.delete_cookie(key="tagline_access_token", path="/")
-    response.delete_cookie(key="tagline_refresh_token", path="/")
+    response.delete_cookie(
+        key="tagline_access_token", path="/", httponly=True, samesite="lax"
+    )
+    response.delete_cookie(
+        key="tagline_refresh_token", path="/", httponly=True, samesite="lax"
+    )  # Use the actual cookie name
 
     return {"detail": "Successfully logged out"}
 
