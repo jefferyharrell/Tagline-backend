@@ -38,7 +38,11 @@ def scan_photos(
         return {"status": "already_running"}
 
     def scan_logic():
-        # Placeholder for real scan logic
+        # Real scan logic: import new photos with metadata
+        import logging
+
+        from PIL import Image, UnidentifiedImageError
+
         provider = app.state.get_photo_storage_provider(app)
         repo = PhotoRepository(db)
         try:
@@ -48,12 +52,32 @@ def scan_photos(
             new_files = storage_files - db_filenames
             imported = []
             for fname in new_files:
-                photo = repo.create(filename=fname)
+                logging.debug(f"[scan] Processing file: {fname}")
+                width = height = None
+                try:
+                    with provider.retrieve(fname) as f:
+                        with Image.open(f) as img:
+                            width, height = img.width, img.height
+                    logging.debug(
+                        f"[scan] Extracted: {fname} width={width} height={height}"
+                    )
+                except (FileNotFoundError, UnidentifiedImageError, OSError) as e:
+                    logging.warning(
+                        f"[scan] Skipping unreadable/corrupt image '{fname}': {e}"
+                    )
+                    continue
+                # Add more metadata extraction here as needed
+                photo = repo.create(
+                    filename=fname, metadata={"width": width, "height": height}
+                )
                 imported.append(photo.filename)
+                logging.info(
+                    f"[scan] Imported: {fname} (width={width}, height={height})"
+                )
             # Optionally: store results in app.state for /health, etc.
-        except Exception:
-            # Log errors or store in app.state
-            pass
+        except Exception as e:
+            logging.error(f"Scan failed: {e}")
+            # Optionally: store error in app.state
         finally:
             # Release lock if needed (asyncio.Lock auto-releases with context mgr)
             pass

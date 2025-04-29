@@ -25,13 +25,15 @@ class PhotoRepository:
         Create and persist a new Photo.
         Args:
             filename: The name of the photo file.
-            metadata: Dict of supported metadata fields. Currently supports 'description'.
+            metadata: Dict of supported metadata fields. Supports 'description', 'width', 'height'.
         Returns:
             The created Photo instance.
         """
         meta = metadata or {}
         desc = meta.get("description")
-        photo = Photo(filename=filename, description=desc)
+        width = meta.get("width")
+        height = meta.get("height")
+        photo = Photo(filename=filename, description=desc, width=width, height=height)
         self.db.add(photo)
         self.db.commit()
         self.db.refresh(photo)

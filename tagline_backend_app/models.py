@@ -27,6 +27,8 @@ class Photo(Base):
         id: Unique identifier (UUID, primary key)
         filename: Name of the photo file
         description: Optional description of the photo
+        width: Image width in pixels (nullable for legacy rows)
+        height: Image height in pixels (nullable for legacy rows)
         created_at: Timezone-aware timestamp when the photo was added (UTC)
         updated_at: Timezone-aware timestamp when the photo was last modified (UTC)
     """
@@ -36,6 +38,8 @@ class Photo(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     filename: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    width: Mapped[Optional[int]] = mapped_column(nullable=True)
+    height: Mapped[Optional[int]] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )

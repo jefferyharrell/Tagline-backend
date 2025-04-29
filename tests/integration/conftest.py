@@ -26,6 +26,9 @@ def test_client():
     original_app_env = os.environ.get("APP_ENV")
 
     os.environ["APP_ENV"] = "test"
+    # Force in-memory storage for integration tests to avoid hitting live services (e.g., Dropbox)
+    original_storage_provider = os.environ.get("STORAGE_PROVIDER")
+    os.environ["STORAGE_PROVIDER"] = "memory"
     # Use TEST_DATABASE_URL for all integration tests
     test_db_url = (
         os.environ.get("TEST_DATABASE_URL")
@@ -77,6 +80,11 @@ def test_client():
         del os.environ["APP_ENV"]
     else:
         os.environ["APP_ENV"] = original_app_env
+    # Restore STORAGE_PROVIDER
+    if original_storage_provider is None:
+        del os.environ["STORAGE_PROVIDER"]
+    else:
+        os.environ["STORAGE_PROVIDER"] = original_storage_provider
 
     # --- Key change: Override get_settings dependency ---
     # Ensure that dependency injection uses *our* test_settings
