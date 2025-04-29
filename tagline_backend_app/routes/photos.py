@@ -189,10 +189,10 @@ def get_photo_thumbnail(
     _=Depends(verify_api_key),
 ):
     """
-    Retrieve a 512x512 lossy WebP thumbnail for a photo by unique ID.
+    Retrieve a 512x384 lossy WebP thumbnail for a photo by unique ID (center-cropped, no padding).
 
     - **id**: UUID of the photo to retrieve the thumbnail for.
-    - **Returns**: Raw WebP image bytes.
+    - **Returns**: Raw WebP image bytes (512x384, cropped, lossy, no transparency).
     - **404**: Returned if photo or original image not found, or if image format is unsupported/corrupt.
     - **422**: Returned if the ID is not a valid UUID.
     - **500**: Returned if thumbnail generation fails unexpectedly.
@@ -261,34 +261,39 @@ def get_photo_thumbnail(
 
         img = Image.open(io.BytesIO(image_data))
 
-        # Ensure image is in RGB or RGBA mode for WebP saving
-        if img.mode not in ["RGB", "RGBA"]:
+        # Ensure image is in RGB mode for WebP saving (no alpha)
+        if img.mode != "RGB":
             logger.debug(
-                f"Converting image {id} from mode {img.mode} to RGBA for thumbnail."
+                f"Converting image {id} from mode {img.mode} to RGB for thumbnail."
             )
-            img = img.convert("RGBA")
+            img = img.convert("RGB")
 
-        # Create the thumbnail, maintaining aspect ratio, fitting within 512x512
-        img.thumbnail((512, 512), Image.Resampling.LANCZOS)
+        # Desired thumbnail size
+        target_w, target_h = 512, 384
 
-        # Create a new 512x512 blank RGBA image (transparent background)
-        thumbnail_bg = Image.new("RGBA", (512, 512), (255, 255, 255, 0))
+        # Calculate crop (center crop)
+        img_ratio = img.width / img.height
+        target_ratio = target_w / target_h
+        if img_ratio > target_ratio:
+            # Image is wider than target: crop horizontally
+            new_width = int(target_ratio * img.height)
+            left = (img.width - new_width) // 2
+            right = left + new_width
+            top, bottom = 0, img.height
+        else:
+            # Image is taller than target: crop vertically
+            new_height = int(img.width / target_ratio)
+            top = (img.height - new_height) // 2
+            bottom = top + new_height
+            left, right = 0, img.width
+        img_cropped = img.crop((left, top, right, bottom))
 
-        # Calculate position to paste the thumbnail in the center
-        paste_x = (512 - img.width) // 2
-        paste_y = (512 - img.height) // 2
+        # Resize to target size
+        img_thumb = img_cropped.resize((target_w, target_h), Image.Resampling.LANCZOS)
 
-        # Paste the thumbnail onto the background
-        thumbnail_bg.paste(
-            img, (paste_x, paste_y), img if img.mode == "RGBA" else None
-        )  # Use mask if RGBA
-
-        # Save to a bytes buffer as lossy WebP
+        # Save to a bytes buffer as lossy WebP (no transparency)
         buffer = io.BytesIO()
-        # Use RGBA to preserve potential transparency from PNGs/HEICs
-        thumbnail_bg.save(
-            buffer, format="WEBP", quality=80, method=4
-        )  # method=4 is a good balance
+        img_thumb.save(buffer, format="WEBP", quality=80, method=4)
         thumbnail_bytes = buffer.getvalue()
 
     except Exception:
