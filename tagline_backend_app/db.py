@@ -38,18 +38,20 @@ def get_engine(db_url: str | None = None):
     poolclass = NullPool  # Default for non-SQLite
 
     if url and url.startswith("sqlite"):
-        # Use StaticPool for SQLite in-memory or file DBs
-        # Ensure single connection for in-memory (:memory:)
-        # check_same_thread=False is required for SQLite with FastAPI
+        # Use StaticPool for ALL SQLite in-memory DBs (including shared cache URIs)
+        # This ensures all connections share the same in-memory DB in the same process.
+        # Required for reliable testing with sqlite:///:memory: and sqlite:///file::memory:?cache=shared
         poolclass = StaticPool
         connect_args = {"check_same_thread": False}
         logger.info(
-            "Configuring SQLite engine with StaticPool and check_same_thread=False."
+            "Configuring SQLite engine with StaticPool and check_same_thread=False for in-memory or shared-cache DB."
         )
 
     try:
         engine = create_engine(url, poolclass=poolclass, connect_args=connect_args)
-        logger.info("SQLAlchemy engine created successfully.")
+        logger.info(
+            f"SQLAlchemy engine created successfully. id(engine)={id(engine)}, url={url}"
+        )
         return engine
     except Exception as e:
         logger.exception("Failed to create SQLAlchemy engine.")

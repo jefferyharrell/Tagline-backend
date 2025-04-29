@@ -8,14 +8,26 @@ services:
       - .env
     volumes:
       - ../tagline-backend:/app # Mount source code for live reload
-      - dbdata:/app/data      # Mount persistent data volume
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     restart: unless-stopped
     command: uvicorn tagline_backend_app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: tagline-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tagline
+      POSTGRES_PASSWORD: tagline
+      POSTGRES_DB: tagline
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:
-    driver: local
-  dbdata:
     driver: local

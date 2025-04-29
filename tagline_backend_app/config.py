@@ -55,9 +55,10 @@ class Settings(BaseSettings):
         description="Which storage backend to use (e.g., 'filesystem', 's3', 'dropbox'). Defaults to 'filesystem'.",
     )
     DATABASE_URL: str = Field(
-        default="sqlite:////data/tagline.db",
-        description="Database connection string. Defaults to SQLite file in /data volume if not set.",
-    )
+        default=...,
+        description="Database connection string. REQUIRED. Must be set via environment variable for all environments.",
+    )  # No default: fail fast if missing
+
     REDIS_URL: Optional[str] = Field(
         default=None,
         description="Redis connection string for token storage. Must be set in production and development.",
@@ -131,6 +132,12 @@ class Settings(BaseSettings):
                 and os.environ.get("DATABASE_URL") is None
             ):
                 kwargs["DATABASE_URL"] = "sqlite:///:memory:"
+
+        # Fail fast if DATABASE_URL is missing
+        if not kwargs.get("DATABASE_URL") and not os.environ.get("DATABASE_URL"):
+            raise RuntimeError(
+                "DATABASE_URL environment variable is required but not set. Please set it in your environment or .env file."
+            )
 
         super().__init__(**kwargs)
 

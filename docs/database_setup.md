@@ -3,8 +3,27 @@
 This guide explains how to configure, initialize, and manage the database for the Tagline backend.
 
 ## Supported Databases
-- **SQLite** (default, file-based or in-memory)
-- **PostgreSQL** (recommended for production)
+- **SQLite** (for local development/testing)
+- **PostgreSQL** (for production or advanced local setups)
+
+**IMPORTANT: `DATABASE_URL` is now required for all environments. There is no default!**
+
+### Setting DATABASE_URL
+
+- **Local dev/test (in-memory SQLite):**
+  - `DATABASE_URL=sqlite:///:memory:`
+- **Local dev (file-based SQLite):**
+  - `DATABASE_URL=sqlite:///./tagline.db`
+- **Production (Postgres example):**
+  - `DATABASE_URL=postgresql://user:password@localhost:5432/tagline`
+
+### Troubleshooting
+
+If you see an error like:
+
+    RuntimeError: DATABASE_URL environment variable is required but not set. Please set it in your environment or .env file.
+
+You must set `DATABASE_URL` in your environment or `.env` file before running the backend.
 
 ## Quick Start (Development)
 

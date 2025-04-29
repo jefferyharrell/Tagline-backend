@@ -9,12 +9,12 @@ from fastapi import APIRouter, Request
 from ..constants import API_VERSION, APP_NAME
 from .health import router as health_router
 from .photos import router as photos_router
-from .rescan import router as rescan_router
+from .scan import router as scan_router
 
 router = APIRouter()
 router.include_router(photos_router)
 router.include_router(health_router)
-router.include_router(rescan_router)
+router.include_router(scan_router)
 
 APP_ENV = os.environ.get("APP_ENV", "production").lower()
 

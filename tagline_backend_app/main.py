@@ -160,6 +160,14 @@ def create_app(settings=None) -> FastAPI:
 
     app.state.get_photo_storage_provider = get_photo_storage_provider
 
+    # --- Ensure tables exist for test DB ---
+    if getattr(settings, "APP_ENV", None) == "test":
+        from tagline_backend_app.db import Base, get_engine
+
+        engine = get_engine()
+        Base.metadata.create_all(bind=engine)
+        logger.info("Test environment detected: created all tables for in-memory DB.")
+
     # Initialize HEIF support for Pillow
     import pillow_heif
 

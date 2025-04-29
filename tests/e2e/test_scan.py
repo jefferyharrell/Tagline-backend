@@ -1,5 +1,5 @@
 """
-E2E test for POST /rescan endpoint with API key authentication.
+E2E test for POST /scan endpoint with API key authentication.
 Ensures endpoint returns 200 and a valid response contract.
 """
 
@@ -17,12 +17,18 @@ DOTENV = dotenv_values(DOTENV_PATH)
 API_KEY = DOTENV.get("TAGLINE_API_KEY")
 
 
-def test_rescan_endpoint():
-    """E2E: POST /rescan with valid API key returns 200 and valid contract."""
+def test_scan_endpoint():
+    """
+    E2E: POST /scan with valid API key returns 200 and valid contract.
+    As of 2025-04-29, /scan is async/idempotent:
+      - Returns {"status": "started"} if scan is triggered
+      - Returns {"status": "already_running"} if scan is in progress
+    In the future, scan results will be available via /health or a similar endpoint.
+    """
     assert (
         API_KEY
     ), f"TAGLINE_API_KEY must be set in the .env file for E2E tests. Looked in {DOTENV_PATH}"
-    url = f"{BACKEND_URL}/rescan"
+    url = f"{BACKEND_URL}/scan"
     headers = {"x-api-key": API_KEY}
     response = requests.post(url, headers=headers, timeout=10)
     assert (
@@ -30,13 +36,9 @@ def test_rescan_endpoint():
     ), f"Expected 200, got {response.status_code}: {response.text}"
     data = response.json()
     assert isinstance(data, dict), f"Expected dict, got {type(data)}: {data}"
-    assert "imported" in data, f"Missing 'imported' key: {data}"
-    assert "imported_count" in data, f"Missing 'imported_count' key: {data}"
-    assert isinstance(data["imported"], list), f"'imported' should be a list: {data}"
-    assert isinstance(
-        data["imported_count"], int
-    ), f"'imported_count' should be int: {data}"
-    # Optionally: imported_count should match len(imported)
-    assert data["imported_count"] == len(
-        data["imported"]
-    ), f"imported_count ({data['imported_count']}) does not match len(imported) ({len(data['imported'])})"
+    assert "status" in data, f"Missing 'status' key: {data}"
+    assert data["status"] in {
+        "started",
+        "already_running",
+    }, f"Unexpected status: {data['status']}"
+    # TODO: When scan results are available via /health, add follow-up checks here.

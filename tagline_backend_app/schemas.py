@@ -49,6 +49,8 @@ class PhotoMetadataFields(BaseModel):
     """Extensible metadata fields for a photo (spec-compliant)."""
 
     description: str | None = None  # Required for MVP, add more fields as needed
+    width: int | None = None
+    height: int | None = None
 
 
 class Photo(BaseModel):

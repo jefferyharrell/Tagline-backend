@@ -19,8 +19,10 @@ def test_settings_env_loading(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.delenv("CORS_ALLOWED_ORIGINS", raising=False)
     monkeypatch.delenv("DATABASE_URL", raising=False)
-    s = Settings()
-    assert s.APP_ENV == "production"
+    with pytest.raises(
+        RuntimeError, match="DATABASE_URL environment variable is required"
+    ):
+        Settings()
 
 
 def test_settings_defaults(monkeypatch):
@@ -28,10 +30,10 @@ def test_settings_defaults(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.delenv("CORS_ALLOWED_ORIGINS", raising=False)
     monkeypatch.delenv("DATABASE_URL", raising=False)
-    s = Settings()
-    # Defaults from class
-    assert s.CORS_ALLOWED_ORIGINS == ""
-    assert s.STORAGE_PROVIDER == "filesystem"
+    with pytest.raises(
+        RuntimeError, match="DATABASE_URL environment variable is required"
+    ):
+        Settings()
 
 
 def test_settings_test_overrides(monkeypatch):
