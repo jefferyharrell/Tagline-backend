@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: tagline-backend-dev
     env_file:
-      - .env # Load variables from .env in the tagline-infra directory
+      - .env
     volumes:
       - ../tagline-backend:/app # Mount source code for live reload
       - dbdata:/app/data      # Mount persistent data volume
